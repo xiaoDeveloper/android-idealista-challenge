@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="space_4">4dp</dimen>
+    <dimen name="space_8">8dp</dimen>
+    <dimen name="space_12">12dp</dimen>
+    <dimen name="space_16">16dp</dimen>
+    <dimen name="space_24">24dp</dimen>
+    <dimen name="space_32">32dp</dimen>
+
+    <dimen name="screen_content_inset">16dp</dimen>
+    <dimen name="card_content_padding">16dp</dimen>
+    <dimen name="section_spacing">24dp</dimen>
+    <dimen name="compact_gap">8dp</dimen>
+    <dimen name="card_corner_radius">12dp</dimen>
+    <dimen name="outline_width">1dp</dimen>
+    <dimen name="toolbar_height">56dp</dimen>
+    <dimen name="icon_size">24dp</dimen>
+    <dimen name="min_interactive_target">48dp</dimen>
+    <dimen name="button_height">48dp</dimen>
+
+    <dimen name="detail_price_text_size">32sp</dimen>
+    <dimen name="listing_price_text_size">24sp</dimen>
+    <dimen name="screen_title_text_size">22sp</dimen>
+    <dimen name="card_title_text_size">18sp</dimen>
+    <dimen name="body_text_size">16sp</dimen>
+    <dimen name="supporting_text_size">14sp</dimen>
+</resources>

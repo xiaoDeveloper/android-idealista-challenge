@@ -13,7 +13,7 @@ feature is approved to include meaningful automated coverage.
 - [X] T001 Update `gradle/libs.versions.toml` and `app/build.gradle.kts` to stable AGP 9.3.1-compatible dependencies, compile/target SDK 36, min SDK 24, and Java/Kotlin 17.
 - [X] T002 Enable ViewBinding and add the approved Lifecycle, Navigation, RecyclerView, Retrofit, OkHttp, Kotlin serialization, Coil, Room, and Coroutines dependencies in `app/build.gradle.kts`.
 - [ ] T003 [P] Add `INTERNET` permission and launcher `MainActivity` declaration in `app/src/main/AndroidManifest.xml`.
-- [ ] T004 [P] Add Spanish strings, theme tokens, and accessible content descriptions in `app/src/main/res/values/strings.xml` and related resources.
+- [X] T004 [P] Add Spanish strings, theme tokens, and accessible content descriptions in `app/src/main/res/values/strings.xml` and related resources.
 
 ## Phase 2: Foundational
 

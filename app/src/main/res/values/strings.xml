@@ -1,3 +1,48 @@
 <resources>
     <string name="app_name">Idealista Challenge</string>
+
+    <string name="listing_title">Viviendas</string>
+    <string name="detail_title">Detalle de vivienda</string>
+
+    <string name="loading_list">Cargando viviendas</string>
+    <string name="loading_detail">Cargando detalle de la vivienda</string>
+    <string name="empty_list_title">No hay viviendas disponibles</string>
+    <string name="empty_list_message">No hemos encontrado viviendas para mostrar.</string>
+    <string name="error_list_title">No se han podido cargar las viviendas</string>
+    <string name="error_list_message">Comprueba tu conexión e inténtalo de nuevo.</string>
+    <string name="error_detail_title">No se ha podido cargar el detalle</string>
+    <string name="error_detail_message">Comprueba tu conexión e inténtalo de nuevo.</string>
+    <string name="retry">Reintentar</string>
+
+    <plurals name="results_count">
+        <item quantity="one">%1$d vivienda disponible</item>
+        <item quantity="other">%1$d viviendas disponibles</item>
+    </plurals>
+
+    <string name="favorite_save">Guardar vivienda</string>
+    <string name="favorite_remove">Quitar de guardados</string>
+    <string name="favorite_saved_date">Guardado el %1$s</string>
+    <string name="favorite_accessibility_save">Guardar vivienda</string>
+    <string name="favorite_accessibility_remove">Quitar vivienda de guardados</string>
+    <string name="favorite_accessibility_remove_with_date">Quitar vivienda de guardados. %1$s</string>
+
+    <string name="content_description_back">Volver</string>
+    <string name="content_description_retry">Reintentar carga</string>
+    <string name="property_image_content_description">Imagen de la vivienda</string>
+    <string name="property_image_placeholder">Imagen no disponible</string>
+    <string name="property_image_placeholder_content_description">Imagen de la vivienda no disponible</string>
+
+    <string name="property_type_fallback">Vivienda</string>
+    <string name="property_location_fallback">Ubicación no disponible</string>
+    <string name="property_size">%1$d m²</string>
+    <plurals name="property_rooms">
+        <item quantity="one">%1$d habitación</item>
+        <item quantity="other">%1$d habitaciones</item>
+    </plurals>
+    <plurals name="property_bathrooms">
+        <item quantity="one">%1$d baño</item>
+        <item quantity="other">%1$d baños</item>
+    </plurals>
+    <string name="property_characteristics_title">Características</string>
+    <string name="property_description_title">Descripción</string>
 </resources>
