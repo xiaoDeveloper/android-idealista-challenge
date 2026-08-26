@@ -17,9 +17,9 @@ feature is approved to include meaningful automated coverage.
 
 ## Phase 2: Foundational
 
-- [ ] T005 [P] Create immutable app models in `app/src/main/java/com/xiao/idealistachallenge/model/PropertyAd.kt`, `PropertyDetails.kt`, and `Favorite.kt` from `data-model.md`.
-- [ ] T006 [P] Create Retrofit DTOs, serializer configuration, and `IdealistaApi` in `app/src/main/java/com/xiao/idealistachallenge/data/remote/` according to `contracts/idealista-api.md`.
-- [ ] T007 [P] Create Room entity, DAO, database, and favorite repository in `app/src/main/java/com/xiao/idealistachallenge/data/local/` and `data/repository/FavoriteRepository.kt`.
+- [X] T005 [P] Create immutable app models in `app/src/main/java/com/xiao/idealistachallenge/model/PropertyAd.kt`, `PropertyDetails.kt`, and `Favorite.kt` from `data-model.md`.
+- [X] T006 [P] Create Retrofit DTOs, serializer configuration, and `IdealistaApi` in `app/src/main/java/com/xiao/idealistachallenge/data/remote/` according to `contracts/idealista-api.md`.
+- [X] T007 [P] Create Room entity, DAO, database, and favorite repository in `app/src/main/java/com/xiao/idealistachallenge/data/local/` and `data/repository/FavoriteRepository.kt`.
 - [ ] T008 Create the Application dependency container and ViewModel factories in `app/src/main/java/com/xiao/idealistachallenge/core/` without introducing a service locator or DI framework.
 - [ ] T009 Create `MainActivity`, navigation graph, and shared error/date helpers in `app/src/main/java/com/xiao/idealistachallenge/` and `app/src/main/res/navigation/nav_graph.xml`.
 
