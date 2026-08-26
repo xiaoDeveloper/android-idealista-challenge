@@ -69,3 +69,11 @@ a check, record the failure and its cause in the handoff.
 - AI roles, human review, and evidence: update `docs/ai/AI_USAGE.md`.
 
 Review the complete diff and `git diff --check` before committing.
+
+
+Parallel task workers must not update shared coordination files
+such as tasks.md. Task completion state is reconciled by a
+coordinator after verification.
+
+If parallel tasks need to modify the same file, serialize those
+writes or assign a single owner for that file.
