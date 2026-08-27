@@ -81,8 +81,8 @@ process recreation, and synchronized list/detail state all pass.
   -> T013 -> T012 -> focused tests, full unit tests, debug assembly, and a connected
   device live-list smoke test. T014-T016 remain complete but Phase 3 is not complete
   until the reopened tasks have fresh evidence.
-- T017 and T019 remain pending; their shared remote DTO usage must follow the corrected
-  fixture/provenance strategy when Phase 4 begins.
+- T017 and T019 use the corrected fixture/provenance strategy for their shared remote
+  DTO usage.
 
 ## Implementation strategy
 
