@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/listingCard"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/space_16"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardBackgroundColor="?attr/colorSurface"
+    app:cardCornerRadius="@dimen/card_corner_radius"
+    app:cardElevation="0dp"
+    app:strokeColor="?attr/colorOutline"
+    app:strokeWidth="@dimen/outline_width">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="184dp"
+            android:background="@color/colorSurfaceVariant">
+
+            <ImageView
+                android:id="@+id/listingImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/property_image_content_description"
+                android:scaleType="centerCrop"
+                tools:src="@android:drawable/ic_menu_gallery" />
+
+            <TextView
+                android:id="@+id/listingImagePlaceholder"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/colorSurfaceVariant"
+                android:gravity="center"
+                android:importantForAccessibility="yes"
+                android:text="@string/property_image_placeholder"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="@dimen/supporting_text_size"
+                tools:visibility="gone" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/card_content_padding">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/listingSummary"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="@dimen/card_title_text_size"
+                    android:textStyle="bold"
+                    tools:text="Piso en Centro, Madrid" />
+
+                <ImageButton
+                    android:id="@+id/favoriteButton"
+                    android:layout_width="@dimen/min_interactive_target"
+                    android:layout_height="@dimen/min_interactive_target"
+                    android:layout_marginStart="@dimen/space_8"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/favorite_accessibility_save"
+                    android:minWidth="@dimen/min_interactive_target"
+                    android:minHeight="@dimen/min_interactive_target"
+                    android:padding="@dimen/space_12"
+                    android:src="@android:drawable/btn_star_big_off"
+                    app:tint="?attr/colorOnSurface"
+                    android:visibility="visible" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/listingPrice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_8"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="@dimen/listing_price_text_size"
+                android:textStyle="bold"
+                tools:text="125.000 €" />
+
+            <TextView
+                android:id="@+id/listingFacts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_8"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="@dimen/supporting_text_size"
+                tools:text="80 m² · 3 habitaciones · 2 baños" />
+
+            <TextView
+                android:id="@+id/favoriteDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_8"
+                android:textColor="?attr/colorOnPrimaryContainer"
+                android:textSize="@dimen/supporting_text_size"
+                android:visibility="gone"
+                tools:text="Guardado el 26/08/2026"
+                tools:visibility="visible" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
