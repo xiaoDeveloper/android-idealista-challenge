@@ -1,6 +1,7 @@
 package com.xiao.idealistachallenge.data.remote
 
 import java.math.BigDecimal
+import java.nio.charset.StandardCharsets
 import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.mockwebserver.MockResponse
@@ -38,57 +39,31 @@ class IdealistaApiMappingTest {
     }
 
     @Test
-    fun `listAds maps representative fields and requests the listing endpoint`() = runBlocking {
+    fun `listAds maps the dated observed fixture and requests the listing endpoint`() = runBlocking {
         server.enqueue(
             MockResponse()
                 .setHeader("Content-Type", "application/json")
-                .setBody(
-                    """
-                    [{
-                      "propertyCode": "ad-42",
-                      "thumbnail": "https://images.example/ad-42-thumb.jpg",
-                      "price": 123456.78,
-                      "priceInfo": {
-                        "price": 123456.78,
-                        "amount": 123456.78,
-                        "currencySuffix": "€"
-                      },
-                      "propertyType": "flat",
-                      "address": "Calle Mayor, 42",
-                      "municipality": "Madrid",
-                      "district": "Centro",
-                      "size": 85,
-                      "rooms": 3,
-                      "bathrooms": 2,
-                      "description": "Bright central home",
-                      "multimedia": {
-                        "images": [{"url": "https://images.example/ad-42.jpg"}]
-                      },
-                      "unknownField": "ignored"
-                    }]
-                    """.trimIndent(),
-                ),
+                .setBody(fixture("fixtures/idealista/list-observed-2026-08-27.json")),
         )
 
-        val ad = api.listAds().single()
+        val ads = api.listAds()
         val request = server.takeRequest()
 
         assertEquals("GET", request.method)
         assertEquals("/list.json", request.path)
-        assertEquals("ad-42", ad.propertyCode)
-        assertEquals("https://images.example/ad-42-thumb.jpg", ad.thumbnail)
-        assertEquals(BigDecimal("123456.78"), ad.price)
-        assertEquals(BigDecimal("123456.78"), ad.priceInfo?.price)
-        assertEquals("€", ad.priceInfo?.currencySuffix)
-        assertEquals("flat", ad.propertyType)
-        assertEquals("Calle Mayor, 42", ad.address)
-        assertEquals("Madrid", ad.municipality)
-        assertEquals("Centro", ad.district)
-        assertEquals(85, ad.size)
-        assertEquals(3, ad.rooms)
-        assertEquals(2, ad.bathrooms)
-        assertEquals("Bright central home", ad.description)
-        assertEquals("https://images.example/ad-42.jpg", ad.multimedia?.images?.single()?.url)
+        assertEquals(4, ads.size)
+        assertEquals("1", ads[0].propertyCode)
+        assertEquals(BigDecimal("1195000.0"), ads[0].price)
+        assertEquals(BigDecimal("1195000.0"), ads[0].priceInfo?.price?.amount)
+        assertEquals("€", ads[0].priceInfo?.price?.currencySuffix)
+        assertEquals(BigDecimal("133.0"), ads[0].size)
+        assertEquals("https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/e1/0e/5e/1459427188.webp", ads[0].thumbnail)
+        assertEquals("2", ads[1].propertyCode)
+        assertEquals(BigDecimal("2750000.0"), ads[1].price)
+        assertEquals(BigDecimal("1200.0"), ads[1].priceInfo?.price?.amount)
+        assertEquals("€/mes", ads[1].priceInfo?.price?.currencySuffix)
+        assertEquals(BigDecimal("241.0"), ads[1].size)
+        assertEquals(7, ads[1].multimedia?.images?.size)
     }
 
     @Test
@@ -111,5 +86,11 @@ class IdealistaApiMappingTest {
         }
 
         assertEquals(503, exception.code())
+    }
+
+    private fun fixture(path: String): String = checkNotNull(
+        javaClass.classLoader?.getResource(path),
+    ).openStream().use { input ->
+        input.readBytes().toString(StandardCharsets.UTF_8)
     }
 }

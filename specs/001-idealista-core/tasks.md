@@ -18,7 +18,7 @@ feature is approved to include meaningful automated coverage.
 ## Phase 2: Foundational
 
 - [X] T005 [P] Create immutable app models in `app/src/main/java/com/xiao/idealistachallenge/model/PropertyAd.kt`, `PropertyDetails.kt`, and `Favorite.kt` from `data-model.md`.
-- [ ] T006 Correct Retrofit DTOs, decimal serializer configuration, and `IdealistaApi` support in `app/src/main/java/com/xiao/idealistachallenge/data/remote/` according to the verified nested-price and decimal-size contract.
+- [X] T006 Correct Retrofit DTOs, decimal serializer configuration, and `IdealistaApi` support in `app/src/main/java/com/xiao/idealistachallenge/data/remote/` according to the verified nested-price and decimal-size contract.
 - [X] T007 [P] Create Room entity, DAO, database, and favorite repository in `app/src/main/java/com/xiao/idealistachallenge/data/local/` and `data/repository/FavoriteRepository.kt`.
 - [X] T008 Create the Application dependency container and ViewModel factories in `app/src/main/java/com/xiao/idealistachallenge/core/` without introducing a service locator or DI framework.
 - [X] T009 Create `MainActivity`, navigation graph, and shared error/date helpers in `app/src/main/java/com/xiao/idealistachallenge/` and `app/src/main/res/navigation/nav_graph.xml`.
@@ -29,10 +29,10 @@ feature is approved to include meaningful automated coverage.
 every returned ad is rendered; empty, error, retry, and favorite-row states are covered
 without the detail screen.
 
-- [ ] T010 [US1] Add `app/src/test/resources/fixtures/idealista/list-observed-2026-08-27.json` from the documented official observation, then update MockWebServer mapping/error tests in `app/src/test/java/com/xiao/idealistachallenge/data/remote/IdealistaApiMappingTest.kt` to assert the nested price and decimal-size wire structure offline.
-- [ ] T011 [US1] Update listing repository tests in `app/src/test/java/com/xiao/idealistachallenge/data/repository/AdRepositoryTest.kt` for nested-price precedence, top-level fallback without nested suffix, exact-integral size normalization, invalid optional size omission, empty response, malformed payload, and transport error.
-- [ ] T012 [US1] Adapt ViewModel StateFlow test DTO helpers in `app/src/test/java/com/xiao/idealistachallenge/ui/listing/ListingViewModelTest.kt` to the corrected wire DTO shape and revalidate loading, content, empty, error, retry, and favorite-date projection.
-- [ ] T013 Implement verified list repository normalization in `app/src/main/java/com/xiao/idealistachallenge/data/repository/AdRepository.kt`: preserve nested amount/suffix pairs, use top-level price only as a suffix-free fallback, and normalize optional decimal size to `Int?` only when exact and valid.
+- [X] T010 [US1] Add `app/src/test/resources/fixtures/idealista/list-observed-2026-08-27.json` from the documented official observation, then update MockWebServer mapping/error tests in `app/src/test/java/com/xiao/idealistachallenge/data/remote/IdealistaApiMappingTest.kt` to assert the nested price and decimal-size wire structure offline.
+- [X] T011 [US1] Update listing repository tests in `app/src/test/java/com/xiao/idealistachallenge/data/repository/AdRepositoryTest.kt` for nested-price precedence, top-level fallback without nested suffix, exact-integral size normalization, invalid optional size omission, empty response, malformed payload, and transport error.
+- [X] T012 [US1] Adapt ViewModel StateFlow test DTO helpers in `app/src/test/java/com/xiao/idealistachallenge/ui/listing/ListingViewModelTest.kt` to the corrected wire DTO shape and revalidate loading, content, empty, error, retry, and favorite-date projection.
+- [X] T013 Implement verified list repository normalization in `app/src/main/java/com/xiao/idealistachallenge/data/repository/AdRepository.kt`: preserve nested amount/suffix pairs, use top-level price only as a suffix-free fallback, and normalize optional decimal size to `Int?` only when exact and valid.
 - [X] T014 Implement `ListingViewModel` and immutable row UI models in `app/src/main/java/com/xiao/idealistachallenge/ui/listing/ListingViewModel.kt`.
 - [X] T015 [P] [US1] Create listing card and screen XML in `app/src/main/res/layout/item_listing.xml` and `fragment_listing.xml` with loading, empty, error, retry, and accessible favorite controls.
 - [X] T016 Implement `ListingAdapter` and `ListingFragment` in `app/src/main/java/com/xiao/idealistachallenge/ui/listing/`, collecting state with `repeatOnLifecycle`.

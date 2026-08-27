@@ -8,6 +8,7 @@ import com.xiao.idealistachallenge.data.remote.IdealistaApi
 import com.xiao.idealistachallenge.data.remote.ImageDto
 import com.xiao.idealistachallenge.data.remote.MultimediaDto
 import com.xiao.idealistachallenge.data.remote.PriceInfoDto
+import com.xiao.idealistachallenge.data.remote.PriceValueDto
 import com.xiao.idealistachallenge.data.remote.PropertyAdDto
 import com.xiao.idealistachallenge.data.remote.PropertyDetailsDto
 import com.xiao.idealistachallenge.data.repository.AdRepository
@@ -259,12 +260,14 @@ private fun adDto(propertyCode: String, price: BigDecimal): PropertyAdDto = Prop
     propertyCode = propertyCode,
     thumbnail = "https://images.example/$propertyCode-thumbnail.jpg",
     price = price,
-    priceInfo = PriceInfoDto(currencySuffix = "€"),
+    priceInfo = PriceInfoDto(
+        price = PriceValueDto(amount = price, currencySuffix = "€"),
+    ),
     propertyType = "flat",
     address = "Calle Example, 1",
     municipality = "Madrid",
     district = "Centro",
-    size = 80,
+    size = BigDecimal("80.0"),
     rooms = 3,
     bathrooms = 2,
     description = "A bright home",

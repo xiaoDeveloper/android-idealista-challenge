@@ -1,0 +1,261 @@
+[
+  {
+    "propertyCode": "1",
+    "thumbnail": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/e1/0e/5e/1459427188.webp",
+    "floor": "2",
+    "price": 1195000.0,
+    "priceInfo": {
+      "price": {
+        "amount": 1195000.0,
+        "currencySuffix": "€"
+      }
+    },
+    "propertyType": "flat",
+    "operation": "sale",
+    "size": 133.0,
+    "exterior": false,
+    "rooms": 3,
+    "bathrooms": 2,
+    "address": "calle de Lagasca",
+    "province": "Madrid",
+    "municipality": "Madrid",
+    "district": "Barrio de Salamanca",
+    "country": "es",
+    "neighborhood": "Castellana",
+    "latitude": 40.4362687,
+    "longitude": -3.6833686,
+    "description": "Venta.Piso EN EXCLUSIVA. Castellana. Se ofrece en venta vivienda de 133 m² en el exclusivo Barrio de Salamanca, zona Castellana, con 3 dormitorios (uno en suite), 2 baños, amplio salón comedor, cocina independiente con office y lavadero. Cuenta con un amplio patio privado y armarios empotrados en todas las habitaciones. Reformado para optimizar el espacio, ofrece gran potencial para personalizarlo. Ubicado en una de las zonas más exclusivas de Madrid, el Barrio de Salamanca, en la cotizada zona de Castellana, se encuentra este espacioso piso en venta de 133 m² que ofrece una oportunidad única para quienes buscan una vivienda que combine comodidad, ubicación y potencial de actualización. El inmueble cuenta con un salón -comedor, amplio y luminoso, es perfecto para disfrutar de momentos de convivencia con la familia o amigos, y está conectado a un patio de uso privativo, una verdadera joya en pleno centro de la ciudad. Este espacio exterior es ideal para relajarse, organizar comidas al aire libre o incluso para ser transformado en una zona verde que aporte tranquilidad y frescura al hogar. La cocina es independiente y dispone de una cómoda zona de office, perfecta para las comidas cotidianas, además de contar con un práctico lavadero adjunto que facilita las tareas del hogar. Además, dispone de tres amplios dormitorios, destacando el dormitorio principal, que es una suite completa con un baño privado, ofreciendo privacidad y confort. Los otros dos dormitorios también disponen de armarios empotrados, maximizando el almacenamiento en cada habitación.El piso incluye dos cuartos de baño completos, con un diseño moderno y funcional, ideales para el día a día de una familia o para invitados. Cabe destacar que este piso ha sido previamente reformado con una distribución que aprovecha al máximo el espacio disponible, brindando una excelente base para que puedas personalizarlo según tus gustos y necesidades.  MUCHAS DE NUESTRAS PROPIEDADES NO APARECEN EN IDEALISTA, CONSULTA NUESTRA PÁGINA WEB PARA VER MÁS PROPIEDADES EXCLUSIVAS. Sin duda, el distrito selecto por excelencia de Madrid. Pasear por las calles del barrio de Salamanca es contemplar los edificios más elegantes y codiciados de la capital: construcciones históricas de portales señoriales e interiores amplios y altos. Concebido en las últimas décadas del siglo XIX por D. José de Salamanca y Mayol, Marqués de Salamanca, este ensanche de la ciudad conserva intacto su aire aristocrático, que podemos ver en palacetes como el de la Embajada de Italia, por ejemplo. En este epicentro del lujo se localiza la conocida \"Milla de Oro\": un área comercial donde tienen su sede marcas prestigiosas como Dior, Chanel, Prada o Tiffany y Promora. Tiendas como Gallery, BD o Vitra y restaurantes como Ramsés o No, responden a los gustos de un life style moderno y sofisticado. Hablamos de una zona dinámica y segura, de grandes aceras, con un parking casi ilimitado y con una interesante vida nocturna: Nxt Club, Déjate Besar o Le Boutique Club. No faltan las galerías de arte y los espacios dedicados a la cultura como la Fundación March o el museo Lázaro Galdiano. Sin olvidar sus árboles frondosos y la cercanía al parque del Retiro, el gran pulmón verde del centro de Madrid.",
+    "multimedia": {
+      "images": [
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/e1/0e/5e/1459427188.webp",
+          "tag": "livingRoom"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/57/d4/96/1368894539.webp",
+          "tag": "bedroom"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/d3/d6/25/1392239936.webp",
+          "tag": "kitchen"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/f4/6c/90/1433128366.webp",
+          "tag": "bathroom"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/be/57/87/1441354441.webp",
+          "tag": "facade"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/78/22/91/1426052839.webp",
+          "tag": "livingRoom"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/9f/3f/77/1434847290.webp",
+          "tag": "bedroom"
+        }
+      ]
+    },
+    "features": {
+      "hasAirConditioning": true,
+      "hasBoxRoom": false
+    }
+  },
+  {
+    "propertyCode": "2",
+    "thumbnail": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/26/c1/f6/1458542592.webp",
+    "floor": "6",
+    "price": 2750000.0,
+    "priceInfo": {
+      "price": {
+        "amount": 1200.0,
+        "currencySuffix": "€/mes"
+      }
+    },
+    "propertyType": "flat",
+    "operation": "rent",
+    "size": 241.0,
+    "exterior": true,
+    "rooms": 4,
+    "bathrooms": 4,
+    "address": "calle de Fortuny",
+    "province": "Madrid",
+    "municipality": "Madrid",
+    "district": "Chamberí",
+    "country": "es",
+    "neighborhood": "Almagro",
+    "latitude": 40.432172,
+    "longitude": -3.6902537,
+    "description": "Venta.Piso A ESTRENAR. Almagro-Chamberí.En venta, un lujoso piso en la prestigiosa zona de Almagro, Madrid, de 241 m², completamente reformado por un renombrado estudio de arquitectura con acabados de alta calidad. La vivienda cuenta con cuatro habitaciones, cada una con baño en suite, y un total de cinco baños. El piso incluye una plaza de garaje en la finca y un trastero adicional. Con calefacción por gas, aire acondicionado centralizado y servicio de portería, este piso combina elegancia y comodidad. Ubicado en una de las áreas más exclusivas de Madrid, ofrece acceso cercano a diversos servicios y excelente conexión de transporte.  Venta.Piso A ESTRENAR. Almagro-Chamberí.En venta, un lujoso piso ubicado en la prestigiosa zona de Almagro, Madrid, que ofrece una vida de elegancia y comodidad en una de las áreas más exclusivas de la ciudad. Esta impresionante residencia de 241 m² ha sido completamente reformada por un renombrado estudio de arquitectura, que ha aplicado un gusto exquisito y las mejores calidades en cada detalle.  Distribución y Espacios:  ·Salón-Comedor: Al ingresar al piso, se encuentra un amplio salón-comedor que destaca por su luminosidad y diseño elegante. Las grandes ventanas permiten la entrada de abundante luz natural, creando un ambiente acogedor y sofisticado. Los acabados de alta calidad y la cuidada selección de muebles aportan un toque de lujo y confort.  ·Cocina: La cocina, totalmente equipada con electrodomésticos de alta gama, ha sido diseñada para combinar funcionalidad y estética. Los materiales utilizados son de primera calidad, y el diseño contemporáneo asegura un espacio de trabajo cómodo y elegante. Amplios armarios proporcionan suficiente espacio de almacenamiento.  · Dormitorios: La propiedad cuenta con cuatro habitaciones, cada una con su propio baño en suite, lo que garantiza privacidad y confort para todos los residentes. El dormitorio principal es particularmente espacioso, con un vestidor incorporado y un baño en suite que incluye una bañera y una ducha de efecto lluvia. Los otros tres dormitorios también están diseñados con la misma atención al detalle y el uso de materiales de alta calidad.  · Baños: Además de los baños en suite, la vivienda cuenta con un baño adicional para visitas, sumando un total de cinco baños. Todos están equipados con acabados modernos y funcionales, utilizando accesorios de lujo y materiales de primera clase. Servicios y Equipamientos:  · Calefacción y Aire Acondicionado: La propiedad cuenta con calefacción por gas y un sistema de aire acondicionado centralizado, asegurando una temperatura óptima durante todo el año.  · Plaza de Garaje y Trastero: Una plaza de garaje en la propia finca proporciona conveniencia y seguridad para el estacionamiento de vehículos. Además, el trastero adicional ofrece un espacio extra de almacenamiento, ideal para mantener el hogar organizado.  ·Seguridad y Servicio: El edificio cuenta con servicio de portería, lo que añade un nivel adicional de seguridad y comodidad para los residentes. Situado en el corazón de Almagro, una de las zonas más exclusivas y codiciadas de Madrid, este piso ofrece acceso cercano a una amplia gama de servicios, incluyendo restaurantes gourmet, boutiques de lujo, colegios de prestigio y centros culturales. La excelente red de transporte público facilita el acceso a cualquier punto de la ciudad, lo que convierte esta ubicación en un lugar ideal tanto para vivir como para invertir. MUCHAS DE NUESTRAS PROPIEDADES NO APARECEN EN IDEALISTA, CONSULTA NUESTRA PÁGINA WEB PARA VER MÁS PROPIEDADES EXCLUSIVAS. Dicen sus vecinos que Chamberí es uno de los barrios más castizos de Madrid. Y nos les falta razón, aunque también es unos de los más elegantes. Un paseo por sus calles nos hace disfrutar de hermosísimos arbolados, de plazas acogedoras como la de Olavide y de edificios emblemáticos como el Hospital de Maudes, la C.",
+    "multimedia": {
+      "images": [
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/26/c1/f6/1458542592.webp",
+          "tag": "livingRoom"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/5f/b3/19/1459107087.webp",
+          "tag": "livingRoom"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/0e/ec/de/1440418771.webp",
+          "tag": "kitchen"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/45/b0/a4/1407670527.webp",
+          "tag": "bedroom"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/bb/88/57/1446004475.webp",
+          "tag": "bathroom"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/a1/db/3c/1447497280.webp",
+          "tag": "bedroom"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/46/bc/b8/1452030995.webp",
+          "tag": "corridor"
+        }
+      ]
+    },
+    "parkingSpace": {
+      "hasParkingSpace": true,
+      "isParkingSpaceIncludedInPrice": true
+    },
+    "features": {
+      "hasAirConditioning": true,
+      "hasBoxRoom": true
+    }
+  },
+  {
+    "propertyCode": "3",
+    "thumbnail": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/d8/7c/b2/1392008194.webp",
+    "floor": "4",
+    "price": 1100000.0,
+    "priceInfo": {
+      "price": {
+        "amount": 1100000.0,
+        "currencySuffix": "€"
+      }
+    },
+    "propertyType": "flat",
+    "operation": "sale",
+    "size": 164.0,
+    "exterior": true,
+    "rooms": 3,
+    "bathrooms": 2,
+    "address": "calle de Bailén",
+    "province": "Madrid",
+    "municipality": "Madrid",
+    "district": "Centro",
+    "country": "es",
+    "neighborhood": "Palacio",
+    "latitude": 40.4107968,
+    "longitude": -3.7147657,
+    "description": "Venta.Piso. Palacio.Se presenta en venta una vivienda de 164 metros cuadrados en pleno corazón de Madrid, ubicado en la cuarta planta de un edificio exterior con ascensor. Reformado en 2003, cuenta con tres dormitorios (uno habilitado como despacho), dos baños, salón independiente, cocina equipada, aire acondicionado, calefacción individual, servicio de portería y trastero. Ideal para quienes buscan un espacio luminoso y funcional con opciones de actualización. Venta.Piso. Centro. En venta piso en pleno centro de Madrid, con una superficie de 164 metros cuadrados. Esta vivienda se encuentra en la cuarta planta de un edificio exterior que cuenta con ascensor, lo que le garantiza una excelente entrada de luz natural y vistas despejadas. El inmueble fue completamente reformado en el año 2003, y se encuentra en buenas condiciones aunque necesite ciertas actualizaciones para adaptarse a las necesidades actuales de sus futuros propietarios. La distribución del piso es funcional y equilibrada, destacando por su gran luminosidad. Dispone de tres dormitorios, uno de los cuales está actualmente habilitado como despacho. El inmueble cuenta con dos baños completos. El salón, independiente, destaca por su amplitud y es un espacio ideal para disfrutar de momentos de relax y reuniones familiares, mientras que la cocina, también independiente, se vende totalmente equipada. Para mayor comodidad, el piso está equipado con aire acondicionado tipo split en el salón y en dos de los dormitorios, garantizando confort en los meses más cálidos. Además, dispone de calefacción individual, lo que permite controlar de manera eficiente la temperatura del hogar durante todo el año. El edificio cuenta con servicio de portería de lunes a viernes, brindando seguridad y asistencia a los residentes, lo que se suma a la tranquilidad de vivir en un entorno protegido. Adicionalmente, la propiedad incluye un trastero, un valioso espacio de almacenamiento extra que resulta ideal para guardar objetos de uso ocasional o pertenencias que no se necesiten a diario. MUCHAS DE NUESTRAS PROPIEDADES NO APARECEN EN IDEALISTA, CONSULTA NUESTRA PÁGINA WEB PARA VER MÁS PROPIEDADES EXCLUSIVAS. Cada enclave de Madrid tiene su propia narración, su propio encanto. En el caso del barrio de Palacio, hablamos de un área por cuyas calles ha pasado toda la historia de la ciudad: desde el Medievo, cuando Madrid no era más que una fortaleza, hasta el pre-barroco cuando Felipe II la convierte en capital del Reino, pasando por la llegada de los Borbones ya en el siglo XVIII o la eclosión del siglo XX que podemos ver en la parte final de la Gran Vía. En realidad, el barrio de Palacio es una pequeña píldora de la historia de Madrid. Aquí han dejado huella todos los monarcas de España. Por dejar, hasta puso su sello Jose I Bonaparte, ideólogo de la actual Plaza de Oriente.  Esta es una zona muy agradable para vivir, especialmente desde que se peatonalizaron los alrededores del Palacio Real, la catedral de la Almudena y la plaza de Oriente; y más recientemente las calles Arenal y Mayor. Pero junto a sus grandes y apacibles jardines, está el Madrid bullicioso y vitalista. Ese Madrid \"canalla\" lleno de bares típicos, de grandes restaurantes o de espacios gastronómicos como el Mercado de San Miguel. Palacio tiene algo que lo define como barrio: un perfecto equilibrio entre una vida tranquila, y el dinamismo de una gran urbe europea.",
+    "multimedia": {
+      "images": [
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/d8/7c/b2/1392008194.webp",
+          "tag": "livingRoom"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/c8/01/3f/1426404199.webp",
+          "tag": "bedroom"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/3f/63/54/1436843392.webp",
+          "tag": "kitchen"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/6c/dd/2c/1441278735.webp",
+          "tag": "bathroom"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/f2/bd/fe/1452699780.webp",
+          "tag": "livingRoom"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/9b/20/fc/1442658743.webp",
+          "tag": "facade"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/2f/1b/41/1457689022.webp",
+          "tag": "corridor"
+        }
+      ]
+    },
+    "features": {
+      "hasAirConditioning": true,
+      "hasBoxRoom": true
+    }
+  },
+  {
+    "propertyCode": "4",
+    "thumbnail": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/23/3b/b7/1451541217.webp",
+    "floor": "4",
+    "price": 889000.0,
+    "priceInfo": {
+      "price": {
+        "amount": 1000.0,
+        "currencySuffix": "€/mes"
+      }
+    },
+    "propertyType": "flat",
+    "operation": "rent",
+    "size": 94.0,
+    "exterior": false,
+    "rooms": 3,
+    "bathrooms": 2,
+    "address": "calle de la Povedilla",
+    "province": "Madrid",
+    "municipality": "Madrid",
+    "district": "Barrio de Salamanca",
+    "country": "es",
+    "neighborhood": "Goya",
+    "latitude": 40.4226243,
+    "longitude": -3.6719939,
+    "description": "Este exclusivo piso en venta, situado en el prestigioso barrio de Goya, Madrid, cuenta con una superficie total de 94 m² construidos. Recién reformado con acabados de alta calidad, la vivienda ofrece un diseño moderno y funcional, pensado para brindar el máximo confort y estilo a sus propietarios. Se vende completamente amueblado y con la cocina totalmente equipada, lo que lo convierte en una oportunidad única, listo para entrar a vivir sin necesidad de realizar ningún ajuste. Al entrar, un amplio hall de entrada da paso a una luminosa cocina abierta, perfectamente integrada en el elegante salón. La propiedad dispone de tres amplias habitaciones, destacando la habitación principal, que incluye un baño en suite. Además, cuenta con otro baño completo adicional, ideal para dar servicio a las otras dos habitaciones. El piso también tiene un encantador balcón interior, que aporta luminosidad y frescura a las estancias. Ubicado en una de las zonas más exclusivas de Madrid, Goya ofrece un entorno tranquilo y elegante, con una amplia oferta de servicios, boutiques de lujo, restaurantes de alta gama y excelentes conexiones de transporte. Una ubicación privilegiada que combina lo mejor de la vida urbana con un ambiente residencial. Adquirir este piso es una inversión que ofrece calidad de vida, prestigio y un estilo de vida moderno y sofisticado. En Walter Haus, estamos a su disposición para ofrecerle más información y acompañarle en todo el proceso de compra. Walter Haus Real Estate es un grupo inmobiliario con sede en las principales capitales de España, en las principales ubicaciones de Madrid, Barcelona y Costa Brava. Contamos con una experiencia de más de 20 años, con un dinámico equipo de profesionales con experiencia en el asesoramiento personal en constante formación y con una especialización muy concreta en cada zona de actuación lo que nos permite encontrar soluciones a las necesidades de cada cliente.",
+    "multimedia": {
+      "images": [
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/23/3b/b7/1451541217.webp",
+          "tag": "livingRoom"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/7b/8d/e1/1453694133.webp",
+          "tag": "livingRoom"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/b4/6e/ef/1392567427.webp",
+          "tag": "kitchen"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/5a/9a/e5/1452031016.webp",
+          "tag": "bedroom"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/8f/6e/c3/1428919481.webp",
+          "tag": "bathroom"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/f5/fb/b6/1436855904.webp",
+          "tag": "bedroom"
+        },
+        {
+          "url": "https://img4.idealista.com/blur/591_420_mq/0/id.pro.es.image.master/03/2d/7b/1436618595.webp",
+          "tag": "corridor"
+        }
+      ]
+    },
+    "features": {
+      "hasSwimmingPool": false,
+      "hasTerrace": false,
+      "hasAirConditioning": true,
+      "hasBoxRoom": false,
+      "hasGarden": false
+    }
+  }
+]

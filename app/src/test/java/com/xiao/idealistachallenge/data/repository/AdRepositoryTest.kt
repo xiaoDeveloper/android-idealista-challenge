@@ -4,12 +4,14 @@ import com.xiao.idealistachallenge.data.remote.IdealistaApi
 import com.xiao.idealistachallenge.data.remote.ImageDto
 import com.xiao.idealistachallenge.data.remote.MultimediaDto
 import com.xiao.idealistachallenge.data.remote.PriceInfoDto
+import com.xiao.idealistachallenge.data.remote.PriceValueDto
 import com.xiao.idealistachallenge.data.remote.PropertyAdDto
 import com.xiao.idealistachallenge.data.remote.PropertyDetailsDto
 import com.xiao.idealistachallenge.model.PropertyAd
 import java.io.IOException
 import java.math.BigDecimal
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.SerializationException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -17,20 +19,25 @@ import org.junit.Test
 class AdRepositoryTest {
 
     @Test
-    fun `loadAds maps source ads into property ad models`() = runBlocking {
+    fun `loadAds prefers the nested amount and keeps its currency suffix`() = runBlocking {
         val repository = AdRepository(
             FakeIdealistaApi(
                 ads = listOf(
                     PropertyAdDto(
                         propertyCode = "ad-42",
                         thumbnail = "https://images.example/ad-42-thumbnail.jpg",
-                        price = BigDecimal("123456.78"),
-                        priceInfo = PriceInfoDto(currencySuffix = "€"),
+                        price = BigDecimal("2750000.0"),
+                        priceInfo = PriceInfoDto(
+                            price = PriceValueDto(
+                                amount = BigDecimal("1200.0"),
+                                currencySuffix = "€/mes",
+                            ),
+                        ),
                         propertyType = "flat",
                         address = "Calle Mayor 1",
                         municipality = "Madrid",
                         district = "Centro",
-                        size = 72,
+                        size = BigDecimal("72.0"),
                         rooms = 3,
                         bathrooms = 2,
                         description = "A bright apartment near the city centre.",
@@ -53,8 +60,8 @@ class AdRepositoryTest {
                 PropertyAd(
                     propertyCode = "ad-42",
                     thumbnailUrl = "https://images.example/ad-42-thumbnail.jpg",
-                    price = BigDecimal("123456.78"),
-                    currencySuffix = "€",
+                    price = BigDecimal("1200.0"),
+                    currencySuffix = "€/mes",
                     propertyType = "flat",
                     address = "Calle Mayor 1",
                     municipality = "Madrid",
@@ -71,6 +78,44 @@ class AdRepositoryTest {
             ),
             result.getOrNull(),
         )
+    }
+
+    @Test
+    fun `loadAds falls back to top-level price without a nested suffix`() = runBlocking {
+        val result = AdRepository(
+            FakeIdealistaApi(
+                ads = listOf(
+                    PropertyAdDto(
+                        propertyCode = "ad-fallback",
+                        price = BigDecimal("2750000.0"),
+                        priceInfo = PriceInfoDto(),
+                    ),
+                ),
+            ),
+        ).loadAds()
+
+        assertEquals(BigDecimal("2750000.0"), result.getOrNull()?.single()?.price)
+        assertEquals(null, result.getOrNull()?.single()?.currencySuffix)
+    }
+
+    @Test
+    fun `loadAds normalizes only non-negative exact integral sizes in Int range`() = runBlocking {
+        val result = AdRepository(
+            FakeIdealistaApi(
+                ads = listOf(
+                    PropertyAdDto("valid", price = BigDecimal("1"), size = BigDecimal("72.000")),
+                    PropertyAdDto("fractional", price = BigDecimal("1"), size = BigDecimal("72.5")),
+                    PropertyAdDto("negative", price = BigDecimal("1"), size = BigDecimal("-1.0")),
+                    PropertyAdDto("out-of-range", price = BigDecimal("1"), size = BigDecimal("2147483648.0")),
+                ),
+            ),
+        ).loadAds()
+
+        assertTrue(result.isSuccess)
+        assertEquals(72, result.getOrNull()?.first()?.sizeSquareMeters)
+        assertEquals(null, result.getOrNull()?.get(1)?.sizeSquareMeters)
+        assertEquals(null, result.getOrNull()?.get(2)?.sizeSquareMeters)
+        assertEquals(null, result.getOrNull()?.get(3)?.sizeSquareMeters)
     }
 
     @Test
@@ -105,6 +150,15 @@ class AdRepositoryTest {
         )
 
         val result = repository.loadAds()
+
+        assertTrue(result.isFailure)
+    }
+
+    @Test
+    fun `loadAds returns a failure when the source payload is malformed`() = runBlocking {
+        val result = AdRepository(
+            FakeIdealistaApi(failure = SerializationException("malformed payload")),
+        ).loadAds()
 
         assertTrue(result.isFailure)
     }
