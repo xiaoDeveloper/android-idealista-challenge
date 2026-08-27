@@ -45,4 +45,8 @@
     </plurals>
     <string name="property_characteristics_title">Características</string>
     <string name="property_description_title">Descripción</string>
+    <string name="property_coordinates">Ubicación: %1$s, %2$s</string>
+    <string name="detail_static_response_notice">El reto proporciona el mismo detalle oficial para cada vivienda seleccionada.</string>
+    <string name="detail_price">%1$s €</string>
+    <string name="property_description_unavailable">No hay descripción disponible.</string>
 </resources>

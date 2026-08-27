@@ -17,6 +17,7 @@
         android:id="@+id/detailFragment"
         android:name="com.xiao.idealistachallenge.ui.detail.DetailFragment"
         android:label="@string/detail_title">
+        <!-- selectedAdId is local context only; detail.json remains the official fixed endpoint. -->
         <argument
             android:name="selectedAdId"
             app:argType="string" />

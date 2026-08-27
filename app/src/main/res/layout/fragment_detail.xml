@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/detailScreen"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:colorBackground"
+    tools:context=".ui.detail.DetailFragment">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/detailContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/space_24">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
+                android:background="@color/colorSurfaceVariant">
+
+                <ImageView
+                    android:id="@+id/detailImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/property_image_content_description"
+                    android:scaleType="centerCrop"
+                    tools:src="@android:drawable/ic_menu_gallery" />
+
+                <TextView
+                    android:id="@+id/detailImagePlaceholder"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:importantForAccessibility="yes"
+                    android:text="@string/property_image_placeholder"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="@dimen/supporting_text_size" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/screen_content_inset"
+                android:paddingTop="@dimen/space_24"
+                android:paddingEnd="@dimen/screen_content_inset">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/detailPrice"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="@dimen/detail_price_text_size"
+                        android:textStyle="bold"
+                        tools:text="1.195.000 €" />
+
+                    <ImageButton
+                        android:id="@+id/detailFavoriteButton"
+                        android:layout_width="@dimen/min_interactive_target"
+                        android:layout_height="@dimen/min_interactive_target"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/favorite_accessibility_save"
+                        android:enabled="false"
+                        android:minWidth="@dimen/min_interactive_target"
+                        android:minHeight="@dimen/min_interactive_target"
+                        android:padding="@dimen/space_12"
+                        android:src="@android:drawable/btn_star_big_off"
+                        app:tint="?attr/colorOnSurface" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/detailFavoriteDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_8"
+                    android:textColor="?attr/colorOnPrimaryContainer"
+                    android:textSize="@dimen/supporting_text_size"
+                    android:visibility="gone"
+                    tools:text="Guardado el 27/08/2026" />
+
+                <TextView
+                    android:id="@+id/detailLocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_16"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="@dimen/body_text_size"
+                    android:visibility="gone"
+                    tools:text="Ubicación: 40,4363, -3,6834" />
+
+                <TextView
+                    android:id="@+id/detailCharacteristicsTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/section_spacing"
+                    android:text="@string/property_characteristics_title"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="@dimen/card_title_text_size"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/detailCharacteristics"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_8"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="@dimen/body_text_size"
+                    tools:text="Habitaciones: 3\nBaños: 2" />
+
+                <TextView
+                    android:id="@+id/detailDescriptionTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/section_spacing"
+                    android:text="@string/property_description_title"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="@dimen/card_title_text_size"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/detailDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_8"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="@dimen/body_text_size"
+                    tools:text="Descripción de la vivienda" />
+
+                <TextView
+                    android:id="@+id/detailStaticResponseNotice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/section_spacing"
+                    android:text="@string/detail_static_response_notice"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="@dimen/supporting_text_size" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:id="@+id/loadingState"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/space_32">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/loading_detail" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_16"
+            android:text="@string/loading_detail"
+            android:textSize="@dimen/body_text_size" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/errorState"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/space_32"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/errorTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/error_detail_title"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="@dimen/screen_title_text_size"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/errorMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_8"
+            android:gravity="center"
+            android:text="@string/error_detail_message"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="@dimen/body_text_size" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/retryButton"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginTop="@dimen/space_24"
+            android:contentDescription="@string/content_description_retry"
+            android:minHeight="@dimen/min_interactive_target"
+            android:text="@string/retry" />
+    </LinearLayout>
+</FrameLayout>

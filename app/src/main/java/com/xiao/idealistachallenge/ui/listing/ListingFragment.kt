@@ -2,12 +2,14 @@ package com.xiao.idealistachallenge.ui.listing
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.xiao.idealistachallenge.App
 import com.xiao.idealistachallenge.R
 import com.xiao.idealistachallenge.databinding.FragmentListingBinding
@@ -35,7 +37,7 @@ class ListingFragment : Fragment(R.layout.fragment_listing) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentListingBinding.bind(view)
-        listingAdapter = ListingAdapter()
+        listingAdapter = ListingAdapter(onItemClick = ::openDetail)
         binding.listingRecyclerView.adapter = listingAdapter
         binding.retryButton.setOnClickListener { viewModel.retry() }
 
@@ -80,5 +82,12 @@ class ListingFragment : Fragment(R.layout.fragment_listing) {
                 currentBinding.errorMessage.setText(state.userFacingError.messageResId)
             }
         }
+    }
+
+    private fun openDetail(selectedAdId: String) {
+        findNavController().navigate(
+            R.id.action_listingFragment_to_detailFragment,
+            bundleOf("selectedAdId" to selectedAdId),
+        )
     }
 }
