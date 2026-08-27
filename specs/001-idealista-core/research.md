@@ -35,6 +35,17 @@ at `app/src/test/resources/fixtures/idealista/list-observed-2026-08-27.json`. It
 filename, this observation date, and the source URL provide provenance while keeping
 unit tests offline. It must not be refreshed implicitly by tests or application code.
 
+### Verified detail wire observation (2026-08-27)
+
+A read-only `GET` to the official detail URL on 2026-08-27 returned HTTP 200. Its
+fixed response has `adid` `1`, a top-level numeric `price`, and a **detail-specific**
+`priceInfo` object with direct `amount` and `currencySuffix` fields (unlike the list
+response's nested `priceInfo.price`). It supplies `propertyComment`,
+`multimedia.images[].url`, `ubication.latitude` / `longitude`, and a heterogeneous
+`moreCharacteristics` object. The deterministic detail mapping test uses the copied
+public response at `app/src/test/resources/fixtures/idealista/detail-observed-2026-08-27.json`;
+tests and production code do not refresh it.
+
 ## Decisions
 
 ### Stable Android baseline

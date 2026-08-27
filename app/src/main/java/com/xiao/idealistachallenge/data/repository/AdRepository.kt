@@ -2,9 +2,12 @@ package com.xiao.idealistachallenge.data.repository
 
 import com.xiao.idealistachallenge.data.remote.IdealistaApi
 import com.xiao.idealistachallenge.data.remote.PropertyAdDto
+import com.xiao.idealistachallenge.data.remote.PropertyDetailsDto
 import com.xiao.idealistachallenge.model.PropertyAd
+import com.xiao.idealistachallenge.model.PropertyDetails
 import java.math.BigDecimal
 import kotlinx.coroutines.CancellationException
+import kotlinx.serialization.json.JsonPrimitive
 
 class AdRepository(
     private val api: IdealistaApi,
@@ -12,6 +15,14 @@ class AdRepository(
 
     suspend fun loadAds(): Result<List<PropertyAd>> = try {
         Result.success(api.listAds().map(PropertyAdDto::toModel))
+    } catch (cancellation: CancellationException) {
+        throw cancellation
+    } catch (failure: Exception) {
+        Result.failure(failure)
+    }
+
+    suspend fun loadDetails(selectedAdId: String): Result<PropertyDetails> = try {
+        Result.success(api.getDetails().toModel(selectedAdId))
     } catch (cancellation: CancellationException) {
         throw cancellation
     } catch (failure: Exception) {
@@ -51,6 +62,36 @@ private fun BigDecimal?.toOptionalInt(): Int? {
         null
     }
 }
+
+private fun PropertyDetailsDto.toModel(selectedAdId: String): PropertyDetails = PropertyDetails(
+    selectedAdId = selectedAdId.requireValue("selectedAdId"),
+    remoteAdId = adid ?: error("Missing required adid"),
+    price = price ?: priceInfo?.amount ?: error("Missing required price"),
+    description = propertyComment ?: description,
+    imageUrls = multimedia?.images.orEmpty().mapNotNull { it.url?.takeIf(String::isNotBlank) },
+    latitude = ubication?.latitude ?: latitude,
+    longitude = ubication?.longitude ?: longitude,
+    characteristics = moreCharacteristics.entries.associate { (key, value) ->
+        key.toSpanishCharacteristicLabel() to value.displayValue()
+    },
+)
+
+private fun String.toSpanishCharacteristicLabel(): String = when (this) {
+    "communityCosts" -> "Gastos de comunidad"
+    "roomNumber" -> "Habitaciones"
+    "bathNumber" -> "Baños"
+    "exterior" -> "Exterior"
+    "constructedArea" -> "Superficie construida"
+    "lift" -> "Ascensor"
+    "boxroom" -> "Trastero"
+    "isDuplex" -> "Dúplex"
+    "floor" -> "Planta"
+    "energyCertificationType" -> "Certificación energética"
+    else -> replaceFirstChar { character -> character.uppercase() }
+}
+
+private fun kotlinx.serialization.json.JsonElement.displayValue(): String =
+    (this as? JsonPrimitive)?.content ?: toString()
 
 private fun String?.requireValue(fieldName: String): String =
     this?.takeIf { it.isNotBlank() } ?: error("Missing required $fieldName")

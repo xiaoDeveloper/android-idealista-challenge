@@ -36,6 +36,15 @@ with neither amount is a recoverable repository failure.
 - Current observed remote identity: `adid=1`.
 - The response is intentionally static and has no supported property-ID parameter.
 
+### Observed wire format
+
+The dated `detail-observed-2026-08-27.json` fixture records the public response used
+by deterministic mapping tests. Detail `priceInfo` is an object with direct `amount`
+and `currencySuffix` fields; it is intentionally a different DTO shape from the list
+endpoint's `priceInfo.price` object. The response also provides top-level `price`,
+`propertyComment`, `multimedia.images[].url`, `ubication.latitude` / `longitude`, and
+the heterogeneous optional `moreCharacteristics` object. Unknown fields are ignored.
+
 ## Local route contract
 
 The listing-to-detail route carries `selectedAdId`, sourced from the selected item's

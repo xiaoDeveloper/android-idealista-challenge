@@ -42,9 +42,9 @@ without the detail screen.
 **Independent test**: A selected `propertyCode` reaches a separate detail destination,
 the fixed detail response is rendered, and back navigation returns to the list.
 
-- [ ] T017 [P] [US2] Write detail mapping and fixed-response tests in `app/src/test/java/com/xiao/idealistachallenge/data/remote/DetailMappingTest.kt`, using the same observed-fixture provenance approach when the detail wire contract is verified.
-- [ ] T018 [P] [US2] Write `DetailViewModel` loading, success, error, retry, and selected-ID context tests in `app/src/test/java/com/xiao/idealistachallenge/ui/detail/DetailViewModelTest.kt`.
-- [ ] T019 Implement detail repository mapping and selected-ID composition in `app/src/main/java/com/xiao/idealistachallenge/data/repository/AdRepository.kt` and `ui/detail/DetailViewModel.kt`.
+- [X] T017 [P] [US2] Write detail mapping and fixed-response tests in `app/src/test/java/com/xiao/idealistachallenge/data/remote/DetailMappingTest.kt`, using the same observed-fixture provenance approach when the detail wire contract is verified.
+- [X] T018 [P] [US2] Write `DetailViewModel` loading, success, error, retry, and selected-ID context tests in `app/src/test/java/com/xiao/idealistachallenge/ui/detail/DetailViewModelTest.kt`.
+- [X] T019 Implement detail repository mapping and selected-ID composition in `app/src/main/java/com/xiao/idealistachallenge/data/repository/AdRepository.kt` and `ui/detail/DetailViewModel.kt`.
 - [ ] T020 [P] [US2] Create `fragment_detail.xml` with Spanish labels, image placeholder, loading, error, retry, and accessible favorite/date controls.
 - [ ] T021 Implement `DetailFragment` navigation argument handling and lifecycle-aware state collection in `app/src/main/java/com/xiao/idealistachallenge/ui/detail/DetailFragment.kt`.
 - [ ] T022 [US2] Wire listing item selection to the detail destination and document the static endpoint behavior in the navigation graph and UI copy.
