@@ -45,6 +45,7 @@ class DetailMappingTest {
         assertEquals(BigDecimal("40.4362687"), detail.ubication?.latitude)
         assertEquals(BigDecimal("-3.6833686"), detail.ubication?.longitude)
         assertTrue(detail.propertyComment?.contains("Barrio de Salamanca") == true)
+        assertTrue("The long observed description must remain intact", (detail.propertyComment?.length ?: 0) > 2_000)
         assertEquals("3", detail.moreCharacteristics.getValue("roomNumber").toString())
     }
 

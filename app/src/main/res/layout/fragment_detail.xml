@@ -38,6 +38,7 @@
                     android:id="@+id/detailImagePlaceholder"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:contentDescription="@string/property_image_placeholder_content_description"
                     android:gravity="center"
                     android:importantForAccessibility="yes"
                     android:text="@string/property_image_placeholder"

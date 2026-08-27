@@ -1,31 +1,32 @@
 # AI-Assisted Development Workflow
 
 AI use is an explicit challenge requirement. This file records the reproducible
-workflow and human review boundaries rather than storing private chat transcripts.
+workflow and human review boundaries rather than private chat transcripts.
 
-## Tools and roles
+## Tools and recorded decisions
 
-- Codex provided repository exploration, API payload inspection, architecture
-  alternatives, documentation drafts, and verification orchestration.
-- GitHub Spec Kit v1.0.1 provides the project constitution, feature-spec, planning,
-  checklist, task, and cross-artifact analysis skills under `.agents/` and `.specify/`.
-- Human decisions locked the scope, English repository documentation, Spanish UI,
-  XML-first navigation, manual injection, Room persistence, and the fixed-detail
-  `propertyCode` favorite semantics.
+- Codex was used for repository exploration, API payload research, documentation,
+  implementation assistance, and verification orchestration.
+- The repository contains GitHub Spec Kit v1.0.1 configuration and the canonical
+  constitution, specification, plan, checklist, tasks, and analysis workflow.
+- Accepted repository decisions keep the UI Spanish and XML-first, use manual
+  injection and Room-backed favorites, and retain selected `propertyCode` as local
+  favorite identity because the official detail response is fixed.
 
 ## Review boundaries
 
-AI suggestions are not accepted without checking Android lifecycle behavior,
-coroutine/threading boundaries, JSON field assumptions, accessibility, dependency
-cost, and testability. Product behavior belongs in the canonical feature spec;
-technical choices belong in the plan or an ADR.
+AI-generated changes require review for lifecycle behavior, coroutine/threading
+boundaries, JSON assumptions, accessibility, dependency cost, readability, and
+testability. Product behavior remains canonical in the feature specification;
+technical choices remain in the plan and ADRs.
 
 ## Evidence
 
-- Official challenge repository and JSON payloads were inspected before defining the
-  data contract.
-- Spec Kit was pinned to the official v1.0.1 release and initialized with the Codex
-  integration and PowerShell scripts.
-- `specify integration status --json` is used to verify the generated harness.
-- Future implementation commits must include fresh Gradle/test output; this foundation
-  branch does not claim an implemented or passing Android build.
+- `research.md` and the API contract record the observed public payloads and dated,
+  offline fixtures used by mapping tests.
+- The source tree implements the approved XML/Fragment, Retrofit, Room, repository,
+  and ViewModel boundaries.
+- Unit tests and Espresso instrumentation sources cover mapping, state, persistence,
+  and the favorite journey.
+- `quickstart.md` defines the reproducible Gradle validation commands; their current
+  outcome is reported only after those commands are run.
