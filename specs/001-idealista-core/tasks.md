@@ -54,11 +54,11 @@ the fixed detail response is rendered, and back navigation returns to the list.
 **Independent test**: Room-backed favorite insert, delete, timestamp replacement,
 process recreation, and synchronized list/detail state all pass.
 
-- [ ] T023 [P] [US3] Write Room DAO tests for insert, observe, delete, and replacement timestamp behavior in `app/src/test/java/com/xiao/idealistachallenge/data/local/FavoriteDaoTest.kt`.
-- [ ] T024 [P] [US3] Write favorite repository tests proving a new timestamp on re-favorite and removal on unfavorite in `app/src/test/java/com/xiao/idealistachallenge/data/repository/FavoriteRepositoryTest.kt`.
-- [ ] T025 [P] [US3] Add core Espresso journey coverage for list favorite, detail favorite, date display, and back-stack synchronization in `app/src/androidTest/java/com/xiao/idealistachallenge/FavoriteJourneyTest.kt`.
-- [ ] T026 Implement favorite actions and date formatting at the UI boundary in both `ListingViewModel` and `DetailViewModel`.
-- [ ] T027 [US3] Connect Room Flow updates to both screen states and ensure process recreation restores the selected ID's favorite record.
+- [X] T023 [P] [US3] Write Room DAO tests for insert, observe, delete, and replacement timestamp behavior in `app/src/test/java/com/xiao/idealistachallenge/data/local/FavoriteDaoTest.kt`.
+- [X] T024 [P] [US3] Write favorite repository tests proving a new timestamp on re-favorite and removal on unfavorite in `app/src/test/java/com/xiao/idealistachallenge/data/repository/FavoriteRepositoryTest.kt`.
+- [X] T025 [P] [US3] Add core Espresso journey coverage for list favorite, detail favorite, date display, and back-stack synchronization in `app/src/androidTest/java/com/xiao/idealistachallenge/FavoriteJourneyTest.kt`.
+- [X] T026 Implement favorite actions and date formatting at the UI boundary in both `ListingViewModel` and `DetailViewModel`.
+- [X] T027 [US3] Connect Room Flow updates to both screen states and ensure process recreation restores the selected ID's favorite record.
 
 ## Phase 6: Polish and cross-cutting validation
 

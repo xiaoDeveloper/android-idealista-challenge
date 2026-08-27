@@ -3,13 +3,15 @@ package com.xiao.idealistachallenge
 import android.app.Application
 import com.xiao.idealistachallenge.core.AppContainer
 
-class App : Application() {
+open class App : Application() {
 
     lateinit var container: AppContainer
         private set
 
     override fun onCreate() {
         super.onCreate()
-        container = AppContainer(this)
+        container = createContainer()
     }
+
+    protected open fun createContainer(): AppContainer = AppContainer(this)
 }

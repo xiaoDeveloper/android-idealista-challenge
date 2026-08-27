@@ -14,12 +14,16 @@ import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
-class AppContainer(context: Context) {
+class AppContainer(
+    context: Context,
+    private val idealistaApiOverride: IdealistaApi? = null,
+    private val favoriteDatabaseOverride: FavoriteDatabase? = null,
+) {
 
     private val applicationContext = context.applicationContext
 
     val idealistaApi: IdealistaApi by lazy {
-        Retrofit.Builder()
+        idealistaApiOverride ?: Retrofit.Builder()
             .baseUrl(IDEALISTA_BASE_URL)
             .addConverterFactory(
                 RemoteJson.instance.asConverterFactory("application/json".toMediaType()),
@@ -29,7 +33,7 @@ class AppContainer(context: Context) {
     }
 
     val favoriteDatabase: FavoriteDatabase by lazy {
-        Room.databaseBuilder(
+        favoriteDatabaseOverride ?: Room.databaseBuilder(
             applicationContext,
             FavoriteDatabase::class.java,
             FAVORITES_DATABASE_NAME,

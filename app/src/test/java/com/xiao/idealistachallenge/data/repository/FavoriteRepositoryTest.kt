@@ -17,19 +17,37 @@ import org.junit.Test
 class FavoriteRepositoryTest {
 
     @Test
-    fun `re-favoriting replaces the stored timestamp and unfavorite removes the record`() = runBlocking {
+    fun `favoriting exposes the supplied creation timestamp through observation`() = runBlocking {
         val repository = FavoriteRepository(InMemoryFavoriteDao())
 
         repository.favorite(adId = "listing-42", nowEpochMillis = 1_000L)
+
         assertEquals(
             Favorite(adId = "listing-42", favoritedAtEpochMillis = 1_000L),
             repository.observeFavorite("listing-42").first(),
         )
+    }
+
+    @Test
+    fun `unfavoriting removes the observable favorite`() = runBlocking {
+        val repository = FavoriteRepository(InMemoryFavoriteDao())
+
+        repository.favorite(adId = "listing-42", nowEpochMillis = 1_000L)
 
         repository.unfavorite("listing-42")
+
         assertNull(repository.observeFavorite("listing-42").first())
+    }
+
+    @Test
+    fun `re-favoriting after removal creates the new timestamp`() = runBlocking {
+        val repository = FavoriteRepository(InMemoryFavoriteDao())
+
+        repository.favorite(adId = "listing-42", nowEpochMillis = 1_000L)
+        repository.unfavorite("listing-42")
 
         repository.favorite(adId = "listing-42", nowEpochMillis = 2_000L)
+
         assertEquals(
             Favorite(adId = "listing-42", favoritedAtEpochMillis = 2_000L),
             repository.observeFavorite("listing-42").first(),

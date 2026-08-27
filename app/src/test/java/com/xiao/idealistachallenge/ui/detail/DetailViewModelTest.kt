@@ -76,9 +76,38 @@ class DetailViewModelTest {
         assertEquals("listing-recovered", content.details.selectedAdId)
     }
 
-    private fun newViewModel(api: IdealistaApi, selectedAdId: String): DetailViewModel = DetailViewModel(
-        adRepository = AdRepository(api), favoriteRepository = FavoriteRepository(InMemoryFavoriteDao()),
+    @Test fun `favorite action observes the selected property code rather than static remote ad id`() = runBlocking {
+        val favoriteRepository = FavoriteRepository(InMemoryFavoriteDao())
+        val viewModel = newViewModel(
+            api = FakeDetailApi(listOf(Result.success(detailDto()))),
+            selectedAdId = "listing-99",
+            favoriteRepository = favoriteRepository,
+            nowEpochMillis = { 2_000L },
+        )
+
+        viewModel.load()
+        assertEquals(null, (viewModel.uiState.first { it is DetailUiState.Content } as DetailUiState.Content)
+            .favoritedAtEpochMillis)
+
+        viewModel.toggleFavorite()
+        val favorite = viewModel.uiState.first {
+            it is DetailUiState.Content && it.favoritedAtEpochMillis == 2_000L
+        } as DetailUiState.Content
+        assertEquals("listing-99", favorite.details.selectedAdId)
+        assertEquals(2_000L, favorite.favoritedAtEpochMillis)
+        assertEquals(2_000L, favoriteRepository.observeFavorite("listing-99").first()?.favoritedAtEpochMillis)
+        assertEquals(null, favoriteRepository.observeFavorite("1").first())
+    }
+
+    private fun newViewModel(
+        api: IdealistaApi,
+        selectedAdId: String,
+        favoriteRepository: FavoriteRepository = FavoriteRepository(InMemoryFavoriteDao()),
+        nowEpochMillis: () -> Long = { System.currentTimeMillis() },
+    ): DetailViewModel = DetailViewModel(
+        adRepository = AdRepository(api), favoriteRepository = favoriteRepository,
         selectedAdId = selectedAdId, dispatcher = Dispatchers.Unconfined,
+        nowEpochMillis = nowEpochMillis,
     )
 }
 

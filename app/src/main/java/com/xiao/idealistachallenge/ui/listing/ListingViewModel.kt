@@ -13,7 +13,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 data class ListingRowUiModel(
@@ -39,12 +39,15 @@ class ListingViewModel(
     private val adRepository: AdRepository,
     private val favoriteRepository: FavoriteRepository,
     private val dispatcher: CoroutineDispatcher,
+    private val nowEpochMillis: () -> Long = System::currentTimeMillis,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ListingUiState>(ListingUiState.Loading)
     val uiState: StateFlow<ListingUiState> = _uiState.asStateFlow()
 
     private var loadJob: Job? = null
+    private var favoriteObservationJob: Job? = null
+    private val favoriteActionJobs = mutableMapOf<String, Job>()
     private var hasLoaded = false
 
     fun load() {
@@ -57,17 +60,10 @@ class ListingViewModel(
             try {
                 adRepository.loadAds().fold(
                     onSuccess = { ads ->
-                        val rows = ads.map { ad ->
-                            val favorite = favoriteRepository.observeFavorite(ad.propertyCode).first()
-                            ListingRowUiModel(
-                                ad = ad,
-                                favoritedAtEpochMillis = favorite?.favoritedAtEpochMillis,
-                            )
-                        }
-                        _uiState.value = if (rows.isEmpty()) {
-                            ListingUiState.Empty
+                        if (ads.isEmpty()) {
+                            _uiState.value = ListingUiState.Empty
                         } else {
-                            ListingUiState.Content(rows = rows.toList())
+                            observeFavoriteRows(ads)
                         }
                     },
                     onFailure = { failure ->
@@ -90,5 +86,37 @@ class ListingViewModel(
         if (loadJob?.isActive == true) return
         hasLoaded = false
         load()
+    }
+
+    fun toggleFavorite(adId: String, favoritedAtEpochMillis: Long?) {
+        if (favoriteActionJobs[adId]?.isActive == true) return
+
+        favoriteActionJobs[adId] = viewModelScope.launch(dispatcher) {
+            try {
+                if (favoritedAtEpochMillis == null) {
+                    favoriteRepository.favorite(adId, nowEpochMillis())
+                } else {
+                    favoriteRepository.unfavorite(adId)
+                }
+            } finally {
+                favoriteActionJobs.remove(adId)
+            }
+        }
+    }
+
+    private fun observeFavoriteRows(ads: List<PropertyAd>) {
+        favoriteObservationJob?.cancel()
+        favoriteObservationJob = viewModelScope.launch(dispatcher) {
+            combine(ads.map { ad -> favoriteRepository.observeFavorite(ad.propertyCode) }) { favorites ->
+                ads.mapIndexed { index, ad ->
+                    ListingRowUiModel(
+                        ad = ad,
+                        favoritedAtEpochMillis = favorites[index]?.favoritedAtEpochMillis,
+                    )
+                }
+            }.collect { rows ->
+                _uiState.value = ListingUiState.Content(rows = rows)
+            }
+        }
     }
 }

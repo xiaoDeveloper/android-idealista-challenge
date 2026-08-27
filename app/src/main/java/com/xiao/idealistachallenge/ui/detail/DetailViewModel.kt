@@ -13,7 +13,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 sealed interface DetailUiState {
@@ -34,11 +33,14 @@ class DetailViewModel(
     private val favoriteRepository: FavoriteRepository,
     private val selectedAdId: String,
     private val dispatcher: CoroutineDispatcher,
+    private val nowEpochMillis: () -> Long = System::currentTimeMillis,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<DetailUiState>(DetailUiState.Loading)
     val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
 
     private var loadJob: Job? = null
+    private var favoriteObservationJob: Job? = null
+    private var favoriteActionJob: Job? = null
     private var hasLoaded = false
 
     fun load() {
@@ -49,11 +51,7 @@ class DetailViewModel(
             try {
                 adRepository.loadDetails(selectedAdId).fold(
                     onSuccess = { details ->
-                        val favorite = favoriteRepository.observeFavorite(selectedAdId).first()
-                        _uiState.value = DetailUiState.Content(
-                            details = details,
-                            favoritedAtEpochMillis = favorite?.favoritedAtEpochMillis,
-                        )
+                        observeFavorite(details)
                     },
                     onFailure = { failure ->
                         _uiState.value = DetailUiState.Error(ErrorMessageMapper.forDetail(failure))
@@ -71,5 +69,30 @@ class DetailViewModel(
         if (loadJob?.isActive == true) return
         hasLoaded = false
         load()
+    }
+
+    fun toggleFavorite() {
+        if (favoriteActionJob?.isActive == true) return
+        val content = _uiState.value as? DetailUiState.Content ?: return
+
+        favoriteActionJob = viewModelScope.launch(dispatcher) {
+            if (content.favoritedAtEpochMillis == null) {
+                favoriteRepository.favorite(selectedAdId, nowEpochMillis())
+            } else {
+                favoriteRepository.unfavorite(selectedAdId)
+            }
+        }
+    }
+
+    private fun observeFavorite(details: PropertyDetails) {
+        favoriteObservationJob?.cancel()
+        favoriteObservationJob = viewModelScope.launch(dispatcher) {
+            favoriteRepository.observeFavorite(selectedAdId).collect { favorite ->
+                _uiState.value = DetailUiState.Content(
+                    details = details,
+                    favoritedAtEpochMillis = favorite?.favoritedAtEpochMillis,
+                )
+            }
+        }
     }
 }

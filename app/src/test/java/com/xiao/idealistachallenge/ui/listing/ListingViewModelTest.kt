@@ -180,17 +180,46 @@ class ListingViewModelTest {
         )
     }
 
+    @Test
+    fun `favorite actions update the Room-backed row state without reloading listings`() = runBlocking {
+        val favoriteRepository = FavoriteRepository(InMemoryFavoriteDao())
+        val viewModel = newViewModel(
+            FakeIdealistaApi(responses = listOf(Result.success(listOf(adDto("ad-favorite", BigDecimal("415000"))))),
+            ),
+            favoriteRepository = favoriteRepository,
+            nowEpochMillis = { 2_000L },
+        )
+
+        viewModel.load()
+        assertEquals(null, viewModel.awaitContent().rows.single().favoritedAtEpochMillis)
+
+        viewModel.toggleFavorite(adId = "ad-favorite", favoritedAtEpochMillis = null)
+        assertEquals(2_000L, viewModel.awaitContent { it.rows.single().favoritedAtEpochMillis == 2_000L }
+            .rows.single().favoritedAtEpochMillis)
+
+        viewModel.toggleFavorite(adId = "ad-favorite", favoritedAtEpochMillis = 2_000L)
+        assertEquals(null, viewModel.awaitContent { it.rows.single().favoritedAtEpochMillis == null }
+            .rows.single().favoritedAtEpochMillis)
+    }
+
     private fun newViewModel(
         api: IdealistaApi,
         favoriteRepository: FavoriteRepository = FavoriteRepository(InMemoryFavoriteDao()),
+        nowEpochMillis: () -> Long = { System.currentTimeMillis() },
     ): ListingViewModel = ListingViewModel(
         adRepository = AdRepository(api),
         favoriteRepository = favoriteRepository,
         dispatcher = Dispatchers.Unconfined,
+        nowEpochMillis = nowEpochMillis,
     )
 
     private suspend fun ListingViewModel.awaitContent(): ListingUiState.Content =
         awaitState { it is ListingUiState.Content } as ListingUiState.Content
+
+    private suspend fun ListingViewModel.awaitContent(
+        predicate: (ListingUiState.Content) -> Boolean,
+    ): ListingUiState.Content = uiState.first { it is ListingUiState.Content && predicate(it) }
+        as ListingUiState.Content
 
     private suspend fun ListingViewModel.awaitState(
         predicate: (ListingUiState) -> Boolean,

@@ -37,7 +37,12 @@ class ListingFragment : Fragment(R.layout.fragment_listing) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentListingBinding.bind(view)
-        listingAdapter = ListingAdapter(onItemClick = ::openDetail)
+        listingAdapter = ListingAdapter(
+            onItemClick = ::openDetail,
+            onFavoriteClick = { row ->
+                viewModel.toggleFavorite(row.ad.propertyCode, row.favoritedAtEpochMillis)
+            },
+        )
         binding.listingRecyclerView.adapter = listingAdapter
         binding.retryButton.setOnClickListener { viewModel.retry() }
 

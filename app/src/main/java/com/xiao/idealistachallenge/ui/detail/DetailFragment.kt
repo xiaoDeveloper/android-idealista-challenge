@@ -45,6 +45,7 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentDetailBinding.bind(view)
         binding.retryButton.setOnClickListener { viewModel.retry() }
+        binding.detailFavoriteButton.setOnClickListener { viewModel.toggleFavorite() }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -65,6 +66,7 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
         currentBinding.loadingState.isVisible = state is DetailUiState.Loading
         currentBinding.detailContent.isVisible = state is DetailUiState.Content
         currentBinding.errorState.isVisible = state is DetailUiState.Error
+        currentBinding.detailFavoriteButton.isEnabled = state is DetailUiState.Content
 
         when (state) {
             DetailUiState.Loading -> Unit
