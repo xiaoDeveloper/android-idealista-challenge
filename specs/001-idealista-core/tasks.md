@@ -18,20 +18,21 @@ feature is approved to include meaningful automated coverage.
 ## Phase 2: Foundational
 
 - [X] T005 [P] Create immutable app models in `app/src/main/java/com/xiao/idealistachallenge/model/PropertyAd.kt`, `PropertyDetails.kt`, and `Favorite.kt` from `data-model.md`.
-- [X] T006 [P] Create Retrofit DTOs, serializer configuration, and `IdealistaApi` in `app/src/main/java/com/xiao/idealistachallenge/data/remote/` according to `contracts/idealista-api.md`.
+- [ ] T006 Correct Retrofit DTOs, decimal serializer configuration, and `IdealistaApi` support in `app/src/main/java/com/xiao/idealistachallenge/data/remote/` according to the verified nested-price and decimal-size contract.
 - [X] T007 [P] Create Room entity, DAO, database, and favorite repository in `app/src/main/java/com/xiao/idealistachallenge/data/local/` and `data/repository/FavoriteRepository.kt`.
 - [X] T008 Create the Application dependency container and ViewModel factories in `app/src/main/java/com/xiao/idealistachallenge/core/` without introducing a service locator or DI framework.
 - [X] T009 Create `MainActivity`, navigation graph, and shared error/date helpers in `app/src/main/java/com/xiao/idealistachallenge/` and `app/src/main/res/navigation/nav_graph.xml`.
 
 ## Phase 3: User Story 1 - Browse property listings (P1) 🎯 MVP
 
-**Independent test**: A mocked successful list response renders every returned ad;
-empty, error, retry, and favorite-row states are covered without the detail screen.
+**Independent test**: A dated, observed official list fixture is served locally and
+every returned ad is rendered; empty, error, retry, and favorite-row states are covered
+without the detail screen.
 
-- [X] T010 [P] [US1] Write MockWebServer mapping/error tests in `app/src/test/java/com/xiao/idealistachallenge/data/remote/IdealistaApiMappingTest.kt`.
-- [X] T011 [P] [US1] Write listing repository tests for success, empty response, malformed payload, and transport error in `app/src/test/java/com/xiao/idealistachallenge/data/repository/AdRepositoryTest.kt`.
-- [X] T012 [P] [US1] Write ViewModel StateFlow tests for loading, content, empty, error, retry, and favorite-date projection in `app/src/test/java/com/xiao/idealistachallenge/ui/listing/ListingViewModelTest.kt`.
-- [X] T013 Implement list repository mapping in `app/src/main/java/com/xiao/idealistachallenge/data/repository/AdRepository.kt`.
+- [ ] T010 [US1] Add `app/src/test/resources/fixtures/idealista/list-observed-2026-08-27.json` from the documented official observation, then update MockWebServer mapping/error tests in `app/src/test/java/com/xiao/idealistachallenge/data/remote/IdealistaApiMappingTest.kt` to assert the nested price and decimal-size wire structure offline.
+- [ ] T011 [US1] Update listing repository tests in `app/src/test/java/com/xiao/idealistachallenge/data/repository/AdRepositoryTest.kt` for nested-price precedence, top-level fallback without nested suffix, exact-integral size normalization, invalid optional size omission, empty response, malformed payload, and transport error.
+- [ ] T012 [US1] Adapt ViewModel StateFlow test DTO helpers in `app/src/test/java/com/xiao/idealistachallenge/ui/listing/ListingViewModelTest.kt` to the corrected wire DTO shape and revalidate loading, content, empty, error, retry, and favorite-date projection.
+- [ ] T013 Implement verified list repository normalization in `app/src/main/java/com/xiao/idealistachallenge/data/repository/AdRepository.kt`: preserve nested amount/suffix pairs, use top-level price only as a suffix-free fallback, and normalize optional decimal size to `Int?` only when exact and valid.
 - [X] T014 Implement `ListingViewModel` and immutable row UI models in `app/src/main/java/com/xiao/idealistachallenge/ui/listing/ListingViewModel.kt`.
 - [X] T015 [P] [US1] Create listing card and screen XML in `app/src/main/res/layout/item_listing.xml` and `fragment_listing.xml` with loading, empty, error, retry, and accessible favorite controls.
 - [X] T016 Implement `ListingAdapter` and `ListingFragment` in `app/src/main/java/com/xiao/idealistachallenge/ui/listing/`, collecting state with `repeatOnLifecycle`.
@@ -41,7 +42,7 @@ empty, error, retry, and favorite-row states are covered without the detail scre
 **Independent test**: A selected `propertyCode` reaches a separate detail destination,
 the fixed detail response is rendered, and back navigation returns to the list.
 
-- [ ] T017 [P] [US2] Write detail mapping and fixed-response tests in `app/src/test/java/com/xiao/idealistachallenge/data/remote/DetailMappingTest.kt`.
+- [ ] T017 [P] [US2] Write detail mapping and fixed-response tests in `app/src/test/java/com/xiao/idealistachallenge/data/remote/DetailMappingTest.kt`, using the same observed-fixture provenance approach when the detail wire contract is verified.
 - [ ] T018 [P] [US2] Write `DetailViewModel` loading, success, error, retry, and selected-ID context tests in `app/src/test/java/com/xiao/idealistachallenge/ui/detail/DetailViewModelTest.kt`.
 - [ ] T019 Implement detail repository mapping and selected-ID composition in `app/src/main/java/com/xiao/idealistachallenge/data/repository/AdRepository.kt` and `ui/detail/DetailViewModel.kt`.
 - [ ] T020 [P] [US2] Create `fragment_detail.xml` with Spanish labels, image placeholder, loading, error, retry, and accessible favorite/date controls.
@@ -73,6 +74,15 @@ process recreation, and synchronized list/detail state all pass.
   consumes the navigation host from T009 and the selected ID convention from T005.
 - US3 consumes the favorite repository from T007 and the screen state models from US1/US2.
 - Phase 6 follows all desired user stories.
+- Corrective test-first exception: T010 is permitted before reopened Phase 2 task T006
+  only to add the dated fixture and demonstrate the expected RED mapping failure. T006
+  then re-establishes the Phase 2 gate before T011-T013 proceed.
+- Corrective Phase 3 order is T010 (expected RED against the old DTO) -> T006 -> T011
+  -> T013 -> T012 -> focused tests, full unit tests, debug assembly, and a connected
+  device live-list smoke test. T014-T016 remain complete but Phase 3 is not complete
+  until the reopened tasks have fresh evidence.
+- T017 and T019 remain pending; their shared remote DTO usage must follow the corrected
+  fixture/provenance strategy when Phase 4 begins.
 
 ## Implementation strategy
 

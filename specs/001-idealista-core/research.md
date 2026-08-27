@@ -15,6 +15,26 @@ payload contains constant `adid=1`, price, multimedia, description, location, an
 characteristics. The list currently contains four ads, but that count is fixture data,
 not a product constraint.
 
+### Verified listing wire observation (2026-08-27)
+
+A read-only `GET` to the official listing URL on 2026-08-27 returned HTTP 200 with
+`application/json; charset=utf-8` and four listing objects. The following are observed
+wire facts for that response, not a promise that the external endpoint will never change:
+
+- `priceInfo.price` is an object containing `amount` and `currencySuffix`; it is not a
+  decimal value directly.
+- `size` is a JSON number expressed with decimal syntax, for example `133.0` and
+  `241.0`, even when its mathematical value is integral.
+- The second observed object has top-level `price` `2750000.0`, while its nested
+  `priceInfo.price` is `{"amount": 1200.0, "currencySuffix": "€/mes"}`. A display
+  amount and suffix must therefore be taken from the same nested price object when it
+  is present; the top-level amount must not be paired with that suffix.
+
+Corrective implementation will add a byte-for-byte copied, publicly available response
+at `app/src/test/resources/fixtures/idealista/list-observed-2026-08-27.json`. Its
+filename, this observation date, and the source URL provide provenance while keeping
+unit tests offline. It must not be refreshed implicitly by tests or application code.
+
 ## Decisions
 
 ### Stable Android baseline
@@ -33,6 +53,19 @@ not a product constraint.
   cannot distinguish which list item the user selected.
 - Alternative rejected: key all favorites to `adid=1`, which would make selecting any
   other item mutate the first item's state.
+
+### Listing wire normalization
+
+- Decision: Retrofit DTOs mirror the verified nested price and decimal-size wire shape;
+  `AdRepository` converts those DTOs into the unchanged `PropertyAd` domain model.
+- Decision: use `priceInfo.price.amount` and its sibling `currencySuffix` as a matched
+  display pair when the nested amount exists. If it is absent, use top-level `price`
+  with no nested suffix. If neither amount exists, the listing is invalid.
+- Decision: normalize a present `size` only when it is non-negative, mathematically
+  integral, and within `Int` range; otherwise omit that optional characteristic without
+  failing the entire listing.
+- Rationale: this preserves the observed source semantics, prevents incoherent price
+  and currency combinations, and keeps the existing domain/UI contract unchanged.
 
 ### Persistence and injection
 

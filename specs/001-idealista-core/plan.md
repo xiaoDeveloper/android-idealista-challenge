@@ -1,6 +1,6 @@
 # Implementation Plan: Idealista Property Browsing and Favorites
 
-**Branch**: `001-idealista-core` | **Date**: 2026-08-26 | **Spec**: [spec.md](spec.md)
+**Branch**: `001-idealista-core` | **Date**: 2026-08-27 | **Spec**: [spec.md](spec.md)
 
 **Input**: Feature specification from `/specs/001-idealista-core/spec.md`
 
@@ -21,8 +21,9 @@ Coroutines/Flow, Material Components
 
 **Storage**: Room database containing favorite ID and epoch-millisecond timestamp
 
-**Testing**: JUnit 4, kotlinx-coroutines-test, Turbine, MockWebServer, Room in-memory
-database tests, Espresso/AndroidX instrumentation
+**Testing**: JUnit 4, kotlinx-coroutines-test, Turbine, MockWebServer with a dated
+observed-payload fixture, Room in-memory database tests, Espresso/AndroidX
+instrumentation
 
 **Target Platform**: Android API 24+, target/compile SDK 36
 
@@ -44,10 +45,12 @@ challenge response, one local favorite record per selected property ID.
   are explicit in `spec.md`.
 - Smallest clear boundary: PASS — one module, focused repositories, manual injection,
   and no speculative domain layer.
-- Testable behavior: PASS — remote mapping, Room, ViewModels, and core UI flows have
-  named test coverage.
-- Evidence and transparency: PASS — fixed detail limitation, current-vs-target state,
-  and verification commands are documented.
+- Testable behavior: PENDING — T006 and T010-T013 are reopened because their previous
+  DTO and fixture assumptions did not parse the observed listing response. The corrected
+  fixture and focused mapping tests are the evidence gate before those tasks close.
+- Evidence and transparency: PENDING — the observed listing wire format, price
+  normalization rule, fixture provenance, and corrective verification path are now
+  documented; implementation evidence remains required before completion claims.
 - AI review and safety: PASS — `.agents`, `.specify`, `AGENTS.md`, and `AI_USAGE.md`
   define the review boundary and prohibit secrets or unsupported claims.
 
@@ -96,8 +99,13 @@ navigation; screen-specific ViewModels and adapters remain with their feature pa
 
 ## Interfaces and Data Flow
 
-- `IdealistaApi.listAds()` maps the list JSON to `PropertyAd` models without assuming
-  the current four-item fixture.
+- `IdealistaApi.listAds()` decodes the list JSON into DTOs without assuming the current
+  four-item fixture. `AdRepository` maps DTOs to `PropertyAd` models.
+- The list DTO mirrors `priceInfo.price` as `PriceValueDto(amount, currencySuffix)` and
+  keeps `size` as a decimal wire value. `AdRepository` chooses the nested amount and
+  suffix together, falls back to top-level `price` without that suffix, and converts a
+  non-negative exact integral size in `Int` range to `sizeSquareMeters`; other optional
+  size values become absent.
 - `IdealistaApi.getDetails()` requests the fixed detail JSON and maps its fields to a
   detail model. `DetailViewModel` retains the route's `propertyCode` separately.
 - `FavoriteRepository.observeFavorite(adId)` returns the current `Favorite?` as Flow;
@@ -114,6 +122,17 @@ Use explicit Loading, Content, Empty, and Error UI states. Map transport, parsin
 database failures to stable user-facing Spanish messages with retry actions. Collect
 flows with `repeatOnLifecycle`; never run network or database work on the main thread.
 Image failures show a placeholder and preserve text content.
+
+## Remote Mapping Test Strategy
+
+Corrective implementation adds
+`app/src/test/resources/fixtures/idealista/list-observed-2026-08-27.json` as the
+offline source for list mapping tests. It is a fixed copy of the response observed at
+the official listing URL on 2026-08-27; its provenance and field facts are recorded in
+`research.md`. MockWebServer serves this fixture locally, so mapping tests assert the
+real observed structure without making a network request. Repository tests additionally
+cover nested-price precedence, top-level fallback without suffix, exact-integral size
+normalization, and omission of invalid optional size values.
 
 ## Build Baseline
 
