@@ -8,6 +8,7 @@ import com.xiao.idealistachallenge.data.local.FavoriteDatabase
 import com.xiao.idealistachallenge.data.remote.IDEALISTA_BASE_URL
 import com.xiao.idealistachallenge.data.remote.IdealistaApi
 import com.xiao.idealistachallenge.data.remote.RemoteJson
+import com.xiao.idealistachallenge.data.repository.AdRepository
 import com.xiao.idealistachallenge.data.repository.FavoriteRepository
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
@@ -37,6 +38,10 @@ class AppContainer(context: Context) {
 
     val favoriteRepository: FavoriteRepository by lazy {
         FavoriteRepository(favoriteDatabase.favoriteDao())
+    }
+
+    val adRepository: AdRepository by lazy {
+        AdRepository(idealistaApi)
     }
 
     inline fun <reified T : ViewModel> viewModelFactory(

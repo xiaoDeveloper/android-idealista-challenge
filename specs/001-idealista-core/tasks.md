@@ -34,7 +34,7 @@ empty, error, retry, and favorite-row states are covered without the detail scre
 - [X] T013 Implement list repository mapping in `app/src/main/java/com/xiao/idealistachallenge/data/repository/AdRepository.kt`.
 - [X] T014 Implement `ListingViewModel` and immutable row UI models in `app/src/main/java/com/xiao/idealistachallenge/ui/listing/ListingViewModel.kt`.
 - [X] T015 [P] [US1] Create listing card and screen XML in `app/src/main/res/layout/item_listing.xml` and `fragment_listing.xml` with loading, empty, error, retry, and accessible favorite controls.
-- [ ] T016 Implement `ListingAdapter` and `ListingFragment` in `app/src/main/java/com/xiao/idealistachallenge/ui/listing/`, collecting state with `repeatOnLifecycle`.
+- [X] T016 Implement `ListingAdapter` and `ListingFragment` in `app/src/main/java/com/xiao/idealistachallenge/ui/listing/`, collecting state with `repeatOnLifecycle`.
 
 ## Phase 4: User Story 2 - Open property detail (P1)
 
