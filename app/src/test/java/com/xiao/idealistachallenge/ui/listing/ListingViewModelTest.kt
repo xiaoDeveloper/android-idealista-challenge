@@ -49,20 +49,16 @@ class ListingViewModelTest {
             ),
         )
 
-        try {
-            assertEquals(ListingUiState.Loading, viewModel.uiState.value)
+        assertEquals(ListingUiState.Loading, viewModel.uiState.value)
 
-            viewModel.load()
-            requestStarted.await()
-            assertEquals(ListingUiState.Loading, viewModel.uiState.value)
+        viewModel.load()
+        requestStarted.await()
+        assertEquals(ListingUiState.Loading, viewModel.uiState.value)
 
-            response.complete(listOf(adDto("ad-1", BigDecimal("125000"))))
-            val content = viewModel.uiState.first { it is ListingUiState.Content }
+        response.complete(listOf(adDto("ad-1", BigDecimal("125000"))))
+        val content = viewModel.uiState.first { it is ListingUiState.Content }
 
-            assertEquals(1, (content as ListingUiState.Content).rows.size)
-        } finally {
-            viewModel.clear()
-        }
+        assertEquals(1, (content as ListingUiState.Content).rows.size)
     }
 
     @Test
@@ -72,27 +68,27 @@ class ListingViewModelTest {
         val viewModel = newViewModel(
             FakeIdealistaApi(
                 responses = listOf(
-                    Result.success(listOf(adDto(firstAd.propertyCode, firstAd.price))),
-                    Result.success(listOf(adDto(secondAd.propertyCode, secondAd.price))),
+                    Result.success(
+                        listOf(
+                            adDto(firstAd.propertyCode, firstAd.price),
+                            adDto(secondAd.propertyCode, secondAd.price),
+                        ),
+                    ),
                 ),
             ),
         )
 
-        try {
-            viewModel.load()
-            val content = viewModel.awaitContent()
+        viewModel.load()
+        val content = viewModel.awaitContent()
 
-            assertEquals(
-                listOf(
-                    ListingRowUiModel(ad = firstAd, favoritedAtEpochMillis = null),
-                    ListingRowUiModel(ad = secondAd, favoritedAtEpochMillis = null),
-                ),
-                content.rows,
-            )
-            assertEquals(listOf(firstAd.propertyCode, secondAd.propertyCode), content.rows.map { it.ad.propertyCode })
-        } finally {
-            viewModel.clear()
-        }
+        assertEquals(
+            listOf(
+                ListingRowUiModel(ad = firstAd, favoritedAtEpochMillis = null),
+                ListingRowUiModel(ad = secondAd, favoritedAtEpochMillis = null),
+            ),
+            content.rows,
+        )
+        assertEquals(listOf(firstAd.propertyCode, secondAd.propertyCode), content.rows.map { it.ad.propertyCode })
     }
 
     @Test
@@ -101,13 +97,9 @@ class ListingViewModelTest {
             FakeIdealistaApi(responses = listOf(Result.success(emptyList()))),
         )
 
-        try {
-            viewModel.load()
+        viewModel.load()
 
-            assertEquals(ListingUiState.Empty, viewModel.awaitState { it is ListingUiState.Empty })
-        } finally {
-            viewModel.clear()
-        }
+        assertEquals(ListingUiState.Empty, viewModel.awaitState { it is ListingUiState.Empty })
     }
 
     @Test
@@ -119,19 +111,15 @@ class ListingViewModelTest {
             ),
         )
 
-        try {
-            viewModel.load()
-            val error = viewModel.awaitState { it is ListingUiState.Error } as ListingUiState.Error
+        viewModel.load()
+        val error = viewModel.awaitState { it is ListingUiState.Error } as ListingUiState.Error
 
-            assertEquals(
-                ErrorMessageMapper.forListing(IOException(rawFailureMessage)),
-                error.userFacingError,
-            )
-            assertEquals(R.string.error_list_message, error.userFacingError.messageResId)
-            assertFalse(error.toString().contains(rawFailureMessage))
-        } finally {
-            viewModel.clear()
-        }
+        assertEquals(
+            ErrorMessageMapper.forListing(IOException(rawFailureMessage)),
+            error.userFacingError,
+        )
+        assertEquals(R.string.error_list_message, error.userFacingError.messageResId)
+        assertFalse(error.toString().contains(rawFailureMessage))
     }
 
     @Test
@@ -146,17 +134,13 @@ class ListingViewModelTest {
             ),
         )
 
-        try {
-            viewModel.load()
-            assertTrue(viewModel.awaitState { it is ListingUiState.Error } is ListingUiState.Error)
+        viewModel.load()
+        assertTrue(viewModel.awaitState { it is ListingUiState.Error } is ListingUiState.Error)
 
-            viewModel.retry()
-            val content = viewModel.awaitContent()
+        viewModel.retry()
+        val content = viewModel.awaitContent()
 
-            assertEquals(recoveredAd.propertyCode, content.rows.single().ad.propertyCode)
-        } finally {
-            viewModel.clear()
-        }
+        assertEquals(recoveredAd.propertyCode, content.rows.single().ad.propertyCode)
     }
 
     @Test
@@ -180,23 +164,19 @@ class ListingViewModelTest {
             favoriteRepository = favoriteRepository,
         )
 
-        try {
-            viewModel.load()
-            val content = viewModel.awaitContent()
+        viewModel.load()
+        val content = viewModel.awaitContent()
 
-            assertEquals(
-                favoritedAt,
-                content.rows.first { it.ad.propertyCode == matchingAd.propertyCode }
-                    .favoritedAtEpochMillis,
-            )
-            assertEquals(
-                null,
-                content.rows.first { it.ad.propertyCode == otherAd.propertyCode }
-                    .favoritedAtEpochMillis,
-            )
-        } finally {
-            viewModel.clear()
-        }
+        assertEquals(
+            favoritedAt,
+            content.rows.first { it.ad.propertyCode == matchingAd.propertyCode }
+                .favoritedAtEpochMillis,
+        )
+        assertEquals(
+            null,
+            content.rows.first { it.ad.propertyCode == otherAd.propertyCode }
+                .favoritedAtEpochMillis,
+        )
     }
 
     private fun newViewModel(
