@@ -28,9 +28,9 @@ feature is approved to include meaningful automated coverage.
 **Independent test**: A mocked successful list response renders every returned ad;
 empty, error, retry, and favorite-row states are covered without the detail screen.
 
-- [ ] T010 [P] [US1] Write MockWebServer mapping/error tests in `app/src/test/java/com/xiao/idealistachallenge/data/remote/IdealistaApiMappingTest.kt`.
-- [ ] T011 [P] [US1] Write listing repository tests for success, empty response, malformed payload, and transport error in `app/src/test/java/com/xiao/idealistachallenge/data/repository/AdRepositoryTest.kt`.
-- [ ] T012 [P] [US1] Write ViewModel StateFlow tests for loading, content, empty, error, retry, and favorite-date projection in `app/src/test/java/com/xiao/idealistachallenge/ui/listing/ListingViewModelTest.kt`.
+- [X] T010 [P] [US1] Write MockWebServer mapping/error tests in `app/src/test/java/com/xiao/idealistachallenge/data/remote/IdealistaApiMappingTest.kt`.
+- [X] T011 [P] [US1] Write listing repository tests for success, empty response, malformed payload, and transport error in `app/src/test/java/com/xiao/idealistachallenge/data/repository/AdRepositoryTest.kt`.
+- [X] T012 [P] [US1] Write ViewModel StateFlow tests for loading, content, empty, error, retry, and favorite-date projection in `app/src/test/java/com/xiao/idealistachallenge/ui/listing/ListingViewModelTest.kt`.
 - [ ] T013 Implement list repository mapping in `app/src/main/java/com/xiao/idealistachallenge/data/repository/AdRepository.kt`.
 - [ ] T014 Implement `ListingViewModel` and immutable row UI models in `app/src/main/java/com/xiao/idealistachallenge/ui/listing/ListingViewModel.kt`.
 - [ ] T015 [P] [US1] Create listing card and screen XML in `app/src/main/res/layout/item_listing.xml` and `fragment_listing.xml` with loading, empty, error, retry, and accessible favorite controls.
