@@ -15,6 +15,7 @@ class DetailPresentation(
 ) {
     fun present(details: PropertyDetails): Content = Content(
         typeAndOperation = typeAndOperation(details.propertyType, details.operation),
+        location = location(details),
         price = context.getString(
             R.string.detail_price_with_currency_suffix,
             NumberFormat.getNumberInstance(SPANISH_LOCALE).format(details.price),
@@ -49,6 +50,15 @@ class DetailPresentation(
         }
     }
 
+    private fun location(details: PropertyDetails): String? = listOf(
+        details.address,
+        details.district,
+        details.municipality,
+    ).mapNotNull { it?.trim()?.takeIf(String::isNotEmpty) }
+        .distinct()
+        .joinToString(", ")
+        .takeIf(String::isNotEmpty)
+
     private fun primaryFacts(details: PropertyDetails): List<String> = buildList {
         details.constructedAreaSquareMeters?.let { add(context.getString(R.string.property_size, it)) }
         details.rooms?.let { add(context.getString(R.string.property_rooms_compact, it)) }
@@ -81,6 +91,7 @@ class DetailPresentation(
 
     data class Content(
         val typeAndOperation: String?,
+        val location: String?,
         val price: String,
         val primaryFacts: List<String>,
         val secondaryFacts: List<String>,

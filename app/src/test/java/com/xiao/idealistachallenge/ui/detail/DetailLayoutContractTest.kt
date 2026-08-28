@@ -42,6 +42,7 @@ class DetailLayoutContractTest {
             "detailMediaViewport",
             "detailPropertyTypeOperation",
             "detailPrice",
+            "detailLocation",
             "detailPrimaryFacts",
             "detailSecondaryFacts",
             "detailSavedState",
@@ -57,9 +58,9 @@ class DetailLayoutContractTest {
     }
 
     @Test
-    fun `detail layout does not present coordinate-only location text`() {
+    fun `detail layout presents textual location but never coordinates`() {
         val layout = layoutFile().readText()
-        assertFalse(layout.contains("detailLocation"))
+        assertTrue(layout.contains("detailLocation"))
         assertFalse(layout.contains("latitude", ignoreCase = true))
         assertFalse(layout.contains("longitude", ignoreCase = true))
         assertFalse(layout.contains("ubication", ignoreCase = true))

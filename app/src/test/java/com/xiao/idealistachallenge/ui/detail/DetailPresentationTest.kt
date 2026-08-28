@@ -25,6 +25,19 @@ class DetailPresentationTest {
     }
 
     @Test
+    fun `presents supported textual address without coordinates`() {
+        val content = presentation.present(
+            details(
+                address = "calle de Fortuny",
+                district = "Almagro",
+                municipality = "Madrid",
+            ),
+        )
+
+        assertEquals("calle de Fortuny, Almagro, Madrid", content.location)
+    }
+
+    @Test
     fun `separates primary and secondary facts in the approved order`() {
         val content = presentation.present(
             details(
@@ -106,6 +119,9 @@ class DetailPresentationTest {
     private fun details(
         propertyType: String? = null,
         operation: String? = null,
+        address: String? = null,
+        municipality: String? = null,
+        district: String? = null,
         constructedAreaSquareMeters: Int? = null,
         rooms: Int? = null,
         bathrooms: Int? = null,
@@ -124,6 +140,9 @@ class DetailPresentationTest {
         currencySuffix = "€",
         propertyType = propertyType,
         operation = operation,
+        address = address,
+        municipality = municipality,
+        district = district,
         constructedAreaSquareMeters = constructedAreaSquareMeters,
         rooms = rooms,
         bathrooms = bathrooms,

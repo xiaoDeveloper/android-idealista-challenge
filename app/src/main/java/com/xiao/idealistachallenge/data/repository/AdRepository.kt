@@ -15,9 +15,13 @@ import kotlinx.serialization.json.JsonPrimitive
 class AdRepository(
     private val api: IdealistaApi,
 ) {
+    @Volatile
+    private var cachedAdsById: Map<String, PropertyAd> = emptyMap()
 
     suspend fun loadAds(): Result<List<PropertyAd>> = try {
-        Result.success(api.listAds().map(PropertyAdDto::toModel))
+        val ads = api.listAds().map(PropertyAdDto::toModel)
+        cachedAdsById = ads.associateBy(PropertyAd::propertyCode)
+        Result.success(ads)
     } catch (cancellation: CancellationException) {
         throw cancellation
     } catch (failure: Exception) {
@@ -25,7 +29,24 @@ class AdRepository(
     }
 
     suspend fun loadDetails(selectedAdId: String): Result<PropertyDetails> = try {
-        Result.success(api.getDetails().toModel(selectedAdId))
+        val selectedAd = cachedAdsById[selectedAdId] ?: loadAds().getOrThrow()
+            .firstOrNull { it.propertyCode == selectedAdId }
+            ?: error("Selected listing was not found")
+        val listingDetails = selectedAd.toDetails()
+        val fixedDetails = try {
+            api.getDetails()
+        } catch (cancellation: CancellationException) {
+            throw cancellation
+        } catch (_: Exception) {
+            null
+        }
+
+        Result.success(
+            fixedDetails
+                ?.takeIf { it.adid?.toString() == selectedAd.propertyCode }
+                ?.enrich(listingDetails)
+                ?: listingDetails,
+        )
     } catch (cancellation: CancellationException) {
         throw cancellation
     } catch (failure: Exception) {
@@ -44,6 +65,7 @@ private fun PropertyAdDto.toModel(): PropertyAd {
         price = displayPrice,
         currencySuffix = nestedPrice?.amount?.let { nestedPrice.currencySuffix },
         propertyType = propertyType,
+        operation = operation?.takeIf(String::isNotBlank),
         address = address,
         municipality = municipality,
         district = district,
@@ -64,20 +86,26 @@ private fun BigDecimal?.toOptionalInt(): Int? {
     }
 }
 
-private fun PropertyDetailsDto.toModel(selectedAdId: String): PropertyDetails {
+private fun PropertyAd.toDetails(): PropertyDetails = PropertyDetails(
+    selectedAdId = propertyCode,
+    price = price,
+    description = description,
+    images = images,
+    currencySuffix = currencySuffix,
+    propertyType = propertyType,
+    operation = operation,
+    address = address,
+    municipality = municipality,
+    district = district,
+    constructedAreaSquareMeters = sizeSquareMeters,
+    rooms = rooms,
+    bathrooms = bathrooms,
+)
+
+private fun PropertyDetailsDto.enrich(listingDetails: PropertyDetails): PropertyDetails {
     val characteristics = moreCharacteristics
-    return PropertyDetails(
-        selectedAdId = selectedAdId.requireValue("selectedAdId"),
-        remoteAdId = adid ?: error("Missing required adid"),
-        price = price ?: priceInfo?.amount ?: error("Missing required price"),
-        description = propertyComment ?: description,
-        images = multimedia?.images.toPropertyImages(),
-        currencySuffix = priceInfo?.currencySuffix?.takeIf(String::isNotBlank),
-        propertyType = homeType.firstNonBlank(extendedPropertyType, propertyType),
-        operation = operation?.takeIf(String::isNotBlank),
-        constructedAreaSquareMeters = characteristics["constructedArea"].toNonNegativeInt(),
-        rooms = characteristics["roomNumber"].toNonNegativeInt(),
-        bathrooms = characteristics["bathNumber"].toNonNegativeInt(),
+    return listingDetails.copy(
+        remoteAdId = adid,
         floor = characteristics["floor"].toNonBlankString(),
         isExterior = characteristics["exterior"].toBooleanOrNull(),
         hasLift = characteristics["lift"].toBooleanOrNull(),
@@ -97,9 +125,6 @@ private fun List<com.xiao.idealistachallenge.data.remote.ImageDto>?.toPropertyIm
             PropertyImage(url = url, semanticTag = PropertyImageTag.fromRemote(image.tag))
         }
     }
-
-private fun String?.firstNonBlank(vararg fallbacks: String?): String? =
-    sequenceOf(this, *fallbacks).firstOrNull { !it.isNullOrBlank() }
 
 private fun kotlinx.serialization.json.JsonElement?.toNonNegativeInt(): Int? =
     (this as? JsonPrimitive)?.content?.toBigDecimalOrNull()?.let { value ->

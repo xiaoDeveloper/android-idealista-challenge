@@ -15,6 +15,7 @@ class PropertyModelsTest {
             price = BigDecimal("123456.78"),
             currencySuffix = "€",
             propertyType = "flat",
+            operation = "sale",
             address = "Calle Example 1",
             municipality = "Madrid",
             district = "Centro",
@@ -32,6 +33,7 @@ class PropertyModelsTest {
 
         assertEquals("P-42", ad.propertyCode)
         assertEquals(BigDecimal("123456.78"), ad.price)
+        assertEquals("sale", ad.operation)
         assertEquals(80, ad.sizeSquareMeters)
         assertEquals(
             listOf(
@@ -80,6 +82,9 @@ class PropertyModelsTest {
             currencySuffix = "€",
             propertyType = "flat",
             operation = "sale",
+            address = "Calle Example 1",
+            municipality = "Madrid",
+            district = "Centro",
             constructedAreaSquareMeters = 133,
             rooms = 3,
             bathrooms = 2,
@@ -97,6 +102,7 @@ class PropertyModelsTest {
         assertEquals(1, details.remoteAdId)
         assertEquals("€", details.currencySuffix)
         assertEquals("flat", details.propertyType)
+        assertEquals("Calle Example 1", details.address)
         assertEquals(133, details.constructedAreaSquareMeters)
         assertEquals(false, details.isExterior)
         assertEquals(EnergyRating.E, details.energyConsumptionRating)

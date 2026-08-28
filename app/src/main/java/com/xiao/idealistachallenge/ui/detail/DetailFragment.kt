@@ -135,6 +135,8 @@ class DetailFragment : Fragment(R.layout.fragment_detail), MenuProvider {
         detailPropertyTypeOperation.text = presentation.typeAndOperation
         detailPropertyTypeOperation.isVisible = presentation.typeAndOperation != null
         detailPrice.text = presentation.price
+        detailLocation.text = presentation.location
+        detailLocation.isVisible = presentation.location != null
         bindFacts(detailPrimaryFacts, presentation.primaryFacts, R.layout.item_detail_primary_fact)
         bindFacts(detailSecondaryFacts, presentation.secondaryFacts, R.layout.item_detail_secondary_fact)
         bindSavedState(state.favoritedAtEpochMillis)

@@ -4,8 +4,8 @@ import java.math.BigDecimal
 
 data class PropertyDetails(
     val selectedAdId: String,
-    val remoteAdId: Int,
     val price: BigDecimal,
+    val remoteAdId: Int? = null,
     val description: String? = null,
     val images: List<PropertyImage> = emptyList(),
     /** Temporary compatibility projection for the inherited detail image binding. */
@@ -14,6 +14,9 @@ data class PropertyDetails(
     val currencySuffix: String? = null,
     val propertyType: String? = null,
     val operation: String? = null,
+    val address: String? = null,
+    val municipality: String? = null,
+    val district: String? = null,
     val constructedAreaSquareMeters: Int? = null,
     val rooms: Int? = null,
     val bathrooms: Int? = null,

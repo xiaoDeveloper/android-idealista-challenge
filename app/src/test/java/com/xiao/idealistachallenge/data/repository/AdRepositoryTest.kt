@@ -42,6 +42,7 @@ class AdRepositoryTest {
                             ),
                         ),
                         propertyType = "flat",
+                        operation = "rent",
                         address = "Calle Mayor 1",
                         municipality = "Madrid",
                         district = "Centro",
@@ -72,6 +73,7 @@ class AdRepositoryTest {
                     price = BigDecimal("1200.0"),
                     currencySuffix = "€/mes",
                     propertyType = "flat",
+                    operation = "rent",
                     address = "Calle Mayor 1",
                     municipality = "Madrid",
                     district = "Centro",
@@ -190,73 +192,117 @@ class AdRepositoryTest {
     }
 
     @Test
-    fun `loadDetails maps currency suffix type precedence typed facts and dedicated valid energy ratings`() = runBlocking {
-        val result = AdRepository(
-            FakeIdealistaApi(
-                details = PropertyDetailsDto(
-                    adid = 1,
+    fun `loadDetails keeps a nonmatching selected listing's core content`() = runBlocking {
+        val api = FakeIdealistaApi(
+            ads = listOf(
+                PropertyAdDto(
+                    propertyCode = "2",
                     price = BigDecimal("1200"),
-                    priceInfo = DetailPriceInfoDto(
-                        amount = BigDecimal("1200"),
-                        currencySuffix = "€",
-                    ),
-                    propertyType = "homes",
-                    extendedPropertyType = "flat",
-                    homeType = "penthouse",
-                    operation = "sale",
+                    priceInfo = PriceInfoDto(PriceValueDto(BigDecimal("1200"), "€/mes")),
+                    propertyType = "flat",
+                    operation = "rent",
+                    address = "Calle de Fortuny",
+                    municipality = "Madrid",
+                    district = "Almagro",
+                    size = BigDecimal("241"),
+                    rooms = 4,
+                    bathrooms = 4,
+                    description = "Listing two description",
                     multimedia = MultimediaDto(
-                        images = listOf(
-                            ImageDto("https://images.example/detail-1.jpg", "kitchen"),
-                            ImageDto(" ", "bedroom"),
-                            ImageDto("https://images.example/detail-2.jpg", "communalareas"),
+                        listOf(
+                            ImageDto("https://images.example/listing-2-a.jpg", "livingRoom"),
+                            ImageDto("https://images.example/listing-2-b.jpg", "bedroom"),
                         ),
                     ),
-                    moreCharacteristics = mapOf(
-                        "constructedArea" to JsonPrimitive(133),
-                        "roomNumber" to JsonPrimitive(3),
-                        "bathNumber" to JsonPrimitive(2),
-                        "floor" to JsonPrimitive("2"),
-                        "exterior" to JsonPrimitive(false),
-                        "lift" to JsonPrimitive(true),
-                        "boxroom" to JsonPrimitive(false),
-                        "isDuplex" to JsonPrimitive(true),
-                        "communityCosts" to JsonPrimitive(330),
-                        "energyCertificationType" to JsonPrimitive("g"),
-                    ),
-                    energyCertification = EnergyCertificationDto(
-                        energyConsumption = EnergyGradeDto(type = "a"),
-                        emissions = EnergyGradeDto(type = "invalid"),
-                    ),
                 ),
             ),
-        ).loadDetails("selected-listing-42")
-
-        assertEquals(
-            PropertyDetails(
-                selectedAdId = "selected-listing-42",
-                remoteAdId = 1,
-                price = BigDecimal("1200"),
-                currencySuffix = "€",
-                propertyType = "penthouse",
-                operation = "sale",
-                images = listOf(
-                    PropertyImage("https://images.example/detail-1.jpg", PropertyImageTag.KITCHEN),
-                    PropertyImage("https://images.example/detail-2.jpg"),
-                ),
-                constructedAreaSquareMeters = 133,
-                rooms = 3,
-                bathrooms = 2,
-                floor = "2",
-                isExterior = false,
-                hasLift = true,
-                hasStorageRoom = false,
-                isDuplex = true,
-                communityCosts = BigDecimal("330"),
-                energyConsumptionRating = EnergyRating.A,
-                energyEmissionsRating = null,
-            ),
-            result.getOrNull(),
+            details = detailDto(adid = 1),
         )
+        val repository = AdRepository(api)
+        repository.loadAds()
+
+        val details = repository.loadDetails("2").getOrThrow()
+
+        assertEquals("2", details.selectedAdId)
+        assertEquals(BigDecimal("1200"), details.price)
+        assertEquals("€/mes", details.currencySuffix)
+        assertEquals("flat", details.propertyType)
+        assertEquals("rent", details.operation)
+        assertEquals("Calle de Fortuny", details.address)
+        assertEquals("Madrid", details.municipality)
+        assertEquals("Almagro", details.district)
+        assertEquals("Listing two description", details.description)
+        assertEquals(241, details.constructedAreaSquareMeters)
+        assertEquals(4, details.rooms)
+        assertEquals(4, details.bathrooms)
+        assertEquals(
+            listOf(
+                PropertyImage("https://images.example/listing-2-a.jpg", PropertyImageTag.LIVING_ROOM),
+                PropertyImage("https://images.example/listing-2-b.jpg", PropertyImageTag.BEDROOM),
+            ),
+            details.images,
+        )
+        assertEquals(null, details.floor)
+        assertEquals(null, details.energyConsumptionRating)
+        assertEquals(null, details.remoteAdId)
+        assertEquals(1, api.listRequestCount)
+    }
+
+    @Test
+    fun `loadDetails enriches only a listing whose identity matches fixed detail`() = runBlocking {
+        val repository = AdRepository(
+            FakeIdealistaApi(
+                ads = listOf(
+                    PropertyAdDto(
+                        propertyCode = "1",
+                        price = BigDecimal("1195000"),
+                        propertyType = "flat",
+                        size = BigDecimal("133"),
+                        rooms = 3,
+                        bathrooms = 2,
+                        description = "Listing one description",
+                        multimedia = MultimediaDto(listOf(ImageDto("https://images.example/listing-1.jpg", "livingRoom"))),
+                    ),
+                ),
+                details = detailDto(adid = 1),
+            ),
+        )
+
+        val details = repository.loadDetails("1").getOrThrow()
+
+        assertEquals("Listing one description", details.description)
+        assertEquals(listOf(PropertyImage("https://images.example/listing-1.jpg", PropertyImageTag.LIVING_ROOM)), details.images)
+        assertEquals("2", details.floor)
+        assertEquals(true, details.hasLift)
+        assertEquals(EnergyRating.A, details.energyConsumptionRating)
+        assertEquals(1, details.remoteAdId)
+    }
+
+    @Test
+    fun `loadDetails refreshes the listing when its snapshot is absent`() = runBlocking {
+        val api = FakeIdealistaApi(
+            ads = listOf(PropertyAdDto(propertyCode = "2", price = BigDecimal("1200"))),
+            details = detailDto(adid = 1),
+        )
+
+        val details = AdRepository(api).loadDetails("2").getOrThrow()
+
+        assertEquals(BigDecimal("1200"), details.price)
+        assertEquals(1, api.listRequestCount)
+    }
+
+    @Test
+    fun `loadDetails omits fixed enrichment when that request fails`() = runBlocking {
+        val details = AdRepository(
+            FakeIdealistaApi(
+                ads = listOf(PropertyAdDto(propertyCode = "2", price = BigDecimal("1200"))),
+                detailFailure = IOException("detail unavailable"),
+            ),
+        ).loadDetails("2").getOrThrow()
+
+        assertEquals(BigDecimal("1200"), details.price)
+        assertEquals(null, details.remoteAdId)
+        assertEquals(null, details.floor)
     }
 }
 
@@ -264,14 +310,51 @@ private class FakeIdealistaApi(
     private val ads: List<PropertyAdDto> = emptyList(),
     private val details: PropertyDetailsDto? = null,
     private val failure: Throwable? = null,
+    private val detailFailure: Throwable? = null,
 ) : IdealistaApi {
+    var listRequestCount = 0
+        private set
 
     override suspend fun listAds(): List<PropertyAdDto> {
+        listRequestCount += 1
         failure?.let { throw it }
         return ads
     }
 
     override suspend fun getDetails(): PropertyDetailsDto {
+        detailFailure?.let { throw it }
         return checkNotNull(details) { "Detail endpoint was not configured for this test" }
     }
 }
+
+private fun detailDto(adid: Int): PropertyDetailsDto = PropertyDetailsDto(
+    adid = adid,
+    price = BigDecimal("1195000"),
+    priceInfo = DetailPriceInfoDto(amount = BigDecimal("1195000"), currencySuffix = "€"),
+    propertyType = "homes",
+    extendedPropertyType = "flat",
+    homeType = "penthouse",
+    operation = "sale",
+    propertyComment = "Fixed property one description",
+    multimedia = MultimediaDto(
+        images = listOf(
+            ImageDto("https://images.example/detail-1.jpg", "kitchen"),
+            ImageDto("https://images.example/detail-2.jpg", "communalareas"),
+        ),
+    ),
+    moreCharacteristics = mapOf(
+        "constructedArea" to JsonPrimitive(133),
+        "roomNumber" to JsonPrimitive(3),
+        "bathNumber" to JsonPrimitive(2),
+        "floor" to JsonPrimitive("2"),
+        "exterior" to JsonPrimitive(false),
+        "lift" to JsonPrimitive(true),
+        "boxroom" to JsonPrimitive(false),
+        "isDuplex" to JsonPrimitive(true),
+        "communityCosts" to JsonPrimitive(330),
+    ),
+    energyCertification = EnergyCertificationDto(
+        energyConsumption = EnergyGradeDto(type = "a"),
+        emissions = EnergyGradeDto(type = "invalid"),
+    ),
+)

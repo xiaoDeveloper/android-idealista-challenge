@@ -41,6 +41,7 @@ class DetailViewModelTest {
                 Result.success(detailDto(description = retryDescription)),
             )),
             "listing-description",
+            listingDescription = description,
         )
 
         viewModel.load()
@@ -62,10 +63,10 @@ class DetailViewModelTest {
 
         viewModel.retry()
         val rerendered = viewModel.uiState.first {
-            it is DetailUiState.Content && it.details.description == retryDescription
+            it is DetailUiState.Content && it.details.description == description
         } as DetailUiState.Content
         assertFalse(rerendered.isDescriptionExpanded)
-        assertEquals(retryDescription, rerendered.details.description)
+        assertEquals(description, rerendered.details.description)
     }
 
     @Test fun `short or absent descriptions start collapsed without changing their source text`() = runBlocking {
@@ -73,6 +74,7 @@ class DetailViewModelTest {
             val viewModel = newViewModel(
                 FakeDetailApi(listOf(Result.success(detailDto(description = description)))),
                 "listing-$index",
+                listingDescription = description,
             )
             viewModel.load()
             viewModel.uiState.first { it is DetailUiState.Content }
@@ -89,7 +91,7 @@ class DetailViewModelTest {
         viewModel.load()
         val content = viewModel.uiState.first { it is DetailUiState.Content } as DetailUiState.Content
         assertEquals("listing-42", content.details.selectedAdId)
-        assertEquals(1, content.details.remoteAdId)
+        assertEquals(null, content.details.remoteAdId)
     }
 
     @Test fun `successful fixed response retains selected listing identity as local context`() = runBlocking {
@@ -97,20 +99,23 @@ class DetailViewModelTest {
         viewModel.load()
         val content = viewModel.uiState.first { it is DetailUiState.Content } as DetailUiState.Content
 
-        assertEquals(PropertyDetails(
-            selectedAdId = "listing-99", remoteAdId = 1, price = BigDecimal("1195000.0"),
-            description = "Detailed description",
-            images = listOf(PropertyImage("https://images.example/detail.jpg")),
-            latitude = BigDecimal("40.4"), longitude = BigDecimal("-3.6"),
-            rooms = 3,
-        ), content.details)
+        assertEquals(
+            PropertyDetails(
+                selectedAdId = "listing-99",
+                price = BigDecimal("1195000.0"),
+                description = "Listing description",
+            ),
+            content.details,
+        )
         assertEquals(null, content.favoritedAtEpochMillis)
     }
 
     @Test fun `detail failure exposes stable friendly copy instead of the raw exception`() = runBlocking {
         val rawFailureMessage = "raw backend token and stack details"
         val viewModel = newViewModel(
-            FakeDetailApi(listOf(Result.failure(IOException(rawFailureMessage)))), "listing-42",
+            FakeDetailApi(listOf(Result.failure(IOException(rawFailureMessage)))),
+            "listing-42",
+            listingAvailable = false,
         )
         viewModel.load()
         val error = viewModel.uiState.first { it is DetailUiState.Error } as DetailUiState.Error
@@ -119,12 +124,12 @@ class DetailViewModelTest {
         assertFalse(error.toString().contains(rawFailureMessage))
     }
 
-    @Test fun `retry after detail failure reaches content with the original selected identity`() = runBlocking {
+    @Test fun `retry after optional fixed detail failure keeps the selected listing content`() = runBlocking {
         val viewModel = newViewModel(FakeDetailApi(listOf(
             Result.failure(IOException("temporary failure")), Result.success(detailDto()),
         )), "listing-recovered")
         viewModel.load()
-        assertTrue(viewModel.uiState.first { it is DetailUiState.Error } is DetailUiState.Error)
+        assertTrue(viewModel.uiState.first { it is DetailUiState.Content } is DetailUiState.Content)
         viewModel.retry()
         val content = viewModel.uiState.first { it is DetailUiState.Content } as DetailUiState.Content
         assertEquals("listing-recovered", content.details.selectedAdId)
@@ -158,11 +163,35 @@ class DetailViewModelTest {
         selectedAdId: String,
         favoriteRepository: FavoriteRepository = FavoriteRepository(InMemoryFavoriteDao()),
         nowEpochMillis: () -> Long = { System.currentTimeMillis() },
+        listingDescription: String? = "Listing description",
+        listingAvailable: Boolean = true,
     ): DetailViewModel = DetailViewModel(
-        adRepository = AdRepository(api), favoriteRepository = favoriteRepository,
+        adRepository = AdRepository(
+            if (listingAvailable) {
+                SelectedListingApi(
+                    detailApi = api,
+                    selectedListing = PropertyAdDto(
+                        propertyCode = selectedAdId,
+                        price = BigDecimal("1195000.0"),
+                        description = listingDescription,
+                    ),
+                )
+            } else {
+                api
+            },
+        ), favoriteRepository = favoriteRepository,
         selectedAdId = selectedAdId, dispatcher = Dispatchers.Unconfined,
         nowEpochMillis = nowEpochMillis,
     )
+}
+
+private class SelectedListingApi(
+    private val detailApi: IdealistaApi,
+    private val selectedListing: PropertyAdDto,
+) : IdealistaApi {
+    override suspend fun listAds(): List<PropertyAdDto> = listOf(selectedListing)
+
+    override suspend fun getDetails(): PropertyDetailsDto = detailApi.getDetails()
 }
 
 private class FakeDetailApi(responses: List<Result<PropertyDetailsDto>>) : IdealistaApi {

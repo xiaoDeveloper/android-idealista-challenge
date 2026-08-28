@@ -22,6 +22,7 @@ data class PropertyAdDto(
     val price: BigDecimal? = null,
     val priceInfo: PriceInfoDto? = null,
     val propertyType: String? = null,
+    val operation: String? = null,
     val address: String? = null,
     val municipality: String? = null,
     val district: String? = null,
