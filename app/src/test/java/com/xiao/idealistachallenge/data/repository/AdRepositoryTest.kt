@@ -378,14 +378,30 @@ class AdRepositoryTest {
                         multimedia = MultimediaDto(listOf(ImageDto("https://images.example/listing-1.jpg", "livingRoom"))),
                     ),
                 ),
-                details = detailDto(adid = 1),
+                details = detailDto(
+                    adid = 1,
+                    images = listOf(
+                        ImageDto(" https://images.example/detail-first.jpg ", "kitchen", "Cocina original"),
+                        ImageDto("https://images.example/detail-first.jpg", "bedroom", "Duplicada"),
+                        ImageDto("https://images.example/detail-second.jpg", "communalareas", "Zonas comunes"),
+                        ImageDto(" ", "livingRoom", "Se ignora"),
+                        ImageDto("https://images.example/detail-third.jpg", "unknown", " Terraza "),
+                    ),
+                ),
             ),
         )
 
         val details = repository.loadDetails("1").getOrThrow()
 
         assertEquals("Listing one description", details.description)
-        assertEquals(listOf(PropertyImage("https://images.example/listing-1.jpg", PropertyImageTag.LIVING_ROOM)), details.images)
+        assertEquals(
+            listOf(
+                PropertyImage("https://images.example/detail-first.jpg", PropertyImageTag.KITCHEN, "Cocina original"),
+                PropertyImage("https://images.example/detail-second.jpg", PropertyImageTag.COMMUNAL_AREAS, "Zonas comunes"),
+                PropertyImage("https://images.example/detail-third.jpg", null, "Terraza"),
+            ),
+            details.images,
+        )
         assertEquals("2", details.floor)
         assertEquals(true, details.hasLift)
         assertEquals(EnergyRating.A, details.energyConsumptionRating)
@@ -409,7 +425,13 @@ class AdRepositoryTest {
     fun `loadDetails omits fixed enrichment when that request fails`() = runBlocking {
         val details = AdRepository(
             FakeIdealistaApi(
-                ads = listOf(PropertyAdDto(propertyCode = "2", price = BigDecimal("1200"))),
+                ads = listOf(
+                    PropertyAdDto(
+                        propertyCode = "2",
+                        price = BigDecimal("1200"),
+                        multimedia = MultimediaDto(listOf(ImageDto("https://images.example/listing-fallback.jpg"))),
+                    ),
+                ),
                 detailFailure = IOException("detail unavailable"),
             ),
         ).loadDetails("2").getOrThrow()
@@ -417,6 +439,26 @@ class AdRepositoryTest {
         assertEquals(BigDecimal("1200"), details.price)
         assertEquals(null, details.remoteAdId)
         assertEquals(null, details.floor)
+        assertEquals(listOf(PropertyImage("https://images.example/listing-fallback.jpg")), details.images)
+    }
+
+    @Test
+    fun `loadDetails keeps snapshot media when matching detail has no valid images`() = runBlocking {
+        val details = AdRepository(
+            FakeIdealistaApi(
+                ads = listOf(
+                    PropertyAdDto(
+                        propertyCode = "1",
+                        price = BigDecimal("1200"),
+                        multimedia = MultimediaDto(listOf(ImageDto("https://images.example/listing-fallback.jpg"))),
+                    ),
+                ),
+                details = detailDto(adid = 1, images = listOf(ImageDto(" "), ImageDto(null))),
+            ),
+        ).loadDetails("1").getOrThrow()
+
+        assertEquals(listOf(PropertyImage("https://images.example/listing-fallback.jpg")), details.images)
+        assertEquals(1, details.remoteAdId)
     }
 }
 
@@ -441,7 +483,13 @@ private class FakeIdealistaApi(
     }
 }
 
-private fun detailDto(adid: Int): PropertyDetailsDto = PropertyDetailsDto(
+private fun detailDto(
+    adid: Int,
+    images: List<ImageDto> = listOf(
+        ImageDto("https://images.example/detail-1.jpg", "kitchen"),
+        ImageDto("https://images.example/detail-2.jpg", "communalareas"),
+    ),
+): PropertyDetailsDto = PropertyDetailsDto(
     adid = adid,
     price = BigDecimal("1195000"),
     priceInfo = DetailPriceInfoDto(amount = BigDecimal("1195000"), currencySuffix = "€"),
@@ -450,12 +498,7 @@ private fun detailDto(adid: Int): PropertyDetailsDto = PropertyDetailsDto(
     homeType = "penthouse",
     operation = "sale",
     propertyComment = "Fixed property one description",
-    multimedia = MultimediaDto(
-        images = listOf(
-            ImageDto("https://images.example/detail-1.jpg", "kitchen"),
-            ImageDto("https://images.example/detail-2.jpg", "communalareas"),
-        ),
-    ),
+    multimedia = MultimediaDto(images),
     moreCharacteristics = mapOf(
         "constructedArea" to JsonPrimitive(133),
         "roomNumber" to JsonPrimitive(3),

@@ -41,6 +41,7 @@ class TestApp : App() {
 }
 
 private const val INLINE_IMAGE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLk7wAAAABJRU5ErkJggg=="
+private fun detailImage(index: Int) = INLINE_IMAGE.replace("image/png", "image/png;name=detail-$index")
 private const val FIXTURE_LONG_DESCRIPTION = """
 Primera parte de la descripción de prueba con información suficiente para formar una vista previa de varias líneas sin cambiar el texto original.
 
@@ -157,10 +158,17 @@ private object FixtureIdealistaApi : IdealistaApi {
         propertyComment = FIXTURE_LONG_DESCRIPTION,
         multimedia = MultimediaDto(
             listOf(
-                ImageDto(INLINE_IMAGE, "livingRoom"),
-                ImageDto(INLINE_IMAGE, "communalareas"),
-                ImageDto(INLINE_IMAGE),
-                ImageDto(INLINE_IMAGE, "bedroom"),
+                ImageDto(detailImage(1), "livingRoom", "Salón"),
+                ImageDto(detailImage(2)),
+                ImageDto(detailImage(3), "unknown", "Terraza"),
+                ImageDto(detailImage(4), "bedroom", "Dormitorio"),
+                ImageDto(detailImage(5), "kitchen", "Cocina"),
+                ImageDto(detailImage(6), "bathroom", "Baño"),
+                ImageDto(detailImage(7), "facade", "Fachada"),
+                ImageDto(detailImage(8), "corridor", "Pasillo"),
+                ImageDto(detailImage(9), "communalareas", "Zonas comunes"),
+                ImageDto(detailImage(10), "bathroom", "Baño"),
+                ImageDto(detailImage(1), "bedroom", "Duplicada"),
             ),
         ),
         ubication = LocationDto(latitude = BigDecimal("40.4363"), longitude = BigDecimal("-3.6834")),

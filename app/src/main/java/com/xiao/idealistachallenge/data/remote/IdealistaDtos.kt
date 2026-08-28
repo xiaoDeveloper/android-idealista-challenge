@@ -99,6 +99,7 @@ data class MultimediaDto(
 data class ImageDto(
     val url: String? = null,
     val tag: String? = null,
+    val localizedName: String? = null,
 )
 
 @Serializable

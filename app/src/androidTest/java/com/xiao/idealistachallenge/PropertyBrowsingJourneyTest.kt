@@ -124,21 +124,27 @@ class PropertyBrowsingJourneyTest {
     }
 
     @Test
-    fun fixedDetailKeepsAllPhotoPositionsAndPresentsOnlyApprovedHierarchy() {
+    fun fixedDetailShowsDeduplicatedLabeledAndUnlabeledDetailMediaPositions() {
         awaitListingRows(5)
         awaitListingRow(0)
         onView(withId(R.id.listingRecyclerView)).perform(
             performChildActionAtPosition(0, R.id.listingCard, click()),
         )
         awaitView(R.id.detailImagePager) { view ->
-            view is RecyclerView && view.isShown && view.adapter?.itemCount == 4
+            view is RecyclerView && view.isShown && view.adapter?.itemCount == 10
         }
 
-        awaitMediaAnnouncement("Salón, foto 1 de 4")
-        onView(withId(R.id.detailImagePosition)).check(matches(isDisplayed()))
+        awaitMediaAnnouncement("Salón, foto 1 de 10")
+        onView(withId(R.id.detailImagePosition)).check(matches(withText("Salón · 1 / 10")))
         onView(withId(R.id.detailImagePager)).perform(swipeLeft())
-        awaitMediaAnnouncement("Foto 2 de 4")
-        onView(withId(R.id.detailImagePosition)).check(matches(withText("2 / 4")))
+        awaitMediaAnnouncement("Foto 2 de 10")
+        onView(withId(R.id.detailImagePosition)).check(matches(withText("2 / 10")))
+        onView(withId(R.id.detailImagePager)).perform(swipeLeft())
+        awaitMediaAnnouncement("Terraza, foto 3 de 10")
+        onView(withId(R.id.detailImagePosition)).check(matches(withText("Terraza · 3 / 10")))
+        repeat(6) { onView(withId(R.id.detailImagePager)).perform(swipeLeft()) }
+        awaitMediaAnnouncement("Zonas comunes, foto 9 de 10")
+        onView(withId(R.id.detailImagePosition)).check(matches(withText("Zonas comunes · 9 / 10")))
         onView(withContentDescription("Guardar vivienda")).check(matches(isDisplayed()))
         onView(withId(R.id.detailPropertyTypeOperation)).check(matches(withText("Piso · Venta")))
         onView(withId(R.id.detailPrimaryFacts)).check(matches(isDisplayed()))
@@ -156,7 +162,7 @@ class PropertyBrowsingJourneyTest {
 
         onView(withContentDescription("Guardar vivienda")).perform(click())
         awaitView(R.id.detailSavedState) { it.isShown }
-        onView(withId(R.id.detailImagePosition)).check(matches(withText("2 / 4")))
+        onView(withId(R.id.detailImagePosition)).check(matches(withText("Zonas comunes · 9 / 10")))
         onView(withId(R.id.detailImagePager)).perform(pressBack())
         awaitListingRows(5)
     }

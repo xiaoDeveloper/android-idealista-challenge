@@ -27,6 +27,7 @@ import com.xiao.idealistachallenge.databinding.FragmentDetailBinding
 import com.xiao.idealistachallenge.model.PropertyImage
 import com.xiao.idealistachallenge.ui.media.PropertyImagePagerAdapter
 import com.xiao.idealistachallenge.ui.media.configurePropertyImagePager
+import com.xiao.idealistachallenge.ui.media.displayLabel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -249,9 +250,16 @@ class DetailFragment : Fragment(R.layout.fragment_detail), MenuProvider {
     }
 
     private fun updateImagePosition(position: Int) = with(binding) {
-        val total = displayedImages.orEmpty().size
+        val images = displayedImages.orEmpty()
+        val total = images.size
         detailImagePosition.isVisible = total > 1
-        detailImagePosition.text = if (total > 1) getString(R.string.property_image_position, position + 1, total) else null
+        detailImagePosition.text = if (total > 1) {
+            images.getOrNull(position)?.displayLabel(requireContext())?.let { label ->
+                getString(R.string.property_image_position_labeled, label, position + 1, total)
+            } ?: getString(R.string.property_image_position, position + 1, total)
+        } else {
+            null
+        }
     }
 
     private fun themeColor(@AttrRes attribute: Int): Int {

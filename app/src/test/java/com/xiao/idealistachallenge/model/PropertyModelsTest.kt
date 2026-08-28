@@ -111,7 +111,7 @@ class PropertyModelsTest {
     @Test
     fun `image tags and energy ratings remain closed to supported values`() {
         assertEquals(PropertyImageTag.BEDROOM, PropertyImageTag.fromRemote("bedroom"))
-        assertEquals(null, PropertyImageTag.fromRemote("communalareas"))
+        assertEquals(PropertyImageTag.COMMUNAL_AREAS, PropertyImageTag.fromRemote("communalareas"))
         assertEquals(EnergyRating.G, EnergyRating.fromRemote("g"))
         assertEquals(null, EnergyRating.fromRemote("not-rated"))
     }

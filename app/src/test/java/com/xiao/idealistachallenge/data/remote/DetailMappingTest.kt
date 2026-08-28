@@ -47,6 +47,11 @@ class DetailMappingTest {
         assertEquals("sale", detail.operation)
         assertEquals(10, detail.multimedia?.images?.size)
         assertEquals("livingRoom", detail.multimedia?.images?.first()?.tag)
+        assertEquals("Salón", detail.multimedia?.images?.first()?.localizedName)
+        assertEquals(
+            "Zonas comunes",
+            detail.multimedia?.images?.first { it.tag == "communalareas" }?.localizedName,
+        )
         assertTrue(detail.multimedia?.images?.any { it.tag == "communalareas" } == true)
         assertEquals(BigDecimal("40.4362687"), detail.ubication?.latitude)
         assertEquals(BigDecimal("-3.6833686"), detail.ubication?.longitude)

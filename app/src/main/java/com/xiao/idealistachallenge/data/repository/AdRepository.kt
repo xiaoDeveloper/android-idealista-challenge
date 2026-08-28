@@ -115,8 +115,10 @@ private fun PropertyAd.toDetails(): PropertyDetails = PropertyDetails(
 
 private fun PropertyDetailsDto.enrich(listingDetails: PropertyDetails): PropertyDetails {
     val characteristics = moreCharacteristics
+    val detailImages = multimedia?.images.toPropertyImages().distinctBy(PropertyImage::url)
     return listingDetails.copy(
         remoteAdId = adid,
+        images = detailImages.takeIf(List<PropertyImage>::isNotEmpty) ?: listingDetails.images,
         floor = characteristics["floor"].toNonBlankString(),
         isExterior = characteristics["exterior"].toBooleanOrNull(),
         hasLift = characteristics["lift"].toBooleanOrNull(),
@@ -132,8 +134,12 @@ private fun PropertyDetailsDto.enrich(listingDetails: PropertyDetails): Property
 
 private fun List<com.xiao.idealistachallenge.data.remote.ImageDto>?.toPropertyImages(): List<PropertyImage> =
     orEmpty().mapNotNull { image ->
-        image.url?.takeIf(String::isNotBlank)?.let { url ->
-            PropertyImage(url = url, semanticTag = PropertyImageTag.fromRemote(image.tag))
+        image.url?.trim()?.takeIf(String::isNotBlank)?.let { url ->
+            PropertyImage(
+                url = url,
+                semanticTag = PropertyImageTag.fromRemote(image.tag),
+                localizedName = image.localizedName?.trim()?.takeIf(String::isNotBlank),
+            )
         }
     }
 

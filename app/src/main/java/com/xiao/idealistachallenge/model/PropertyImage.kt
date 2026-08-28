@@ -6,6 +6,7 @@ import java.util.Locale
 data class PropertyImage(
     val url: String,
     val semanticTag: PropertyImageTag? = null,
+    val localizedName: String? = null,
 ) {
     init {
         require(url.isNotBlank()) { "image URL must not be blank" }
@@ -19,7 +20,8 @@ enum class PropertyImageTag {
     KITCHEN,
     BATHROOM,
     FACADE,
-    CORRIDOR;
+    CORRIDOR,
+    COMMUNAL_AREAS;
 
     companion object {
         fun fromRemote(value: String?): PropertyImageTag? = when (
@@ -31,6 +33,7 @@ enum class PropertyImageTag {
             "bathroom" -> BATHROOM
             "facade" -> FACADE
             "corridor" -> CORRIDOR
+            "communalareas" -> COMMUNAL_AREAS
             else -> null
         }
     }

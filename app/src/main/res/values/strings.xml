@@ -39,6 +39,7 @@
     <string name="property_image_placeholder">Imagen no disponible</string>
     <string name="property_image_placeholder_content_description">Imagen de la vivienda no disponible</string>
     <string name="property_image_position">%1$d / %2$d</string>
+    <string name="property_image_position_labeled">%1$s · %2$d / %3$d</string>
     <string name="property_image_content_description_tagged">%1$s, foto %2$d de %3$d</string>
     <string name="property_image_content_description_untagged">Foto %1$d de %2$d</string>
     <string name="property_image_load_failed_content_description">Imagen %1$d de %2$d no disponible</string>
@@ -48,6 +49,7 @@
     <string name="property_image_tag_bathroom">Baño</string>
     <string name="property_image_tag_facade">Fachada</string>
     <string name="property_image_tag_corridor">Pasillo</string>
+    <string name="property_image_tag_communal_areas">Zonas comunes</string>
 
     <string name="property_type_fallback">Vivienda</string>
     <string name="property_location_fallback">Ubicación no disponible</string>

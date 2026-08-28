@@ -1,5 +1,6 @@
 package com.xiao.idealistachallenge.ui.media
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -105,22 +106,27 @@ fun RecyclerView.configurePropertyImagePager(onPageSettled: (Int) -> Unit) {
     })
 }
 
-private fun PropertyImage.contentDescription(view: View, position: Int, total: Int): String {
-    val tagLabel = when (semanticTag) {
+fun PropertyImage.displayLabel(context: Context): String? = semanticTag?.let { tag ->
+    val tagLabel = when (tag) {
         PropertyImageTag.LIVING_ROOM -> R.string.property_image_tag_living_room
         PropertyImageTag.BEDROOM -> R.string.property_image_tag_bedroom
         PropertyImageTag.KITCHEN -> R.string.property_image_tag_kitchen
         PropertyImageTag.BATHROOM -> R.string.property_image_tag_bathroom
         PropertyImageTag.FACADE -> R.string.property_image_tag_facade
         PropertyImageTag.CORRIDOR -> R.string.property_image_tag_corridor
-        null -> null
+        PropertyImageTag.COMMUNAL_AREAS -> R.string.property_image_tag_communal_areas
     }
-    return if (tagLabel == null) {
+    context.getString(tagLabel)
+} ?: localizedName
+
+private fun PropertyImage.contentDescription(view: View, position: Int, total: Int): String {
+    val label = displayLabel(view.context)
+    return if (label == null) {
         view.context.getString(R.string.property_image_content_description_untagged, position, total)
     } else {
         view.context.getString(
             R.string.property_image_content_description_tagged,
-            view.context.getString(tagLabel),
+            label,
             position,
             total,
         )
