@@ -203,6 +203,356 @@ class ListingViewModelTest {
             .rows.single().favoritedAtEpochMillis)
     }
 
+    @Test
+    fun `initial discovery state defaults to ALL with no price sort direction in source order`() = runBlocking {
+        val firstAd = propertyAd("ad-1", BigDecimal("200000"), operation = "sale")
+        val secondAd = propertyAd("ad-2", BigDecimal("100000"), operation = "rent")
+        val viewModel = newViewModel(
+            FakeIdealistaApi(
+                responses = listOf(
+                    Result.success(
+                        listOf(
+                            adDto(firstAd.propertyCode, firstAd.price, firstAd.operation),
+                            adDto(secondAd.propertyCode, secondAd.price, secondAd.operation),
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        viewModel.load()
+        val content = viewModel.awaitContent()
+
+        assertEquals(ListingDiscoveryUiState(category = ListingCategory.ALL, priceSortDirection = null), content.discovery)
+        assertEquals(listOf("ad-1", "ad-2"), content.rows.map { it.ad.propertyCode })
+    }
+
+    @Test
+    fun `filtering by SALE or RENT matches normalized trimmed operations in original relative order`() = runBlocking {
+        val saleAd1 = propertyAd("sale-1", BigDecimal("300000"), operation = "sale")
+        val rentAd1 = propertyAd("rent-1", BigDecimal("1200"), operation = " rent ")
+        val saleAd2 = propertyAd("sale-2", BigDecimal("200000"), operation = "SALE")
+        val rentAd2 = propertyAd("rent-2", BigDecimal("1500"), operation = "Rent")
+        val viewModel = newViewModel(
+            FakeIdealistaApi(
+                responses = listOf(
+                    Result.success(
+                        listOf(
+                            adDto(saleAd1.propertyCode, saleAd1.price, saleAd1.operation),
+                            adDto(rentAd1.propertyCode, rentAd1.price, rentAd1.operation),
+                            adDto(saleAd2.propertyCode, saleAd2.price, saleAd2.operation),
+                            adDto(rentAd2.propertyCode, rentAd2.price, rentAd2.operation),
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        viewModel.load()
+        viewModel.awaitContent()
+
+        viewModel.selectCategory(ListingCategory.SALE)
+        val saleContent = viewModel.awaitContent { it.discovery.category == ListingCategory.SALE }
+        assertEquals(listOf("sale-1", "sale-2"), saleContent.rows.map { it.ad.propertyCode })
+
+        viewModel.selectCategory(ListingCategory.RENT)
+        val rentContent = viewModel.awaitContent { it.discovery.category == ListingCategory.RENT }
+        assertEquals(listOf("rent-1", "rent-2"), rentContent.rows.map { it.ad.propertyCode })
+    }
+
+    @Test
+    fun `unsupported or missing operations appear only in ALL and are excluded from SALE and RENT`() = runBlocking {
+        val unsupportedAd = propertyAd("other-1", BigDecimal("150000"), operation = "unknown")
+        val missingOpAd = propertyAd("other-2", BigDecimal("160000"), operation = null)
+        val blankOpAd = propertyAd("other-3", BigDecimal("170000"), operation = "   ")
+        val saleAd = propertyAd("sale-1", BigDecimal("250000"), operation = "sale")
+        val rentAd = propertyAd("rent-1", BigDecimal("1000"), operation = "rent")
+        val viewModel = newViewModel(
+            FakeIdealistaApi(
+                responses = listOf(
+                    Result.success(
+                        listOf(
+                            adDto(unsupportedAd.propertyCode, unsupportedAd.price, unsupportedAd.operation),
+                            adDto(missingOpAd.propertyCode, missingOpAd.price, missingOpAd.operation),
+                            adDto(blankOpAd.propertyCode, blankOpAd.price, blankOpAd.operation),
+                            adDto(saleAd.propertyCode, saleAd.price, saleAd.operation),
+                            adDto(rentAd.propertyCode, rentAd.price, rentAd.operation),
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        viewModel.load()
+        val allContent = viewModel.awaitContent()
+        assertEquals(5, allContent.rows.size)
+
+        viewModel.selectCategory(ListingCategory.SALE)
+        val saleContent = viewModel.awaitContent { it.discovery.category == ListingCategory.SALE }
+        assertEquals(listOf("sale-1"), saleContent.rows.map { it.ad.propertyCode })
+
+        viewModel.selectCategory(ListingCategory.RENT)
+        val rentContent = viewModel.awaitContent { it.discovery.category == ListingCategory.RENT }
+        assertEquals(listOf("rent-1"), rentContent.rows.map { it.ad.propertyCode })
+    }
+
+    @Test
+    fun `selecting price sort direction ascending or descending stably orders prices within category`() = runBlocking {
+        val sale1 = propertyAd("sale-mid-1", BigDecimal("200000"), operation = "sale")
+        val sale2 = propertyAd("sale-low", BigDecimal("100000"), operation = "sale")
+        val sale3 = propertyAd("sale-mid-2", BigDecimal("200000"), operation = "sale")
+        val sale4 = propertyAd("sale-high", BigDecimal("400000"), operation = "sale")
+        val viewModel = newViewModel(
+            FakeIdealistaApi(
+                responses = listOf(
+                    Result.success(
+                        listOf(
+                            adDto(sale1.propertyCode, sale1.price, sale1.operation),
+                            adDto(sale2.propertyCode, sale2.price, sale2.operation),
+                            adDto(sale3.propertyCode, sale3.price, sale3.operation),
+                            adDto(sale4.propertyCode, sale4.price, sale4.operation),
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        viewModel.load()
+        viewModel.selectCategory(ListingCategory.SALE)
+
+        viewModel.selectPriceSortDirection(PriceSortDirection.ASCENDING)
+        val ascendingContent = viewModel.awaitContent { it.discovery.priceSortDirection == PriceSortDirection.ASCENDING }
+        assertEquals(
+            listOf("sale-low", "sale-mid-1", "sale-mid-2", "sale-high"),
+            ascendingContent.rows.map { it.ad.propertyCode },
+        )
+
+        viewModel.selectPriceSortDirection(PriceSortDirection.DESCENDING)
+        val descendingContent = viewModel.awaitContent { it.discovery.priceSortDirection == PriceSortDirection.DESCENDING }
+        assertEquals(
+            listOf("sale-high", "sale-mid-1", "sale-mid-2", "sale-low"),
+            descendingContent.rows.map { it.ad.propertyCode },
+        )
+    }
+
+    @Test
+    fun `switching between SALE and RENT preserves active price sort direction`() = runBlocking {
+        val sale1 = propertyAd("sale-1", BigDecimal("200000"), operation = "sale")
+        val sale2 = propertyAd("sale-2", BigDecimal("100000"), operation = "sale")
+        val rent1 = propertyAd("rent-1", BigDecimal("2000"), operation = "rent")
+        val rent2 = propertyAd("rent-2", BigDecimal("1000"), operation = "rent")
+        val viewModel = newViewModel(
+            FakeIdealistaApi(
+                responses = listOf(
+                    Result.success(
+                        listOf(
+                            adDto(sale1.propertyCode, sale1.price, sale1.operation),
+                            adDto(sale2.propertyCode, sale2.price, sale2.operation),
+                            adDto(rent1.propertyCode, rent1.price, rent1.operation),
+                            adDto(rent2.propertyCode, rent2.price, rent2.operation),
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        viewModel.load()
+        viewModel.selectCategory(ListingCategory.SALE)
+        viewModel.selectPriceSortDirection(PriceSortDirection.ASCENDING)
+        val saleContent = viewModel.awaitContent { it.discovery.priceSortDirection == PriceSortDirection.ASCENDING }
+        assertEquals(listOf("sale-2", "sale-1"), saleContent.rows.map { it.ad.propertyCode })
+
+        viewModel.selectCategory(ListingCategory.RENT)
+        val rentContent = viewModel.awaitContent { it.discovery.category == ListingCategory.RENT }
+        assertEquals(PriceSortDirection.ASCENDING, rentContent.discovery.priceSortDirection)
+        assertEquals(listOf("rent-2", "rent-1"), rentContent.rows.map { it.ad.propertyCode })
+    }
+
+    @Test
+    fun `switching back to ALL clears price sort direction and restores original source order`() = runBlocking {
+        val sale1 = propertyAd("sale-1", BigDecimal("200000"), operation = "sale")
+        val sale2 = propertyAd("sale-2", BigDecimal("100000"), operation = "sale")
+        val rent1 = propertyAd("rent-1", BigDecimal("1500"), operation = "rent")
+        val viewModel = newViewModel(
+            FakeIdealistaApi(
+                responses = listOf(
+                    Result.success(
+                        listOf(
+                            adDto(sale1.propertyCode, sale1.price, sale1.operation),
+                            adDto(sale2.propertyCode, sale2.price, sale2.operation),
+                            adDto(rent1.propertyCode, rent1.price, rent1.operation),
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        viewModel.load()
+        viewModel.selectCategory(ListingCategory.SALE)
+        viewModel.selectPriceSortDirection(PriceSortDirection.ASCENDING)
+        viewModel.awaitContent { it.discovery.priceSortDirection == PriceSortDirection.ASCENDING }
+
+        viewModel.selectCategory(ListingCategory.ALL)
+        val allContent = viewModel.awaitContent { it.discovery.category == ListingCategory.ALL }
+        assertEquals(null, allContent.discovery.priceSortDirection)
+        assertEquals(listOf("sale-1", "sale-2", "rent-1"), allContent.rows.map { it.ad.propertyCode })
+    }
+
+    @Test
+    fun `selecting price sort direction while ALL is active is ignored`() = runBlocking {
+        val sale1 = propertyAd("sale-1", BigDecimal("200000"), operation = "sale")
+        val sale2 = propertyAd("sale-2", BigDecimal("100000"), operation = "sale")
+        val viewModel = newViewModel(
+            FakeIdealistaApi(
+                responses = listOf(
+                    Result.success(
+                        listOf(
+                            adDto(sale1.propertyCode, sale1.price, sale1.operation),
+                            adDto(sale2.propertyCode, sale2.price, sale2.operation),
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        viewModel.load()
+        viewModel.awaitContent()
+
+        viewModel.selectPriceSortDirection(PriceSortDirection.ASCENDING)
+        val content = viewModel.awaitContent()
+        assertEquals(ListingCategory.ALL, content.discovery.category)
+        assertEquals(null, content.discovery.priceSortDirection)
+        assertEquals(listOf("sale-1", "sale-2"), content.rows.map { it.ad.propertyCode })
+    }
+
+    @Test
+    fun `discovery changes transform local state without additional adRepository requests`() = runBlocking {
+        var apiCalls = 0
+        val countingApi = object : IdealistaApi {
+            override suspend fun listAds(): List<PropertyAdDto> {
+                apiCalls++
+                return listOf(
+                    adDto("sale-1", BigDecimal("200000"), "sale"),
+                    adDto("rent-1", BigDecimal("1500"), "rent"),
+                )
+            }
+
+            override suspend fun getDetails(): PropertyDetailsDto {
+                throw UnsupportedOperationException()
+            }
+        }
+        val viewModel = newViewModel(countingApi)
+
+        viewModel.load()
+        viewModel.awaitContent()
+        assertEquals(1, apiCalls)
+
+        viewModel.selectCategory(ListingCategory.SALE)
+        viewModel.awaitContent { it.discovery.category == ListingCategory.SALE }
+        assertEquals(1, apiCalls)
+
+        viewModel.selectPriceSortDirection(PriceSortDirection.DESCENDING)
+        viewModel.awaitContent { it.discovery.priceSortDirection == PriceSortDirection.DESCENDING }
+        assertEquals(1, apiCalls)
+
+        viewModel.selectCategory(ListingCategory.RENT)
+        viewModel.awaitContent { it.discovery.category == ListingCategory.RENT }
+        assertEquals(1, apiCalls)
+
+        viewModel.selectCategory(ListingCategory.ALL)
+        viewModel.awaitContent { it.discovery.category == ListingCategory.ALL }
+        assertEquals(1, apiCalls)
+    }
+
+    @Test
+    fun `filtered category with zero matches emits content with empty rows instead of empty state`() = runBlocking {
+        val saleAd = propertyAd("sale-1", BigDecimal("200000"), operation = "sale")
+        val viewModel = newViewModel(
+            FakeIdealistaApi(
+                responses = listOf(
+                    Result.success(listOf(adDto(saleAd.propertyCode, saleAd.price, saleAd.operation))),
+                ),
+            ),
+        )
+
+        viewModel.load()
+        viewModel.awaitContent()
+
+        viewModel.selectCategory(ListingCategory.RENT)
+        val rentContent = viewModel.awaitContent { it.discovery.category == ListingCategory.RENT }
+        assertEquals(0, rentContent.rows.size)
+        assertEquals(ListingCategory.RENT, rentContent.discovery.category)
+        assertFalse(viewModel.uiState.value is ListingUiState.Empty)
+    }
+
+    @Test
+    fun `favorite updates preserve active category filtering and price sorting`() = runBlocking {
+        val favoriteRepository = FavoriteRepository(InMemoryFavoriteDao())
+        val sale1 = propertyAd("sale-1", BigDecimal("300000"), operation = "sale")
+        val sale2 = propertyAd("sale-2", BigDecimal("100000"), operation = "sale")
+        val rent1 = propertyAd("rent-1", BigDecimal("1000"), operation = "rent")
+        val viewModel = newViewModel(
+            FakeIdealistaApi(
+                responses = listOf(
+                    Result.success(
+                        listOf(
+                            adDto(sale1.propertyCode, sale1.price, sale1.operation),
+                            adDto(sale2.propertyCode, sale2.price, sale2.operation),
+                            adDto(rent1.propertyCode, rent1.price, rent1.operation),
+                        ),
+                    ),
+                ),
+            ),
+            favoriteRepository = favoriteRepository,
+            nowEpochMillis = { 5_000L },
+        )
+
+        viewModel.load()
+        viewModel.selectCategory(ListingCategory.SALE)
+        viewModel.selectPriceSortDirection(PriceSortDirection.ASCENDING)
+        viewModel.awaitContent { it.discovery.priceSortDirection == PriceSortDirection.ASCENDING }
+
+        viewModel.toggleFavorite(adId = "sale-2", favoritedAtEpochMillis = null)
+        val updatedContent = viewModel.awaitContent {
+            it.rows.firstOrNull { row -> row.ad.propertyCode == "sale-2" }?.favoritedAtEpochMillis == 5_000L
+        }
+
+        assertEquals(listOf("sale-2", "sale-1"), updatedContent.rows.map { it.ad.propertyCode })
+        assertEquals(5_000L, updatedContent.rows.first { it.ad.propertyCode == "sale-2" }.favoritedAtEpochMillis)
+        assertEquals(ListingCategory.SALE, updatedContent.discovery.category)
+        assertEquals(PriceSortDirection.ASCENDING, updatedContent.discovery.priceSortDirection)
+    }
+
+    @Test
+    fun `retry reapplies current discovery state to newly loaded ads`() = runBlocking {
+        val viewModel = newViewModel(
+            FakeIdealistaApi(
+                responses = listOf(
+                    Result.failure(IOException("temporary error")),
+                    Result.success(
+                        listOf(
+                            adDto("sale-1", BigDecimal("300000"), "sale"),
+                            adDto("sale-2", BigDecimal("100000"), "sale"),
+                            adDto("rent-1", BigDecimal("1000"), "rent"),
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        viewModel.load()
+        viewModel.awaitState { it is ListingUiState.Error }
+
+        viewModel.selectCategory(ListingCategory.SALE)
+        viewModel.selectPriceSortDirection(PriceSortDirection.ASCENDING)
+
+        viewModel.retry()
+        val content = viewModel.awaitContent { it.discovery.priceSortDirection == PriceSortDirection.ASCENDING }
+        assertEquals(listOf("sale-2", "sale-1"), content.rows.map { it.ad.propertyCode })
+        assertEquals(ListingCategory.SALE, content.discovery.category)
+        assertEquals(PriceSortDirection.ASCENDING, content.discovery.priceSortDirection)
+    }
+
     private fun newViewModel(
         api: IdealistaApi,
         favoriteRepository: FavoriteRepository = FavoriteRepository(InMemoryFavoriteDao()),
@@ -270,12 +620,17 @@ private class InMemoryFavoriteDao : FavoriteDao {
     }
 }
 
-private fun propertyAd(propertyCode: String, price: BigDecimal): PropertyAd = PropertyAd(
+private fun propertyAd(
+    propertyCode: String,
+    price: BigDecimal,
+    operation: String? = null,
+): PropertyAd = PropertyAd(
     propertyCode = propertyCode,
     thumbnailUrl = "https://images.example/$propertyCode-thumbnail.jpg",
     price = price,
     currencySuffix = "€",
     propertyType = "flat",
+    operation = operation,
     address = "Calle Example, 1",
     municipality = "Madrid",
     district = "Centro",
@@ -286,7 +641,11 @@ private fun propertyAd(propertyCode: String, price: BigDecimal): PropertyAd = Pr
     images = listOf(PropertyImage("https://images.example/$propertyCode.jpg")),
 )
 
-private fun adDto(propertyCode: String, price: BigDecimal): PropertyAdDto = PropertyAdDto(
+private fun adDto(
+    propertyCode: String,
+    price: BigDecimal,
+    operation: String? = null,
+): PropertyAdDto = PropertyAdDto(
     propertyCode = propertyCode,
     thumbnail = "https://images.example/$propertyCode-thumbnail.jpg",
     price = price,
@@ -294,6 +653,7 @@ private fun adDto(propertyCode: String, price: BigDecimal): PropertyAdDto = Prop
         price = PriceValueDto(amount = price, currencySuffix = "€"),
     ),
     propertyType = "flat",
+    operation = operation,
     address = "Calle Example, 1",
     municipality = "Madrid",
     district = "Centro",

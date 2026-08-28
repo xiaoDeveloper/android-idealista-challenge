@@ -19,6 +19,12 @@
         <item quantity="other">%1$d viviendas disponibles</item>
     </plurals>
 
+    <string name="listing_category_all">Todos</string>
+    <string name="listing_category_sale">Venta</string>
+    <string name="listing_category_rent">Alquiler</string>
+    <string name="listing_sort_price_ascending">Precio más bajo</string>
+    <string name="listing_sort_price_descending">Precio más alto</string>
+
     <string name="favorite_save">Guardar vivienda</string>
     <string name="favorite_remove">Quitar de guardados</string>
     <string name="favorite_saved_date">Guardado el %1$s</string>

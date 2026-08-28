@@ -2,11 +2,14 @@ package com.xiao.idealistachallenge.ui.listing
 
 import android.os.Bundle
 import android.view.View
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
@@ -37,6 +40,23 @@ class ListingFragment : Fragment(R.layout.fragment_listing) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentListingBinding.bind(view)
+
+        binding.listingDiscoveryComposeView.apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                ListingTheme {
+                    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                    val discovery = (uiState as? ListingUiState.Content)?.discovery
+                        ?: ListingDiscoveryUiState()
+                    ListingDiscoveryControls(
+                        state = discovery,
+                        onCategorySelected = viewModel::selectCategory,
+                        onPriceSortDirectionSelected = viewModel::selectPriceSortDirection,
+                    )
+                }
+            }
+        }
+
         listingAdapter = ListingAdapter(
             onItemClick = ::openDetail,
             onFavoriteClick = { row ->

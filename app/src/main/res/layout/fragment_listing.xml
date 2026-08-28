@@ -19,6 +19,12 @@
         android:paddingBottom="@dimen/space_16"
         android:visibility="gone">
 
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/listingDiscoveryComposeView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_8" />
+
         <TextView
             android:id="@+id/resultsCount"
             android:layout_width="match_parent"

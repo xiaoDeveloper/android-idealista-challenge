@@ -10,11 +10,30 @@ import com.xiao.idealistachallenge.model.PropertyAd
 import java.util.concurrent.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+enum class ListingCategory {
+    ALL,
+    SALE,
+    RENT,
+}
+
+enum class PriceSortDirection {
+    ASCENDING,
+    DESCENDING,
+}
+
+data class ListingDiscoveryUiState(
+    val category: ListingCategory = ListingCategory.ALL,
+    val priceSortDirection: PriceSortDirection? = null,
+)
 
 data class ListingRowUiModel(
     val ad: PropertyAd,
@@ -26,6 +45,7 @@ sealed interface ListingUiState {
 
     data class Content(
         val rows: List<ListingRowUiModel>,
+        val discovery: ListingDiscoveryUiState = ListingDiscoveryUiState(),
     ) : ListingUiState
 
     data object Empty : ListingUiState
@@ -44,6 +64,9 @@ class ListingViewModel(
 
     private val _uiState = MutableStateFlow<ListingUiState>(ListingUiState.Loading)
     val uiState: StateFlow<ListingUiState> = _uiState.asStateFlow()
+
+    private val _discoveryState = MutableStateFlow(ListingDiscoveryUiState())
+    val discoveryState: StateFlow<ListingDiscoveryUiState> = _discoveryState.asStateFlow()
 
     private var loadJob: Job? = null
     private var favoriteObservationJob: Job? = null
@@ -88,6 +111,26 @@ class ListingViewModel(
         load()
     }
 
+    fun selectCategory(category: ListingCategory) {
+        _discoveryState.update { current ->
+            if (category == ListingCategory.ALL) {
+                ListingDiscoveryUiState(category = ListingCategory.ALL, priceSortDirection = null)
+            } else {
+                current.copy(category = category)
+            }
+        }
+    }
+
+    fun selectPriceSortDirection(direction: PriceSortDirection) {
+        _discoveryState.update { current ->
+            if (current.category == ListingCategory.ALL) {
+                current
+            } else {
+                current.copy(priceSortDirection = direction)
+            }
+        }
+    }
+
     fun toggleFavorite(adId: String, favoritedAtEpochMillis: Long?) {
         if (favoriteActionJobs[adId]?.isActive == true) return
 
@@ -107,16 +150,49 @@ class ListingViewModel(
     private fun observeFavoriteRows(ads: List<PropertyAd>) {
         favoriteObservationJob?.cancel()
         favoriteObservationJob = viewModelScope.launch(dispatcher) {
-            combine(ads.map { ad -> favoriteRepository.observeFavorite(ad.propertyCode) }) { favorites ->
-                ads.mapIndexed { index, ad ->
+            val favoriteFlows = if (ads.isEmpty()) {
+                flowOf(emptyList())
+            } else {
+                combine(ads.map { ad -> favoriteRepository.observeFavorite(ad.propertyCode) }) { it.toList() }
+            }
+
+            combine(favoriteFlows, _discoveryState) { favorites, discovery ->
+                val allRows = ads.mapIndexed { index, ad ->
                     ListingRowUiModel(
                         ad = ad,
                         favoritedAtEpochMillis = favorites[index]?.favoritedAtEpochMillis,
                     )
                 }
-            }.collect { rows ->
-                _uiState.value = ListingUiState.Content(rows = rows)
+                val filteredAndSortedRows = applyDiscovery(allRows, discovery)
+                ListingUiState.Content(
+                    rows = filteredAndSortedRows,
+                    discovery = discovery,
+                )
+            }.collect { contentState ->
+                _uiState.value = contentState
             }
+        }
+    }
+
+    private fun applyDiscovery(
+        rows: List<ListingRowUiModel>,
+        discovery: ListingDiscoveryUiState,
+    ): List<ListingRowUiModel> {
+        val filtered = when (discovery.category) {
+            ListingCategory.ALL -> rows
+            ListingCategory.SALE -> rows.filter {
+                it.ad.operation?.trim()?.equals("sale", ignoreCase = true) == true
+            }
+            ListingCategory.RENT -> rows.filter {
+                it.ad.operation?.trim()?.equals("rent", ignoreCase = true) == true
+            }
+        }
+
+        return when {
+            discovery.category == ListingCategory.ALL || discovery.priceSortDirection == null -> filtered
+            discovery.priceSortDirection == PriceSortDirection.ASCENDING -> filtered.sortedBy { it.ad.price }
+            discovery.priceSortDirection == PriceSortDirection.DESCENDING -> filtered.sortedByDescending { it.ad.price }
+            else -> filtered
         }
     }
 }

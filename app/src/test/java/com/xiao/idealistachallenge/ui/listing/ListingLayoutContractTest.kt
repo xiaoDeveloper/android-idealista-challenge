@@ -37,6 +37,22 @@ class ListingLayoutContractTest {
     }
 
     @Test
+    fun `listing screen contains a ComposeView for discovery controls above the recycler view`() {
+        val document = documentFor("fragment_listing.xml")
+        val composeView = elementById(document, "listingDiscoveryComposeView")
+        val recyclerView = elementById(document, "listingRecyclerView")
+
+        assertEquals(
+            "androidx.compose.ui.platform.ComposeView",
+            composeView.nodeName,
+        )
+        assertEquals(
+            recyclerView.parentNode,
+            composeView.parentNode,
+        )
+    }
+
+    @Test
     fun `listing card uses a 16 by 9 pager viewport with a conditional position indicator`() {
         val document = listingItemDocument()
         val viewport = elementById(document, "listingMediaViewport")

@@ -1,0 +1,76 @@
+package com.xiao.idealistachallenge.ui.listing
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import org.junit.Assert.assertEquals
+import org.junit.Rule
+import org.junit.Test
+
+class ListingDiscoveryControlsTest {
+
+    @get:Rule
+    val composeTestRule = createComposeRule()
+
+    @Test
+    fun allCategoryShowsOnlyCategoryChipsAndHidesPriceSortChips() {
+        composeTestRule.setContent {
+            ListingTheme {
+                ListingDiscoveryControls(
+                    state = ListingDiscoveryUiState(category = ListingCategory.ALL),
+                    onCategorySelected = {},
+                    onPriceSortDirectionSelected = {},
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("Todos").assertIsDisplayed().assertIsSelected()
+        composeTestRule.onNodeWithText("Venta").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Alquiler").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Precio más bajo").assertDoesNotExist()
+        composeTestRule.onNodeWithText("Precio más alto").assertDoesNotExist()
+    }
+
+    @Test
+    fun saleCategoryShowsPriceSortChipsAndPropagatesSelectionCallbacks() {
+        var selectedCategory: ListingCategory? = null
+        var selectedDirection: PriceSortDirection? = null
+        var currentState by mutableStateOf(
+            ListingDiscoveryUiState(
+                category = ListingCategory.SALE,
+                priceSortDirection = PriceSortDirection.ASCENDING,
+            ),
+        )
+
+        composeTestRule.setContent {
+            ListingTheme {
+                ListingDiscoveryControls(
+                    state = currentState,
+                    onCategorySelected = {
+                        selectedCategory = it
+                        currentState = currentState.copy(category = it)
+                    },
+                    onPriceSortDirectionSelected = {
+                        selectedDirection = it
+                        currentState = currentState.copy(priceSortDirection = it)
+                    },
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("Venta").assertIsSelected()
+        composeTestRule.onNodeWithText("Precio más bajo").assertIsDisplayed().assertIsSelected()
+        composeTestRule.onNodeWithText("Precio más alto").assertIsDisplayed()
+
+        composeTestRule.onNodeWithText("Precio más alto").performClick()
+        assertEquals(PriceSortDirection.DESCENDING, selectedDirection)
+
+        composeTestRule.onNodeWithText("Alquiler").performClick()
+        assertEquals(ListingCategory.RENT, selectedCategory)
+    }
+}
