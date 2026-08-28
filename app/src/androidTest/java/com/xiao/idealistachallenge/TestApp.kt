@@ -14,7 +14,11 @@ import com.xiao.idealistachallenge.data.remote.PriceInfoDto
 import com.xiao.idealistachallenge.data.remote.PriceValueDto
 import com.xiao.idealistachallenge.data.remote.PropertyAdDto
 import com.xiao.idealistachallenge.data.remote.PropertyDetailsDto
+import com.xiao.idealistachallenge.data.remote.DetailPriceInfoDto
+import com.xiao.idealistachallenge.data.remote.EnergyCertificationDto
+import com.xiao.idealistachallenge.data.remote.EnergyGradeDto
 import java.math.BigDecimal
+import kotlinx.serialization.json.JsonPrimitive
 
 class TestRunner : AndroidJUnitRunner() {
     override fun newApplication(
@@ -33,6 +37,8 @@ class TestApp : App() {
             .build(),
     )
 }
+
+private const val INLINE_IMAGE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLk7wAAAABJRU5ErkJggg=="
 
 private object FixtureIdealistaApi : IdealistaApi {
     override suspend fun listAds(): List<PropertyAdDto> = listOf(
@@ -128,9 +134,36 @@ private object FixtureIdealistaApi : IdealistaApi {
     override suspend fun getDetails(): PropertyDetailsDto = PropertyDetailsDto(
         adid = 1,
         price = BigDecimal("125000"),
+        priceInfo = DetailPriceInfoDto(BigDecimal("125000"), "€"),
+        propertyType = "homes",
+        extendedPropertyType = "flat",
+        homeType = "flat",
+        operation = "sale",
         propertyComment = "Fixture detail",
-        multimedia = MultimediaDto(emptyList()),
-        ubication = LocationDto(latitude = null, longitude = null),
-        moreCharacteristics = emptyMap(),
+        multimedia = MultimediaDto(
+            listOf(
+                ImageDto(INLINE_IMAGE, "livingRoom"),
+                ImageDto(INLINE_IMAGE, "communalareas"),
+                ImageDto(INLINE_IMAGE),
+                ImageDto(INLINE_IMAGE, "bedroom"),
+            ),
+        ),
+        ubication = LocationDto(latitude = BigDecimal("40.4363"), longitude = BigDecimal("-3.6834")),
+        moreCharacteristics = mapOf(
+            "constructedArea" to JsonPrimitive(133),
+            "roomNumber" to JsonPrimitive(3),
+            "bathNumber" to JsonPrimitive(2),
+            "floor" to JsonPrimitive("2"),
+            "exterior" to JsonPrimitive(false),
+            "lift" to JsonPrimitive(true),
+            "boxroom" to JsonPrimitive(false),
+            "isDuplex" to JsonPrimitive(false),
+            "communityCosts" to JsonPrimitive(330),
+            "housingFurnitures" to JsonPrimitive("unknown"),
+        ),
+        energyCertification = EnergyCertificationDto(
+            energyConsumption = EnergyGradeDto("e"),
+            emissions = EnergyGradeDto("e"),
+        ),
     )
 }

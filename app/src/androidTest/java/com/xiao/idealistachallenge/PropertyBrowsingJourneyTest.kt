@@ -11,11 +11,13 @@ import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.IdlingResource
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.swipeLeft
+import androidx.test.espresso.action.ViewActions.pressBack
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isSelected
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.platform.app.InstrumentationRegistry
@@ -94,6 +96,45 @@ class PropertyBrowsingJourneyTest {
         onView(withId(R.id.detailFavoriteButton)).check(matches(isDisplayed()))
         onView(withId(R.id.detailFavoriteButton)).check(matches(isSelected()))
         onView(withId(R.id.detailPrice)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun fixedDetailKeepsAllPhotoPositionsAndPresentsOnlyApprovedHierarchy() {
+        awaitListingRows(5)
+        awaitListingRow(0)
+        onView(withId(R.id.listingRecyclerView)).perform(
+            performChildActionAtPosition(0, R.id.listingCard, click()),
+        )
+        awaitView(R.id.detailImagePager) { view ->
+            view is RecyclerView && view.isShown && view.adapter?.itemCount == 4
+        }
+
+        awaitMediaAnnouncement("Salón, foto 1 de 4")
+        onView(withId(R.id.detailImagePosition)).check(matches(isDisplayed()))
+        onView(withId(R.id.detailImagePager)).perform(swipeLeft())
+        awaitMediaAnnouncement("Foto 2 de 4")
+        onView(withId(R.id.detailImagePosition)).check(matches(withText("2 / 4")))
+        onView(withId(R.id.detailFavoriteButton)).check(matches(isDisplayed()))
+        onView(withId(R.id.detailLocation)).check { view, noViewFoundException ->
+            checkNotNull(view) { noViewFoundException?.message ?: "Location view was not found." }
+            check(!view.isShown) { "Coordinate-only location must remain hidden." }
+        }
+        onView(withId(R.id.detailPropertyTypeOperation)).check(matches(withText("Piso · Venta")))
+        onView(withId(R.id.detailEssentialFacts)).check(matches(withText(
+            "133 m²\n3 habitaciones\n2 baños\nPlanta 2\nInterior\nCon ascensor",
+        )))
+        onView(withId(R.id.detailEnergyConsumption)).check(matches(withText("Consumo: E")))
+        onView(withId(R.id.detailEnergyEmissions)).check(matches(withText("Emisiones: E")))
+
+        onView(withId(R.id.detailFavoriteButton)).perform(click())
+        awaitView(R.id.detailFavoriteDate) { it.isShown }
+        onView(withId(R.id.detailImagePosition)).check(matches(withText("2 / 4")))
+        onView(withId(R.id.detailImagePager)).perform(pressBack())
+        awaitListingRows(5)
+    }
+
+    private fun awaitMediaAnnouncement(expected: String) = awaitView(R.id.propertyImage) { view ->
+        view.isShown && view.contentDescription?.toString() == expected
     }
 
     private fun awaitListingRows(expectedCount: Int) = awaitView(R.id.listingRecyclerView) { view ->

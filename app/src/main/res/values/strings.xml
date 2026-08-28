@@ -58,6 +58,7 @@
     <string name="property_coordinates">Ubicación: %1$s, %2$s</string>
     <string name="detail_static_response_notice">El reto proporciona el mismo detalle oficial para cada vivienda seleccionada.</string>
     <string name="detail_price">%1$s €</string>
+    <string name="detail_price_with_currency_suffix">%1$s %2$s</string>
     <string name="property_description_unavailable">No hay descripción disponible.</string>
     <string name="detail_property_type_operation">%1$s · %2$s</string>
     <string name="property_type_flat">Piso</string>

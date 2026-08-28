@@ -21,30 +21,43 @@
             android:orientation="vertical"
             android:paddingBottom="@dimen/space_24">
 
-            <FrameLayout
+            <com.xiao.idealistachallenge.ui.media.AspectRatioFrameLayout
+                android:id="@+id/detailMediaViewport"
                 android:layout_width="match_parent"
-                android:layout_height="240dp"
-                android:background="@color/colorSurfaceVariant">
+                android:layout_height="wrap_content"
+                android:background="?attr/colorSurfaceVariant"
+                app:aspectRatio="4:3">
 
-                <ImageView
-                    android:id="@+id/detailImage"
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/detailImagePager"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:contentDescription="@string/property_image_content_description"
-                    android:scaleType="centerCrop"
-                    tools:src="@android:drawable/ic_menu_gallery" />
+                    android:overScrollMode="never" />
 
                 <TextView
                     android:id="@+id/detailImagePlaceholder"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/property_image_placeholder_content_description"
-                    android:gravity="center"
                     android:importantForAccessibility="yes"
                     android:text="@string/property_image_placeholder"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/detailImagePosition"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|end"
+                    android:layout_margin="@dimen/media_indicator_margin"
+                    android:background="?attr/colorSurfaceVariant"
+                    android:importantForAccessibility="no"
+                    android:paddingHorizontal="@dimen/media_indicator_horizontal_padding"
+                    android:paddingVertical="@dimen/media_indicator_vertical_padding"
                     android:textColor="?attr/colorOnSurfaceVariant"
-                    android:textSize="@dimen/supporting_text_size" />
-            </FrameLayout>
+                    android:textSize="@dimen/supporting_text_size"
+                    android:visibility="gone"
+                    tools:text="1 / 10" />
+            </com.xiao.idealistachallenge.ui.media.AspectRatioFrameLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -54,21 +67,48 @@
                 android:paddingTop="@dimen/space_24"
                 android:paddingEnd="@dimen/screen_content_inset">
 
+                <TextView
+                    android:id="@+id/detailPropertyTypeOperation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="@dimen/supporting_text_size"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/detailPrice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_4"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="@dimen/detail_price_text_size"
+                    android:textStyle="bold"
+                    tools:text="1.195.000 €" />
+
+                <TextView
+                    android:id="@+id/detailLocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_16"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="@dimen/body_text_size"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/detailEssentialFacts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_16"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="@dimen/body_text_size"
+                    android:visibility="gone" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_16"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/detailPrice"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="@dimen/detail_price_text_size"
-                        android:textStyle="bold"
-                        tools:text="1.195.000 €" />
 
                     <ImageButton
                         android:id="@+id/detailFavoriteButton"
@@ -82,46 +122,37 @@
                         android:padding="@dimen/space_12"
                         android:src="@android:drawable/btn_star_big_off"
                         app:tint="@color/favorite_star_tint" />
+
+                    <TextView
+                        android:id="@+id/detailFavoriteDate"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_8"
+                        android:layout_weight="1"
+                        android:textColor="?attr/colorOnPrimaryContainer"
+                        android:textSize="@dimen/supporting_text_size"
+                        android:visibility="gone" />
                 </LinearLayout>
 
                 <TextView
-                    android:id="@+id/detailFavoriteDate"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_8"
-                    android:textColor="?attr/colorOnPrimaryContainer"
-                    android:textSize="@dimen/supporting_text_size"
-                    android:visibility="gone"
-                    tools:text="Guardado el 27/08/2026" />
-
-                <TextView
-                    android:id="@+id/detailLocation"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_16"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:textSize="@dimen/body_text_size"
-                    android:visibility="gone"
-                    tools:text="Ubicación: 40,4363, -3,6834" />
-
-                <TextView
-                    android:id="@+id/detailCharacteristicsTitle"
+                    android:id="@+id/detailAdditionalCharacteristicsTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/section_spacing"
                     android:text="@string/property_characteristics_title"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="@dimen/card_title_text_size"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:visibility="gone" />
 
                 <TextView
-                    android:id="@+id/detailCharacteristics"
+                    android:id="@+id/detailAdditionalCharacteristics"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_8"
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="@dimen/body_text_size"
-                    tools:text="Habitaciones: 3\nBaños: 2" />
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/detailDescriptionTitle"
@@ -139,8 +170,36 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_8"
                     android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="@dimen/body_text_size" />
+
+                <TextView
+                    android:id="@+id/detailEnergyTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/section_spacing"
+                    android:text="@string/energy_certificate_title"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="@dimen/card_title_text_size"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/detailEnergyConsumption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_8"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="@dimen/body_text_size"
-                    tools:text="Descripción de la vivienda" />
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/detailEnergyEmissions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_4"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="@dimen/body_text_size"
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/detailStaticResponseNotice"
@@ -161,12 +220,10 @@
         android:gravity="center"
         android:orientation="vertical"
         android:padding="@dimen/space_32">
-
         <ProgressBar
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/loading_detail" />
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -183,7 +240,6 @@
         android:orientation="vertical"
         android:padding="@dimen/space_32"
         android:visibility="gone">
-
         <TextView
             android:id="@+id/errorTitle"
             android:layout_width="wrap_content"
@@ -193,7 +249,6 @@
             android:textColor="?attr/colorOnSurface"
             android:textSize="@dimen/screen_title_text_size"
             android:textStyle="bold" />
-
         <TextView
             android:id="@+id/errorMessage"
             android:layout_width="wrap_content"
@@ -203,7 +258,6 @@
             android:text="@string/error_detail_message"
             android:textColor="?attr/colorOnSurfaceVariant"
             android:textSize="@dimen/body_text_size" />
-
         <com.google.android.material.button.MaterialButton
             android:id="@+id/retryButton"
             android:layout_width="wrap_content"
