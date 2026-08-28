@@ -21,6 +21,7 @@ sealed interface DetailUiState {
     data class Content(
         val details: PropertyDetails,
         val favoritedAtEpochMillis: Long?,
+        val isDescriptionExpanded: Boolean = false,
     ) : DetailUiState
 
     data class Error(
@@ -42,6 +43,7 @@ class DetailViewModel(
     private var favoriteObservationJob: Job? = null
     private var favoriteActionJob: Job? = null
     private var hasLoaded = false
+    private var isDescriptionExpanded = false
 
     fun load() {
         if (hasLoaded || loadJob?.isActive == true) return
@@ -68,7 +70,15 @@ class DetailViewModel(
     fun retry() {
         if (loadJob?.isActive == true) return
         hasLoaded = false
+        isDescriptionExpanded = false
         load()
+    }
+
+    fun toggleDescriptionExpansion() {
+        val content = _uiState.value as? DetailUiState.Content ?: return
+        if (content.details.description.isNullOrBlank()) return
+        isDescriptionExpanded = !isDescriptionExpanded
+        _uiState.value = content.copy(isDescriptionExpanded = isDescriptionExpanded)
     }
 
     fun toggleFavorite() {
@@ -91,6 +101,7 @@ class DetailViewModel(
                 _uiState.value = DetailUiState.Content(
                     details = details,
                     favoritedAtEpochMillis = favorite?.favoritedAtEpochMillis,
+                    isDescriptionExpanded = isDescriptionExpanded,
                 )
             }
         }

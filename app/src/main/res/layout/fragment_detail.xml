@@ -172,6 +172,19 @@
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="@dimen/body_text_size" />
 
+                <Button
+                    android:id="@+id/detailDescriptionToggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/min_interactive_target"
+                    android:layout_marginTop="@dimen/space_4"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/description_expand_content_description"
+                    android:minHeight="@dimen/min_interactive_target"
+                    android:minWidth="@dimen/min_interactive_target"
+                    android:text="@string/description_expand"
+                    android:textColor="?attr/colorPrimary"
+                    android:visibility="gone" />
+
                 <TextView
                     android:id="@+id/detailEnergyTitle"
                     android:layout_width="match_parent"

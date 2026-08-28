@@ -39,6 +39,7 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
         _binding = FragmentDetailBinding.bind(view)
         binding.retryButton.setOnClickListener { viewModel.retry() }
         binding.detailFavoriteButton.setOnClickListener { viewModel.toggleFavorite() }
+        binding.detailDescriptionToggle.setOnClickListener { viewModel.toggleDescriptionExpansion() }
         binding.detailImagePager.adapter = imagePagerAdapter
         binding.detailImagePager.configurePropertyImagePager(::updateImagePosition)
         viewLifecycleOwner.lifecycleScope.launch {
@@ -86,6 +87,26 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
         val description = details.description?.takeIf(String::isNotBlank)
         detailDescriptionTitle.isVisible = description != null
         detailDescription.text = description ?: getString(R.string.property_description_unavailable)
+        detailDescription.maxLines = if (state.isDescriptionExpanded) Int.MAX_VALUE else DESCRIPTION_PREVIEW_MAX_LINES
+        detailDescription.ellipsize = if (state.isDescriptionExpanded) null else android.text.TextUtils.TruncateAt.END
+        detailDescriptionToggle.isVisible = state.isDescriptionExpanded
+        detailDescriptionToggle.contentDescription = getString(
+            if (state.isDescriptionExpanded) {
+                R.string.description_collapse_content_description
+            } else {
+                R.string.description_expand_content_description
+            },
+        )
+        detailDescriptionToggle.setText(
+            if (state.isDescriptionExpanded) R.string.description_collapse else R.string.description_expand,
+        )
+        if (description != null && !state.isDescriptionExpanded) {
+            detailDescription.post {
+                if (binding.detailDescription.text.toString() == description) {
+                    detailDescriptionToggle.isVisible = detailDescription.lineCount > DESCRIPTION_PREVIEW_MAX_LINES
+                }
+            }
+        }
         detailEnergyConsumption.text = presentation.energyRows.getOrNull(0).orEmpty()
         detailEnergyConsumption.isVisible = presentation.energyRows.isNotEmpty()
         detailEnergyEmissions.text = presentation.energyRows.getOrNull(1).orEmpty()
@@ -121,5 +142,8 @@ class DetailFragment : Fragment(R.layout.fragment_detail) {
         } else detailFavoriteButton.contentDescription = getString(R.string.favorite_accessibility_save)
     }
 
-    private companion object { const val ARG_SELECTED_AD_ID = "selectedAdId" }
+    private companion object {
+        const val ARG_SELECTED_AD_ID = "selectedAdId"
+        const val DESCRIPTION_PREVIEW_MAX_LINES = 6
+    }
 }

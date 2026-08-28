@@ -39,6 +39,13 @@ class TestApp : App() {
 }
 
 private const val INLINE_IMAGE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLk7wAAAABJRU5ErkJggg=="
+private const val FIXTURE_LONG_DESCRIPTION = """
+Primera parte de la descripción de prueba con información suficiente para formar una vista previa de varias líneas sin cambiar el texto original.
+
+Segunda parte de la descripción de prueba que conserva este salto de párrafo y añade información suficiente para revelar el contenido completo con una sola acción.
+
+Tercera parte de la descripción de prueba para asegurar que la vista previa de seis líneas se pueda expandir y volver a contraer sin perder contenido.
+"""
 
 private object FixtureIdealistaApi : IdealistaApi {
     override suspend fun listAds(): List<PropertyAdDto> = listOf(
@@ -139,7 +146,7 @@ private object FixtureIdealistaApi : IdealistaApi {
         extendedPropertyType = "flat",
         homeType = "flat",
         operation = "sale",
-        propertyComment = "Fixture detail",
+        propertyComment = FIXTURE_LONG_DESCRIPTION,
         multimedia = MultimediaDto(
             listOf(
                 ImageDto(INLINE_IMAGE, "livingRoom"),

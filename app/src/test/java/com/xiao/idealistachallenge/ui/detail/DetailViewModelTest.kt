@@ -31,6 +31,58 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class DetailViewModelTest {
+    @Test fun `description expansion preserves long multi paragraph source text across toggle and re-render`() = runBlocking {
+        val description = "First paragraph contains enough source text to model a long detail description without rewriting it. " +
+            "This sentence is deliberately retained verbatim.\n\nSecond paragraph remains exactly as supplied and preserves its separator."
+        val retryDescription = "$description\n\nThird paragraph arrives after retry."
+        val viewModel = newViewModel(
+            FakeDetailApi(listOf(
+                Result.success(detailDto(description = description)),
+                Result.success(detailDto(description = retryDescription)),
+            )),
+            "listing-description",
+        )
+
+        viewModel.load()
+        val collapsed = viewModel.uiState.first { it is DetailUiState.Content } as DetailUiState.Content
+        assertFalse(collapsed.isDescriptionExpanded)
+        assertEquals(description, collapsed.details.description)
+
+        viewModel.toggleDescriptionExpansion()
+        val expanded = viewModel.uiState.first {
+            it is DetailUiState.Content && it.isDescriptionExpanded
+        } as DetailUiState.Content
+        assertEquals(description, expanded.details.description)
+
+        viewModel.toggleDescriptionExpansion()
+        val reCollapsed = viewModel.uiState.first {
+            it is DetailUiState.Content && !it.isDescriptionExpanded
+        } as DetailUiState.Content
+        assertEquals(description, reCollapsed.details.description)
+
+        viewModel.retry()
+        val rerendered = viewModel.uiState.first {
+            it is DetailUiState.Content && it.details.description == retryDescription
+        } as DetailUiState.Content
+        assertFalse(rerendered.isDescriptionExpanded)
+        assertEquals(retryDescription, rerendered.details.description)
+    }
+
+    @Test fun `short or absent descriptions start collapsed without changing their source text`() = runBlocking {
+        listOf<String?>("Short description", null).forEachIndexed { index, description ->
+            val viewModel = newViewModel(
+                FakeDetailApi(listOf(Result.success(detailDto(description = description)))),
+                "listing-$index",
+            )
+            viewModel.load()
+            viewModel.uiState.first { it is DetailUiState.Content }
+
+            val content = viewModel.uiState.value as DetailUiState.Content
+            assertFalse(content.isDescriptionExpanded)
+            assertEquals(description, content.details.description)
+        }
+    }
+
     @Test fun `initial state stays loading until the fixed detail request completes`() = runBlocking {
         val viewModel = newViewModel(FakeDetailApi(listOf(Result.success(detailDto()))), "listing-42")
         assertEquals(DetailUiState.Loading, viewModel.uiState.value)
@@ -126,8 +178,8 @@ private class InMemoryFavoriteDao : FavoriteDao {
     override suspend fun deleteByAdId(adId: String) { favorites.update { it - adId } }
 }
 
-private fun detailDto(): PropertyDetailsDto = PropertyDetailsDto(
-    adid = 1, price = BigDecimal("1195000.0"), propertyComment = "Detailed description",
+private fun detailDto(description: String? = "Detailed description"): PropertyDetailsDto = PropertyDetailsDto(
+    adid = 1, price = BigDecimal("1195000.0"), propertyComment = description,
     multimedia = MultimediaDto(images = listOf(ImageDto("https://images.example/detail.jpg"))),
     ubication = LocationDto(latitude = BigDecimal("40.4"), longitude = BigDecimal("-3.6")),
     moreCharacteristics = mapOf("roomNumber" to JsonPrimitive(3)),

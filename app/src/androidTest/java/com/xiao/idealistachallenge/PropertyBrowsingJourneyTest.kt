@@ -12,6 +12,7 @@ import androidx.test.espresso.IdlingResource
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.swipeLeft
 import androidx.test.espresso.action.ViewActions.pressBack
+import androidx.test.espresso.action.ViewActions.scrollTo
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -131,6 +132,31 @@ class PropertyBrowsingJourneyTest {
         onView(withId(R.id.detailImagePosition)).check(matches(withText("2 / 4")))
         onView(withId(R.id.detailImagePager)).perform(pressBack())
         awaitListingRows(5)
+    }
+
+    @Test
+    fun fixedDetailExpandsAndCollapsesTheCompleteMultiParagraphDescription() {
+        awaitListingRows(5)
+        onView(withId(R.id.listingRecyclerView)).perform(
+            performChildActionAtPosition(0, R.id.listingCard, click()),
+        )
+        awaitView(R.id.detailDescriptionToggle) { it.isShown }
+
+        onView(withId(R.id.detailDescriptionToggle)).perform(scrollTo(), click())
+        onView(withId(R.id.detailDescription)).check { view, noViewFoundException ->
+            checkNotNull(view) { noViewFoundException?.message ?: "Description view was not found." }
+            check((view as TextView).maxLines == Int.MAX_VALUE) { "Description was not expanded." }
+            check(view.text.toString().contains("\n\n")) { "Paragraph break was lost." }
+        }
+        onView(withId(R.id.detailDescriptionToggle)).check(matches(withText("Ver menos")))
+
+        onView(withId(R.id.detailDescriptionToggle)).perform(click())
+        onView(withId(R.id.detailDescription)).check { view, noViewFoundException ->
+            checkNotNull(view) { noViewFoundException?.message ?: "Description view was not found." }
+            check((view as TextView).maxLines == 6) { "Description was not collapsed." }
+            check(view.text.toString().contains("\n\n")) { "Paragraph break was lost after collapse." }
+        }
+        onView(withId(R.id.detailDescriptionToggle)).check(matches(withText("Ver más")))
     }
 
     private fun awaitMediaAnnouncement(expected: String) = awaitView(R.id.propertyImage) { view ->
