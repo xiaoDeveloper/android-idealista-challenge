@@ -176,8 +176,13 @@ class ListingAdapter(
 }
 
 private fun PropertyAd.summary(resources: android.content.res.Resources): String {
-    val type = propertyType?.takeIf { it.isNotBlank() }
-        ?: resources.getString(R.string.property_type_fallback)
+    val type = propertyType?.trim()?.takeIf { it.isNotBlank() }?.let { propertyType ->
+        if (propertyType.equals("flat", ignoreCase = true)) {
+            resources.getString(R.string.property_type_flat)
+        } else {
+            propertyType
+        }
+    } ?: resources.getString(R.string.property_type_fallback)
     val location = listOf(address, district, municipality)
         .mapNotNull { it?.takeIf(String::isNotBlank) }
         .joinToString(", ")

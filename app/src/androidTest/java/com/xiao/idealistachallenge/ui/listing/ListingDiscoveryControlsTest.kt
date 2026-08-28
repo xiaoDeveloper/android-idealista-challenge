@@ -19,7 +19,7 @@ class ListingDiscoveryControlsTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun allCategoryShowsOnlyCategoryChipsAndHidesPriceSortChips() {
+    fun allCategoryShowsSegmentedCategoriesAndHidesSortControl() {
         composeTestRule.setContent {
             ListingTheme {
                 ListingDiscoveryControls(
@@ -31,16 +31,18 @@ class ListingDiscoveryControlsTest {
             }
         }
 
+        composeTestRule.onNodeWithText("Viviendas").assertIsDisplayed()
         composeTestRule.onNodeWithText("Todos").assertIsDisplayed().assertIsSelected()
         composeTestRule.onNodeWithText("Venta").assertIsDisplayed()
         composeTestRule.onNodeWithText("Alquiler").assertIsDisplayed()
         composeTestRule.onNodeWithText("Solo favoritos").assertIsDisplayed().assertIsNotSelected()
+        composeTestRule.onNodeWithText("Ordenar").assertDoesNotExist()
         composeTestRule.onNodeWithText("Precio más bajo").assertDoesNotExist()
         composeTestRule.onNodeWithText("Precio más alto").assertDoesNotExist()
     }
 
     @Test
-    fun saleCategoryShowsPriceSortChipsAndPropagatesSelectionCallbacks() {
+    fun saleCategoryShowsSortMenuAndPropagatesSelectionCallbacks() {
         var selectedCategory: ListingCategory? = null
         var selectedDirection: PriceSortDirection? = null
         var currentState by mutableStateOf(
@@ -69,9 +71,13 @@ class ListingDiscoveryControlsTest {
 
         composeTestRule.onNodeWithText("Venta").assertIsSelected()
         composeTestRule.onNodeWithText("Solo favoritos").assertIsDisplayed().assertIsNotSelected()
+        composeTestRule.onNodeWithText("Ordenar").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Precio más bajo").assertDoesNotExist()
+        composeTestRule.onNodeWithText("Precio más alto").assertDoesNotExist()
+
+        composeTestRule.onNodeWithText("Ordenar").performClick()
         composeTestRule.onNodeWithText("Precio más bajo").assertIsDisplayed().assertIsSelected()
         composeTestRule.onNodeWithText("Precio más alto").assertIsDisplayed()
-
         composeTestRule.onNodeWithText("Precio más alto").performClick()
         assertEquals(PriceSortDirection.DESCENDING, selectedDirection)
 

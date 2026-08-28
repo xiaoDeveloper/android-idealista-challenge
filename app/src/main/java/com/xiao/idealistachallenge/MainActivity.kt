@@ -21,6 +21,14 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupActionBarWithNavController(navController)
+        supportActionBar?.hide()
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            if (destination.id == R.id.listingFragment) {
+                supportActionBar?.hide()
+            } else {
+                supportActionBar?.show()
+            }
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean =

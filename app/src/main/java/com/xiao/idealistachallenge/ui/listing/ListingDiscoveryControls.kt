@@ -1,26 +1,46 @@
 package com.xiao.idealistachallenge.ui.listing
 
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.xiao.idealistachallenge.R
 
 @Composable
@@ -71,6 +91,7 @@ fun ListingTheme(
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun ListingDiscoveryControls(
     state: ListingDiscoveryUiState,
     onCategorySelected: (ListingCategory) -> Unit,
@@ -78,78 +99,119 @@ fun ListingDiscoveryControls(
     onFavoritesOnlyToggled: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var sortMenuExpanded by remember { mutableStateOf(false) }
+
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        // Row 1: Primary Category Tabs (Mutually exclusive: Todos | Venta | Alquiler)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            FilterChip(
-                selected = state.category == ListingCategory.ALL,
-                onClick = { onCategorySelected(ListingCategory.ALL) },
-                label = { Text(text = stringResource(R.string.listing_category_all)) },
-            )
-            FilterChip(
-                selected = state.category == ListingCategory.SALE,
-                onClick = { onCategorySelected(ListingCategory.SALE) },
-                label = { Text(text = stringResource(R.string.listing_category_sale)) },
-            )
-            FilterChip(
-                selected = state.category == ListingCategory.RENT,
-                onClick = { onCategorySelected(ListingCategory.RENT) },
-                label = { Text(text = stringResource(R.string.listing_category_rent)) },
-            )
-        }
+        Text(
+            text = stringResource(R.string.listing_title),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontSize = 24.sp,
+            lineHeight = 28.sp,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Spacer(modifier = Modifier.height(16.dp))
 
-        // Row 2: Secondary Modifiers (Filter group + Sort group separated by VerticalDivider)
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            ListingCategory.entries.forEachIndexed { index, category ->
+                SegmentedButton(
+                    selected = state.category == category,
+                    onClick = { onCategorySelected(category) },
+                    shape = SegmentedButtonDefaults.itemShape(index, ListingCategory.entries.size),
+                    modifier = Modifier.weight(1f),
+                    label = {
+                        Text(
+                            text = stringResource(
+                                when (category) {
+                                    ListingCategory.ALL -> R.string.listing_category_all
+                                    ListingCategory.SALE -> R.string.listing_category_sale
+                                    ListingCategory.RENT -> R.string.listing_category_rent
+                                },
+                            ),
+                        )
+                    },
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Filter Dimension: Binary toggle for saved favorites
-            FilterChip(
-                selected = state.favoritesOnly,
-                onClick = { onFavoritesOnlyToggled(!state.favoritesOnly) },
-                label = { Text(text = stringResource(R.string.listing_filter_favorites_only)) },
-                leadingIcon = {
-                    Text(text = if (state.favoritesOnly) "♥" else "♡")
-                },
-            )
+            Box(
+                modifier = Modifier.height(48.dp),
+                contentAlignment = Alignment.CenterStart,
+            ) {
+                FilterChip(
+                    selected = state.favoritesOnly,
+                    onClick = { onFavoritesOnlyToggled(!state.favoritesOnly) },
+                    modifier = Modifier.height(40.dp),
+                    label = { Text(text = stringResource(R.string.listing_filter_favorites_only)) },
+                    leadingIcon = {
+                        Text(text = if (state.favoritesOnly) "♥" else "♡")
+                    },
+                )
+            }
 
             if (state.category != ListingCategory.ALL) {
-                // Visual separation between independent Filter and mutually-exclusive Sort options
-                VerticalDivider(
-                    modifier = Modifier
-                        .height(24.dp)
-                        .padding(horizontal = 2.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant,
-                )
-
-                // Sort Dimension: Directional price ordering
-                FilterChip(
-                    selected = state.priceSortDirection == PriceSortDirection.ASCENDING,
-                    onClick = { onPriceSortDirectionSelected(PriceSortDirection.ASCENDING) },
-                    label = { Text(text = stringResource(R.string.listing_sort_price_ascending)) },
-                    leadingIcon = {
-                        Text(text = "↑")
-                    },
-                )
-                FilterChip(
-                    selected = state.priceSortDirection == PriceSortDirection.DESCENDING,
-                    onClick = { onPriceSortDirectionSelected(PriceSortDirection.DESCENDING) },
-                    label = { Text(text = stringResource(R.string.listing_sort_price_descending)) },
-                    leadingIcon = {
-                        Text(text = "↓")
-                    },
-                )
+                Box(
+                    modifier = Modifier.height(48.dp),
+                    contentAlignment = Alignment.CenterEnd,
+                ) {
+                    OutlinedButton(
+                        onClick = { sortMenuExpanded = true },
+                        modifier = Modifier.height(40.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        ),
+                        contentPadding = PaddingValues(horizontal = 14.dp),
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_swap_vert),
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Text(
+                            text = stringResource(R.string.listing_sort),
+                            modifier = Modifier.padding(start = 8.dp),
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = sortMenuExpanded,
+                        onDismissRequest = { sortMenuExpanded = false },
+                    ) {
+                        PriceSortDirection.entries.forEach { direction ->
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = stringResource(
+                                            if (direction == PriceSortDirection.ASCENDING) {
+                                                R.string.listing_sort_price_ascending
+                                            } else {
+                                                R.string.listing_sort_price_descending
+                                            },
+                                        ),
+                                    )
+                                },
+                                onClick = {
+                                    onPriceSortDirectionSelected(direction)
+                                    sortMenuExpanded = false
+                                },
+                                leadingIcon = {
+                                    Text(text = if (direction == PriceSortDirection.ASCENDING) "↑" else "↓")
+                                },
+                                modifier = Modifier.semantics {
+                                    selected = state.priceSortDirection == direction
+                                },
+                            )
+                        }
+                    }
+                }
             }
         }
     }
