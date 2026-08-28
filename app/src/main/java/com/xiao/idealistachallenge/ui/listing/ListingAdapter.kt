@@ -1,7 +1,6 @@
 package com.xiao.idealistachallenge.ui.listing
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
@@ -11,9 +10,8 @@ import com.xiao.idealistachallenge.R
 import com.xiao.idealistachallenge.core.FavoriteDateFormatter
 import com.xiao.idealistachallenge.databinding.ItemListingBinding
 import com.xiao.idealistachallenge.model.PropertyAd
-import coil3.dispose
-import coil3.load
-import coil3.request.crossfade
+import com.xiao.idealistachallenge.ui.media.PropertyImagePagerAdapter
+import com.xiao.idealistachallenge.ui.media.configurePropertyImagePager
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -21,6 +19,8 @@ class ListingAdapter(
     private val onItemClick: (String) -> Unit = {},
     private val onFavoriteClick: (ListingRowUiModel) -> Unit = {},
 ) : ListAdapter<ListingRowUiModel, ListingAdapter.ListingViewHolder>(DIFF_CALLBACK) {
+
+    private val pagePositions = mutableMapOf<String, Int>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListingViewHolder =
         ListingViewHolder(
@@ -31,20 +31,46 @@ class ListingAdapter(
             ),
             onItemClick = onItemClick,
             onFavoriteClick = onFavoriteClick,
+            onPageSettled = { propertyCode, position -> pagePositions[propertyCode] = position },
         )
 
     override fun onBindViewHolder(holder: ListingViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        val row = getItem(position)
+        holder.bind(row, pagePositions[row.ad.propertyCode] ?: 0)
+    }
+
+    override fun onCurrentListChanged(
+        previousList: MutableList<ListingRowUiModel>,
+        currentList: MutableList<ListingRowUiModel>,
+    ) {
+        pagePositions.keys.retainAll(currentList.mapTo(mutableSetOf()) { it.ad.propertyCode })
     }
 
     class ListingViewHolder(
         private val binding: ItemListingBinding,
         private val onItemClick: (String) -> Unit,
         private val onFavoriteClick: (ListingRowUiModel) -> Unit,
+        private val onPageSettled: (String, Int) -> Unit,
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(row: ListingRowUiModel) {
+        private var boundPropertyCode: String? = null
+        private val mediaAdapter = PropertyImagePagerAdapter {
+            boundPropertyCode?.let(onItemClick)
+        }
+
+        init {
+            binding.listingImagePager.adapter = mediaAdapter
+            binding.listingImagePager.configurePropertyImagePager { position ->
+                boundPropertyCode?.let { propertyCode ->
+                    onPageSettled(propertyCode, position)
+                    showImagePosition(position)
+                }
+            }
+        }
+
+        fun bind(row: ListingRowUiModel, restoredPagePosition: Int) {
             val ad = row.ad
+            boundPropertyCode = ad.propertyCode
             binding.root.setOnClickListener { onItemClick(ad.propertyCode) }
             binding.favoriteButton.setOnClickListener { onFavoriteClick(row) }
 
@@ -52,7 +78,7 @@ class ListingAdapter(
             binding.listingPrice.text = ad.priceText()
             bindFacts(ad)
             bindFavorite(row)
-            bindImage(ad)
+            bindMedia(ad, restoredPagePosition)
         }
 
         private fun bindFacts(ad: PropertyAd) {
@@ -95,34 +121,27 @@ class ListingAdapter(
             )
         }
 
-        private fun bindImage(ad: PropertyAd) {
-            binding.listingImage.dispose()
-            binding.listingImage.setImageDrawable(null)
-            showImagePlaceholder()
-
-            val imageUrl = ad.thumbnailUrl?.takeIf { it.isNotBlank() }
-                ?: ad.imageUrls.firstOrNull()?.takeIf { it.isNotBlank() }
-                ?: return
-
-            binding.listingImage.load(imageUrl) {
-                crossfade(true)
-                listener(
-                    onError = { _, _ -> showImagePlaceholder() },
-                    onSuccess = { _, _ -> showImage() },
-                )
+        private fun bindMedia(ad: PropertyAd, restoredPagePosition: Int) {
+            val images = ad.listingImages()
+            mediaAdapter.submitImages(images)
+            binding.listingImagePosition.isVisible = images.size > 1
+            if (images.size > 1) {
+                val position = restoredPagePosition.coerceIn(0, images.lastIndex)
+                binding.listingImagePager.scrollToPosition(position)
+                showImagePosition(position)
+            } else {
+                binding.listingImagePager.scrollToPosition(0)
             }
         }
 
-        private fun showImagePlaceholder() {
-            binding.listingImage.importantForAccessibility =
-                View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            binding.listingImagePlaceholder.isVisible = true
-        }
-
-        private fun showImage() {
-            binding.listingImage.importantForAccessibility =
-                View.IMPORTANT_FOR_ACCESSIBILITY_YES
-            binding.listingImagePlaceholder.isVisible = false
+        private fun showImagePosition(position: Int) {
+            val total = mediaAdapter.itemCount
+            if (total <= 1) return
+            binding.listingImagePosition.text = binding.root.context.getString(
+                R.string.property_image_position,
+                position + 1,
+                total,
+            )
         }
     }
 

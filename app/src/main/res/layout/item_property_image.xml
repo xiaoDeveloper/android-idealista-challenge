@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurfaceVariant">
+
+    <ImageView
+        android:id="@+id/propertyImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="yes"
+        android:scaleType="centerCrop" />
+
+    <TextView
+        android:id="@+id/propertyImagePlaceholder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:importantForAccessibility="yes"
+        android:text="@string/property_image_placeholder"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textSize="@dimen/supporting_text_size" />
+</FrameLayout>
