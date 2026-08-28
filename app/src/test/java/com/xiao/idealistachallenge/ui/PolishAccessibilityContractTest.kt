@@ -4,26 +4,21 @@ import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PolishAccessibilityContractTest {
 
     @Test
     fun `image fallbacks retain a Spanish accessibility label`() {
-        listOf("item_listing.xml", "fragment_detail.xml").forEach { fileName ->
-            val placeholder = elementById(layout(fileName), "listingImagePlaceholder", "detailImagePlaceholder")
+        val placeholder = elementById(layout("item_property_image.xml"), "propertyImagePlaceholder")
 
-            assertEquals(
-                "@string/property_image_placeholder",
-                placeholder.attribute("text"),
-            )
-            assertEquals(
-                "@string/property_image_placeholder_content_description",
-                placeholder.attribute("contentDescription"),
-            )
-            assertEquals("yes", placeholder.attribute("importantForAccessibility"))
-        }
+        assertEquals("@string/property_image_placeholder", placeholder.attribute("text"))
+        assertEquals(
+            "@string/property_image_placeholder_content_description",
+            placeholder.attribute("contentDescription"),
+        )
+        assertEquals("yes", placeholder.attribute("importantForAccessibility"))
     }
 
     @Test
@@ -42,16 +37,15 @@ class PolishAccessibilityContractTest {
     @Test
     fun `interactive controls expose Spanish labels and 48dp touch targets`() {
         val expectedTarget = "@dimen/min_interactive_target"
-        listOf(
-            elementById(layout("item_listing.xml"), "favoriteButton"),
-            elementById(layout("fragment_detail.xml"), "detailFavoriteButton"),
-        ).forEach { control ->
-            assertEquals(expectedTarget, control.attribute("layout_width"))
-            assertEquals(expectedTarget, control.attribute("layout_height"))
-            assertEquals(expectedTarget, control.attribute("minWidth"))
-            assertEquals(expectedTarget, control.attribute("minHeight"))
-            assertNotNull(control.attribute("contentDescription"))
-        }
+        val listingFavorite = elementById(layout("item_listing.xml"), "favoriteButton")
+        assertEquals(expectedTarget, listingFavorite.attribute("layout_width"))
+        assertEquals(expectedTarget, listingFavorite.attribute("layout_height"))
+        assertEquals(expectedTarget, listingFavorite.attribute("minWidth"))
+        assertEquals(expectedTarget, listingFavorite.attribute("minHeight"))
+
+        val detailMenu = resource("menu/menu_detail.xml")
+        assertTrue(detailMenu.contains("android:title=\"@string/favorite_accessibility_save\""))
+        assertTrue(detailMenu.contains("android:checkable=\"true\""))
         listOf(
             elementById(layout("fragment_listing.xml"), "retryButton"),
             elementById(layout("fragment_detail.xml"), "retryButton"),
@@ -71,9 +65,40 @@ class PolishAccessibilityContractTest {
             "<string name=\"property_image_placeholder\">Imagen no disponible</string>",
             "<string name=\"property_image_placeholder_content_description\">Imagen de la vivienda no disponible</string>",
             "<string name=\"property_description_unavailable\">No hay descripción disponible.</string>",
+            "<string name=\"property_rooms_compact\">%1\$d hab.</string>",
+            "<string name=\"property_community_costs_label\">Gastos de comunidad</string>",
+            "<string name=\"energy_consumption_label\">Consumo</string>",
+            "<string name=\"energy_emissions_label\">Emisiones</string>",
         ).forEach { expected ->
             check(strings.contains(expected)) { "Missing Spanish resource: $expected" }
         }
+    }
+
+    @Test
+    fun `detail grouping uses flexible text containers and non interactive chips`() {
+        val detail = layout("fragment_detail.xml")
+        listOf("detailPrimaryFacts", "detailSecondaryFacts", "detailCharacteristicTags").forEach { id ->
+            val group = elementById(detail, id)
+            assertEquals("wrap_content", group.attribute("layout_height"))
+        }
+        listOf("layout/item_detail_primary_fact.xml", "layout/item_detail_secondary_fact.xml").forEach { file ->
+            val chip = parse(resource(file)).documentElement
+            assertEquals("false", chip.attribute("clickable"))
+            assertEquals("false", chip.attribute("focusable"))
+            assertEquals("false", chip.attribute("checkable"))
+        }
+    }
+
+    @Test
+    fun `shared action bar is a neutral surface in both theme variants`() {
+        listOf("values/themes.xml", "values-night/themes.xml").forEach { themeFile ->
+            val theme = resource(themeFile)
+            assertTrue(theme.contains("@style/Widget.IdealistaChallenge.ActionBar"))
+        }
+        val lightTheme = resource("values/themes.xml")
+        assertTrue(lightTheme.contains("?attr/colorSurface"))
+        assertTrue(lightTheme.contains("?attr/colorOnSurface"))
+        assertTrue(lightTheme.contains("<item name=\"elevation\">0dp</item>"))
     }
 
     private fun layout(fileName: String) = parse(resource("layout/$fileName"))

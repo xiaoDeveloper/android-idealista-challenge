@@ -45,6 +45,7 @@
     <string name="property_type_fallback">Vivienda</string>
     <string name="property_location_fallback">Ubicación no disponible</string>
     <string name="property_size">%1$d m²</string>
+    <string name="property_rooms_compact">%1$d hab.</string>
     <plurals name="property_rooms">
         <item quantity="one">%1$d habitación</item>
         <item quantity="other">%1$d habitaciones</item>
@@ -56,7 +57,6 @@
     <string name="property_characteristics_title">Características</string>
     <string name="property_description_title">Descripción</string>
     <string name="property_coordinates">Ubicación: %1$s, %2$s</string>
-    <string name="detail_static_response_notice">El reto proporciona el mismo detalle oficial para cada vivienda seleccionada.</string>
     <string name="detail_price">%1$s €</string>
     <string name="detail_price_with_currency_suffix">%1$s %2$s</string>
     <string name="property_description_unavailable">No hay descripción disponible.</string>
@@ -70,12 +70,12 @@
     <string name="property_lift">Con ascensor</string>
     <string name="property_storage_room">Trastero</string>
     <string name="property_duplex">Dúplex</string>
-    <string name="property_community_costs">Gastos de comunidad: %1$s</string>
+    <string name="property_community_costs_label">Gastos de comunidad</string>
     <string name="description_expand">Ver más</string>
     <string name="description_collapse">Ver menos</string>
     <string name="description_expand_content_description">Mostrar descripción completa. Contraída.</string>
     <string name="description_collapse_content_description">Mostrar descripción resumida. Expandida.</string>
     <string name="energy_certificate_title">Certificación energética</string>
-    <string name="energy_consumption">Consumo: %1$s</string>
-    <string name="energy_emissions">Emisiones: %1$s</string>
+    <string name="energy_consumption_label">Consumo</string>
+    <string name="energy_emissions_label">Emisiones</string>
 </resources>

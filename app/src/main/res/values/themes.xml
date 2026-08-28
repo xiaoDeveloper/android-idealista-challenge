@@ -20,5 +20,24 @@
         <item name="android:statusBarColor">@color/colorSurface</item>
         <item name="android:navigationBarColor">@color/colorSurface</item>
         <item name="android:windowLightStatusBar">true</item>
+        <item name="actionBarStyle">@style/Widget.IdealistaChallenge.ActionBar</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.IdealistaChallenge.ActionBar</item>
+    </style>
+
+    <style name="Widget.IdealistaChallenge.ActionBar" parent="Widget.AppCompat.ActionBar.Solid">
+        <item name="android:background">?attr/colorSurface</item>
+        <item name="background">?attr/colorSurface</item>
+        <item name="elevation">0dp</item>
+        <item name="titleTextStyle">@style/TextAppearance.IdealistaChallenge.ActionBar.Title</item>
+    </style>
+
+    <style name="ThemeOverlay.IdealistaChallenge.ActionBar" parent="ThemeOverlay.AppCompat.ActionBar">
+        <item name="colorControlNormal">?attr/colorOnSurface</item>
+        <item name="android:colorControlNormal">?attr/colorOnSurface</item>
+        <item name="android:textColorPrimary">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="TextAppearance.IdealistaChallenge.ActionBar.Title" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
 </resources>

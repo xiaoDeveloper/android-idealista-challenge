@@ -58,13 +58,15 @@ process recreation, and synchronized list/detail state all pass.
 - [X] T024 [P] [US3] Write favorite repository tests proving a new timestamp on re-favorite and removal on unfavorite in `app/src/test/java/com/xiao/idealistachallenge/data/repository/FavoriteRepositoryTest.kt`.
 - [X] T025 [P] [US3] Add core Espresso journey coverage for list favorite, detail favorite, date display, and back-stack synchronization in `app/src/androidTest/java/com/xiao/idealistachallenge/FavoriteJourneyTest.kt`.
 - [X] T026 Implement favorite actions and date formatting at the UI boundary in both `ListingViewModel` and `DetailViewModel`.
-- [X] T027 [US3] Connect Room Flow updates to both screen state[improve ui detail.txt](../../../improve%20ui%20detail.txt)s and ensure process recreation restores the selected ID's favorite record.
+- [X] T027 [US3] Connect Room Flow updates to both screen states and ensure process recreation restores the selected ID's favorite record.
 
 ## Phase 6: Polish and cross-cutting validation
 
 - [X] T028 [P] Add missing-image, long-description, content-description, touch-target, and Spanish string coverage in relevant unit/instrumentation tests and resources.
 - [X] T029 [P] Update `docs/architecture/ARCHITECTURE.md`, `README.md`, and `docs/ai/AI_USAGE.md` from proposed to verified statements only after implementation evidence exists.
-- [X] T030 Run `quickstart.md`, `.\gradlew.bat assembleDebug`, `.\gradlew.bat testDebugUnitTest`, `.\gradlew.bat connectedDebugAndroidTest` when a device is available, and `.\gradlew.bat lintDebug`; fix failures before release review.
+- [ ] T030 Run `quickstart.md`, `.\gradlew.bat assembleDebug`, `.\gradlew.bat testDebugUnitTest`, `.\gradlew.bat connectedDebugAndroidTest` when a device is available, and `.\gradlew.bat lintDebug`; fix failures before release review.
+- [X] T031 Redesign the XML Detail screen with neutral ActionBar favorite action, grouped facts, structured characteristics, readable description, and compact energy presentation while preserving pager and Room behavior.
+- [X] T032 Verify the Detail polish with focused unit/layout tests, full unit tests, debug assembly, Android-test compilation, lint, whitespace checks, and a device journey when available.
 
 ## Dependencies and execution order
 

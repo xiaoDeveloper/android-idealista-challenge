@@ -16,7 +16,7 @@ import androidx.test.espresso.action.ViewActions.scrollTo
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.isSelected
+import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -24,6 +24,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matcher
+import org.hamcrest.Matchers.startsWith
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -93,9 +94,8 @@ class PropertyBrowsingJourneyTest {
         onView(withId(R.id.listingRecyclerView)).perform(
             performChildActionAtPosition(0, R.id.listingImagePager, click()),
         )
-        awaitView(R.id.detailFavoriteDate) { it.isShown }
-        onView(withId(R.id.detailFavoriteButton)).check(matches(isDisplayed()))
-        onView(withId(R.id.detailFavoriteButton)).check(matches(isSelected()))
+        awaitView(R.id.detailSavedState) { it.isShown }
+        onView(withContentDescription(startsWith("Quitar vivienda de guardados"))).check(matches(isDisplayed()))
         onView(withId(R.id.detailPrice)).check(matches(isDisplayed()))
     }
 
@@ -115,20 +115,23 @@ class PropertyBrowsingJourneyTest {
         onView(withId(R.id.detailImagePager)).perform(swipeLeft())
         awaitMediaAnnouncement("Foto 2 de 4")
         onView(withId(R.id.detailImagePosition)).check(matches(withText("2 / 4")))
-        onView(withId(R.id.detailFavoriteButton)).check(matches(isDisplayed()))
-        onView(withId(R.id.detailLocation)).check { view, noViewFoundException ->
-            checkNotNull(view) { noViewFoundException?.message ?: "Location view was not found." }
-            check(!view.isShown) { "Coordinate-only location must remain hidden." }
-        }
+        onView(withContentDescription("Guardar vivienda")).check(matches(isDisplayed()))
         onView(withId(R.id.detailPropertyTypeOperation)).check(matches(withText("Piso · Venta")))
-        onView(withId(R.id.detailEssentialFacts)).check(matches(withText(
-            "133 m²\n3 habitaciones\n2 baños\nPlanta 2\nInterior\nCon ascensor",
-        )))
-        onView(withId(R.id.detailEnergyConsumption)).check(matches(withText("Consumo: E")))
-        onView(withId(R.id.detailEnergyEmissions)).check(matches(withText("Emisiones: E")))
+        onView(withId(R.id.detailPrimaryFacts)).check(matches(isDisplayed()))
+        onView(withText("133 m²")).check(matches(isDisplayed()))
+        onView(withText("3 hab.")).check(matches(isDisplayed()))
+        onView(withText("2 baños")).check(matches(isDisplayed()))
+        onView(withId(R.id.detailSecondaryFacts)).check(matches(isDisplayed()))
+        onView(withText("Planta 2")).check(matches(isDisplayed()))
+        onView(withText("Interior")).check(matches(isDisplayed()))
+        onView(withText("Con ascensor")).check(matches(isDisplayed()))
+        onView(withId(R.id.detailEnergyConsumptionLabel)).check(matches(withText("Consumo")))
+        onView(withId(R.id.detailEnergyConsumptionValue)).check(matches(withText("E")))
+        onView(withId(R.id.detailEnergyEmissionsLabel)).check(matches(withText("Emisiones")))
+        onView(withId(R.id.detailEnergyEmissionsValue)).check(matches(withText("E")))
 
-        onView(withId(R.id.detailFavoriteButton)).perform(click())
-        awaitView(R.id.detailFavoriteDate) { it.isShown }
+        onView(withContentDescription("Guardar vivienda")).perform(click())
+        awaitView(R.id.detailSavedState) { it.isShown }
         onView(withId(R.id.detailImagePosition)).check(matches(withText("2 / 4")))
         onView(withId(R.id.detailImagePager)).perform(pressBack())
         awaitListingRows(5)

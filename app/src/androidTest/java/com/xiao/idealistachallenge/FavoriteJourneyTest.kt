@@ -14,12 +14,14 @@ import androidx.test.espresso.IdlingPolicies
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.ViewAssertion
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matcher
+import org.hamcrest.Matchers.startsWith
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -55,14 +57,14 @@ class FavoriteJourneyTest {
         val favoriteDate = textOf(R.id.favoriteDate)
 
         onView(withId(R.id.listingRecyclerView)).perform(clickChildAtPosition(0, R.id.listingCard))
-        awaitView(R.id.detailFavoriteDate) { it.isShown && (it as TextView).text.isNotBlank() }
-        onView(withId(R.id.detailFavoriteDate)).check(ViewAssertion { view, noViewFoundException ->
+        awaitView(R.id.detailSavedState) { it.isShown && (it as TextView).text.isNotBlank() }
+        onView(withId(R.id.detailSavedState)).check(ViewAssertion { view, noViewFoundException ->
             checkNotNull(view) { noViewFoundException?.message ?: "Favorite date view was not found." }
             check((view as TextView).text.toString() == favoriteDate)
         })
 
-        onView(withId(R.id.detailFavoriteButton)).perform(click())
-        awaitView(R.id.detailFavoriteDate) { !it.isShown }
+        onView(withContentDescription(startsWith("Quitar vivienda de guardados"))).perform(click())
+        awaitView(R.id.detailSavedState) { !it.isShown }
         pressBack()
         awaitView(R.id.favoriteDate) { !it.isShown }
 

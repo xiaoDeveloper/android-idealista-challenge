@@ -1,15 +1,17 @@
 package com.xiao.idealistachallenge.ui
 
 import java.io.File
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class FavoriteTintContractTest {
 
     @Test
-    fun `listing and detail favorite controls share the stateful favorite tint`() {
+    fun `listing favorite control uses an original heart with the stateful tint`() {
         assertTrue(layout("item_listing.xml").contains("app:tint=\"@color/favorite_star_tint\""))
-        assertTrue(layout("fragment_detail.xml").contains("app:tint=\"@color/favorite_star_tint\""))
+        assertTrue(layout("item_listing.xml").contains("@drawable/ic_favorite_border"))
+        assertFalse(layout("item_listing.xml").contains("btn_star_big"))
     }
 
     @Test
@@ -19,6 +21,15 @@ class FavoriteTintContractTest {
         assertTrue(tint.contains("android:state_selected=\"true\""))
         assertTrue(tint.contains("android:color=\"?attr/colorPrimary\""))
         assertTrue(tint.contains("android:color=\"?attr/colorOnSurface\""))
+    }
+
+    @Test
+    fun `toolbar favorite uses separate semantic outline and filled heart vectors`() {
+        val outline = resource("drawable/ic_favorite_border.xml")
+        val filled = resource("drawable/ic_favorite.xml")
+
+        assertTrue(outline.contains("?attr/colorOnSurface"))
+        assertTrue(filled.contains("?attr/colorPrimary"))
     }
 
     private fun layout(fileName: String): String = resource("layout/$fileName")

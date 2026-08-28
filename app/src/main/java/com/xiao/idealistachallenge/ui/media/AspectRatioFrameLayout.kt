@@ -18,9 +18,13 @@ class AspectRatioFrameLayout @JvmOverloads constructor(
         R.styleable.AspectRatioFrameLayout,
         defStyleAttr,
         0,
-    ).use { attributes ->
-        attributes.getString(R.styleable.AspectRatioFrameLayout_aspectRatio)
-            .toAspectRatioOrDefault()
+    ).let { attributes ->
+        try {
+            attributes.getString(R.styleable.AspectRatioFrameLayout_aspectRatio)
+                .toAspectRatioOrDefault()
+        } finally {
+            attributes.recycle()
+        }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

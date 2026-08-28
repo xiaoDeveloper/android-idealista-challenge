@@ -25,7 +25,7 @@ class DetailPresentationTest {
     }
 
     @Test
-    fun `presents essential facts in the approved order including interior and true lift`() {
+    fun `separates primary and secondary facts in the approved order`() {
         val content = presentation.present(
             details(
                 constructedAreaSquareMeters = 133,
@@ -37,14 +37,12 @@ class DetailPresentationTest {
             ),
         )
 
-        assertEquals(
-            listOf("133 m²", "3 habitaciones", "2 baños", "Planta 2", "Interior", "Con ascensor"),
-            content.essentialFacts,
-        )
+        assertEquals(listOf("133 m²", "3 hab.", "2 baños"), content.primaryFacts)
+        assertEquals(listOf("Planta 2", "Interior", "Con ascensor"), content.secondaryFacts)
     }
 
     @Test
-    fun `presents exterior and only true additional characteristics without a cost frequency`() {
+    fun `presents only true characteristic tags and a structured community cost without a frequency`() {
         val content = presentation.present(
             details(
                 isExterior = true,
@@ -55,13 +53,11 @@ class DetailPresentationTest {
             ),
         )
 
-        assertEquals(listOf("Exterior"), content.essentialFacts)
-        assertEquals(
-            listOf("Trastero", "Dúplex", "Gastos de comunidad: 330 €"),
-            content.additionalCharacteristics,
-        )
-        assertFalse(content.additionalCharacteristics.any { it.contains("mes", ignoreCase = true) })
-        assertFalse(content.additionalCharacteristics.any { it.contains("año", ignoreCase = true) })
+        assertEquals(listOf("Exterior"), content.secondaryFacts)
+        assertEquals(listOf("Trastero", "Dúplex"), content.characteristicTags)
+        assertEquals(DetailPresentation.LabelValue("Gastos de comunidad", "330 €"), content.communityCosts)
+        assertFalse(content.communityCosts!!.value.contains("mes", ignoreCase = true))
+        assertFalse(content.communityCosts!!.value.contains("año", ignoreCase = true))
     }
 
     @Test
@@ -80,12 +76,14 @@ class DetailPresentationTest {
         )
 
         assertNull(content.typeAndOperation)
-        assertEquals(emptyList<String>(), content.essentialFacts)
-        assertEquals(emptyList<String>(), content.additionalCharacteristics)
+        assertEquals(emptyList<String>(), content.primaryFacts)
+        assertEquals(emptyList<String>(), content.secondaryFacts)
+        assertEquals(emptyList<String>(), content.characteristicTags)
+        assertNull(content.communityCosts)
     }
 
     @Test
-    fun `renders only valid normalized energy grades in dedicated rows`() {
+    fun `renders independent normalized energy labels and grades`() {
         val content = presentation.present(
             details(
                 energyConsumptionRating = EnergyRating.E,
@@ -93,7 +91,16 @@ class DetailPresentationTest {
             ),
         )
 
-        assertEquals(listOf("Consumo: E", "Emisiones: G"), content.energyRows)
+        assertEquals(DetailPresentation.LabelValue("Consumo", "E"), content.energyConsumption)
+        assertEquals(DetailPresentation.LabelValue("Emisiones", "G"), content.energyEmissions)
+    }
+
+    @Test
+    fun `keeps an available emissions grade when consumption is absent`() {
+        val content = presentation.present(details(energyEmissionsRating = EnergyRating.E))
+
+        assertNull(content.energyConsumption)
+        assertEquals(DetailPresentation.LabelValue("Emisiones", "E"), content.energyEmissions)
     }
 
     private fun details(

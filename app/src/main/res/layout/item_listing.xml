@@ -84,7 +84,7 @@
                     android:minWidth="@dimen/min_interactive_target"
                     android:minHeight="@dimen/min_interactive_target"
                     android:padding="@dimen/space_12"
-                    android:src="@android:drawable/btn_star_big_off"
+                    android:src="@drawable/ic_favorite_border"
                     app:tint="@color/favorite_star_tint"
                     android:visibility="visible" />
             </LinearLayout>

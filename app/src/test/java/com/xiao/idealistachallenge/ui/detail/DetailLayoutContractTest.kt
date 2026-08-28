@@ -4,7 +4,6 @@ import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.w3c.dom.Element
@@ -26,6 +25,7 @@ class DetailLayoutContractTest {
         assertEquals("androidx.recyclerview.widget.RecyclerView", pager.tagName)
         assertEquals("gone", indicator.attribute(ANDROID_NAMESPACE, "visibility"))
         assertEquals("no", indicator.attribute(ANDROID_NAMESPACE, "importantForAccessibility"))
+        assertEquals("@drawable/bg_detail_media_indicator", indicator.attribute(ANDROID_NAMESPACE, "background"))
     }
 
     @Test
@@ -42,27 +42,24 @@ class DetailLayoutContractTest {
             "detailMediaViewport",
             "detailPropertyTypeOperation",
             "detailPrice",
-            "detailLocation",
-            "detailEssentialFacts",
-            "detailFavoriteButton",
-            "detailFavoriteDate",
-            "detailAdditionalCharacteristicsTitle",
-            "detailAdditionalCharacteristics",
+            "detailPrimaryFacts",
+            "detailSecondaryFacts",
+            "detailSavedState",
+            "detailCharacteristicsSection",
+            "detailCharacteristicTags",
+            "detailCommunityCostsRow",
             "detailDescriptionTitle",
             "detailDescription",
-            "detailEnergyTitle",
-            "detailEnergyConsumption",
-            "detailEnergyEmissions",
-            "detailStaticResponseNotice",
+            "detailEnergySection",
+            "detailEnergyConsumptionCard",
+            "detailEnergyEmissionsCard",
         )
     }
 
     @Test
     fun `detail layout does not present coordinate-only location text`() {
         val layout = layoutFile().readText()
-        val location = elementById(detailDocument(), "detailLocation")
-
-        assertEquals("gone", location.attribute(ANDROID_NAMESPACE, "visibility"))
+        assertFalse(layout.contains("detailLocation"))
         assertFalse(layout.contains("latitude", ignoreCase = true))
         assertFalse(layout.contains("longitude", ignoreCase = true))
         assertFalse(layout.contains("ubication", ignoreCase = true))
@@ -71,18 +68,43 @@ class DetailLayoutContractTest {
     }
 
     @Test
-    fun `favorite remains a separately reachable control outside media paging`() {
+    fun `facts use wrapping chip groups and saved state is not an interactive star`() {
         val document = detailDocument()
-        val pager = elementById(document, "detailImagePager")
-        val favorite = elementById(document, "detailFavoriteButton")
+        val layout = layoutFile().readText()
 
-        assertEquals("@dimen/min_interactive_target", favorite.attribute(ANDROID_NAMESPACE, "layout_width"))
-        assertEquals("@dimen/min_interactive_target", favorite.attribute(ANDROID_NAMESPACE, "layout_height"))
-        assertEquals("@dimen/min_interactive_target", favorite.attribute(ANDROID_NAMESPACE, "minWidth"))
-        assertEquals("@dimen/min_interactive_target", favorite.attribute(ANDROID_NAMESPACE, "minHeight"))
-        assertNotNull(favorite.attribute(ANDROID_NAMESPACE, "contentDescription"))
-        assertFalse(hasAncestor(favorite, pager))
-        assertTrue(allElements(document).indexOf(favorite) > allElements(document).indexOf(pager))
+        listOf("detailPrimaryFacts", "detailSecondaryFacts", "detailCharacteristicTags").forEach { id ->
+            assertEquals("com.google.android.material.chip.ChipGroup", elementById(document, id).tagName)
+        }
+        assertFalse(layout.contains("detailFavoriteButton"))
+        assertFalse(layout.contains("btn_star_big"))
+        assertFalse(layout.contains("detailStaticResponseNotice"))
+    }
+
+    @Test
+    fun `detail favorite is a toolbar action with original heart icons`() {
+        val menu = resource("menu/menu_detail.xml")
+        val fragmentSource = fragmentFile().readText()
+
+        assertTrue(menu.contains("@+id/action_toggle_favorite"))
+        assertTrue(menu.contains("app:showAsAction=\"ifRoom\""))
+        assertTrue(fragmentSource.contains("MenuProvider"))
+        assertTrue(fragmentSource.contains("R.drawable.ic_favorite_border"))
+        assertTrue(fragmentSource.contains("R.drawable.ic_favorite"))
+        assertFalse(fragmentSource.contains("btn_star_big"))
+    }
+
+    @Test
+    fun `collapsed long description is measured before its six line preview is applied`() {
+        val fragmentSource = fragmentFile().readText()
+        val unlimitedMeasurement = fragmentSource.indexOf("detailDescription.maxLines = Int.MAX_VALUE")
+        val deferredMeasurement = fragmentSource.indexOf("detailDescription.post")
+        val previewLimit = fragmentSource.indexOf(
+            "detailDescription.maxLines = DESCRIPTION_PREVIEW_MAX_LINES",
+        )
+
+        assertTrue("Description must be measured without a line cap first.", unlimitedMeasurement >= 0)
+        assertTrue("Overflow must be determined after TextView layout.", deferredMeasurement > unlimitedMeasurement)
+        assertTrue("Apply the six-line preview only after measuring the complete text.", previewLimit > deferredMeasurement)
     }
 
     private fun assertOrdered(ids: List<String>, vararg expectedIds: String) {
@@ -94,15 +116,6 @@ class DetailLayoutContractTest {
         assertEquals(positions.sorted(), positions)
     }
 
-    private fun hasAncestor(element: Element, possibleAncestor: Element): Boolean {
-        var parent = element.parentNode
-        while (parent != null) {
-            if (parent === possibleAncestor) return true
-            parent = parent.parentNode
-        }
-        return false
-    }
-
     private fun detailDocument() = DocumentBuilderFactory.newInstance().apply {
         isNamespaceAware = true
     }.newDocumentBuilder().parse(layoutFile())
@@ -112,6 +125,18 @@ class DetailLayoutContractTest {
         File("app/src/main/res/layout/fragment_detail.xml"),
     ).firstOrNull(File::isFile)
         ?: error("fragment_detail.xml was not found from ${File(".").absolutePath}")
+
+    private fun resource(relativePath: String): String = sequenceOf(
+        File("src/main/res/$relativePath"),
+        File("app/src/main/res/$relativePath"),
+    ).firstOrNull(File::isFile)?.readText()
+        ?: error("$relativePath was not found from ${File(".").absolutePath}")
+
+    private fun fragmentFile(): File = sequenceOf(
+        File("src/main/java/com/xiao/idealistachallenge/ui/detail/DetailFragment.kt"),
+        File("app/src/main/java/com/xiao/idealistachallenge/ui/detail/DetailFragment.kt"),
+    ).firstOrNull(File::isFile)
+        ?: error("DetailFragment.kt was not found from ${File(".").absolutePath}")
 
     private fun elementById(document: org.w3c.dom.Document, id: String): Element =
         allElements(document).firstOrNull { element ->

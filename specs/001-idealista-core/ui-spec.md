@@ -189,34 +189,39 @@ Detail Fragment
 └── Scrollable state/content container
     ├── Loading panel or error panel + retry
     └── Detail content
-        ├── Primary property media
-        ├── Summary: title/location and price
+        ├── 4:3 swipeable property media and position pill
+        ├── Summary: property type/operation and price
+        ├── Primary facts and secondary facts
         ├── Favorite-created date, when selected
         ├── Characteristics
         ├── Description
-        └── Additional available characteristics
+        └── Energy certificate, when present
 ```
 
-The app bar remains visible for loading and error states so the user can always return
-to the listing. It provides one favorite action for the selected local property ID. Its
-content description and selected state must make the action understandable without the
-icon alone.
+The app bar is a neutral surface with no heavy brand fill. It remains visible for
+loading and error states so the user can always return to the listing. It provides one
+48 dp heart-shaped favorite action for the selected local property ID only while
+content is available. Its label, checked state, outline/filled icon, and the visible
+saved date make the state understandable without color or icon alone.
 
 ### Detail content
 
-- Use a full-width 4:3 primary image beneath the app bar, `centerCrop`, with a neutral
-  placeholder in the same bounds for absent or failed media. This gives the detail
-  screen more visual presence than the balanced 16:9 listing card without promising a
-  carousel or gallery interaction.
-- Follow the image with 16 dp horizontal content insets, then location/property title,
-  32 sp price, and the conditional favorite-created date.
-- Present available characteristics as short rows or compact chips with text labels.
-  Do not use a characteristic section solely to fill space; omit empty groups.
+- Use a full-width 4:3 swipeable image pager beneath the app bar, `centerCrop`, with a
+  neutral placeholder in the same bounds for absent or failed media. Show a high-
+  contrast rounded position pill at the bottom end only when there is more than one
+  image.
+- Follow the image with 16 dp horizontal content insets, property type/operation,
+  32 sp price, primary facts (area, rooms, bathrooms), secondary facts (floor,
+  interior/exterior, lift), and the conditional favorite-created date.
+- Present available facts as non-interactive, wrapping compact chips. Primary and
+  secondary facts use distinct emphasis; omit absent fields without leaving gaps.
+- Place storage room, duplex, and community costs in one subtle outlined
+  `Características` surface. Community costs use a label/value row and do not infer a
+  billing frequency. Omit the section when empty.
 - Show the description as a readable 16 sp body section when available. Long text must
-  wrap and remain vertically scrollable.
-- Render additional server-provided characteristics only when both their key and value
-  are displayable. Preserve the source's meaning without inventing reservations,
-  payment terms, house rules, or profile requirements.
+  wrap, remain vertically scrollable, and retain its expandable preview behavior.
+- Render available consumption and emissions separately as compact outlined label/grade
+  items. Do not substitute one missing value with the other or invent energy data.
 
 ## Loading, empty, error, and image states
 
