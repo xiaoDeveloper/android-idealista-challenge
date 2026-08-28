@@ -7,4 +7,9 @@
 - [X] T005 [US1] Add the stateless themed controls and Spanish labels in `app/src/main/java/com/xiao/idealistachallenge/ui/listing/ListingDiscoveryControls.kt` and `app/src/main/res/values/strings.xml`.
 - [X] T006 [US1] Add and lifecycle-wire the single Compose host while preserving the XML RecyclerView in `app/src/main/res/layout/fragment_listing.xml` and `app/src/main/java/com/xiao/idealistachallenge/ui/listing/ListingFragment.kt`.
 - [X] T007 Run focused listing tests, the focused Compose instrumentation test, `./gradlew.bat testDebugUnitTest`, `./gradlew.bat assembleDebug`, `./gradlew.bat lintDebug`, and `git diff --check`; update this file only from fresh evidence.
-
+- [X] T008 [P] [US2] Add unit tests in `app/src/test/java/com/xiao/idealistachallenge/ui/listing/ListingViewModelTest.kt` for `Solo favoritos` filtering (`Todos`, `Venta`, `Alquiler`, price sorting, reactive Room favorite additions/removals, state preservation, zero matches, and single-request guarantees).
+- [X] T009 [P] [US2] Add Compose semantics/callback tests in `app/src/androidTest/java/com/xiao/idealistachallenge/ui/listing/ListingDiscoveryControlsTest.kt` for `Solo favoritos`.
+- [X] T010 [US2] Implement `favoritesOnly` state, `toggleFavoritesOnly`, category reset preservation, and derived filtering pipeline in `app/src/main/java/com/xiao/idealistachallenge/ui/listing/ListingViewModel.kt`.
+- [X] T011 [US2] Add the `Solo favoritos` chip and Spanish string resource in `app/src/main/java/com/xiao/idealistachallenge/ui/listing/ListingDiscoveryControls.kt` and `app/src/main/res/values/strings.xml`.
+- [X] T012 [US2] Wire the `Solo favoritos` callback in `app/src/main/java/com/xiao/idealistachallenge/ui/listing/ListingFragment.kt`.
+- [X] T013 Run focused listing tests, `.\gradlew.bat testDebugUnitTest`, `.\gradlew.bat assembleDebug`, `.\gradlew.bat lintDebug`, and `git diff --check`; update this file only from fresh evidence.

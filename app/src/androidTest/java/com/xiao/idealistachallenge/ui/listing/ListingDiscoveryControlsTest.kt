@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -25,6 +26,7 @@ class ListingDiscoveryControlsTest {
                     state = ListingDiscoveryUiState(category = ListingCategory.ALL),
                     onCategorySelected = {},
                     onPriceSortDirectionSelected = {},
+                    onFavoritesOnlyToggled = {},
                 )
             }
         }
@@ -32,6 +34,7 @@ class ListingDiscoveryControlsTest {
         composeTestRule.onNodeWithText("Todos").assertIsDisplayed().assertIsSelected()
         composeTestRule.onNodeWithText("Venta").assertIsDisplayed()
         composeTestRule.onNodeWithText("Alquiler").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Solo favoritos").assertIsDisplayed().assertIsNotSelected()
         composeTestRule.onNodeWithText("Precio más bajo").assertDoesNotExist()
         composeTestRule.onNodeWithText("Precio más alto").assertDoesNotExist()
     }
@@ -59,11 +62,13 @@ class ListingDiscoveryControlsTest {
                         selectedDirection = it
                         currentState = currentState.copy(priceSortDirection = it)
                     },
+                    onFavoritesOnlyToggled = {},
                 )
             }
         }
 
         composeTestRule.onNodeWithText("Venta").assertIsSelected()
+        composeTestRule.onNodeWithText("Solo favoritos").assertIsDisplayed().assertIsNotSelected()
         composeTestRule.onNodeWithText("Precio más bajo").assertIsDisplayed().assertIsSelected()
         composeTestRule.onNodeWithText("Precio más alto").assertIsDisplayed()
 
@@ -72,5 +77,37 @@ class ListingDiscoveryControlsTest {
 
         composeTestRule.onNodeWithText("Alquiler").performClick()
         assertEquals(ListingCategory.RENT, selectedCategory)
+    }
+
+    @Test
+    fun favoritesOnlyFilterChipTogglesSelectionAndInvokesCallback() {
+        var toggledValue: Boolean? = null
+        var currentState by mutableStateOf(
+            ListingDiscoveryUiState(
+                category = ListingCategory.ALL,
+                favoritesOnly = false,
+            ),
+        )
+
+        composeTestRule.setContent {
+            ListingTheme {
+                ListingDiscoveryControls(
+                    state = currentState,
+                    onCategorySelected = {},
+                    onPriceSortDirectionSelected = {},
+                    onFavoritesOnlyToggled = {
+                        toggledValue = it
+                        currentState = currentState.copy(favoritesOnly = it)
+                    },
+                )
+            }
+        }
+
+        val favoritesNode = composeTestRule.onNodeWithText("Solo favoritos")
+        favoritesNode.assertIsDisplayed().assertIsNotSelected()
+
+        favoritesNode.performClick()
+        assertEquals(true, toggledValue)
+        favoritesNode.assertIsSelected()
     }
 }

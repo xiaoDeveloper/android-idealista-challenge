@@ -33,6 +33,7 @@ enum class PriceSortDirection {
 data class ListingDiscoveryUiState(
     val category: ListingCategory = ListingCategory.ALL,
     val priceSortDirection: PriceSortDirection? = null,
+    val favoritesOnly: Boolean = false,
 )
 
 data class ListingRowUiModel(
@@ -114,7 +115,7 @@ class ListingViewModel(
     fun selectCategory(category: ListingCategory) {
         _discoveryState.update { current ->
             if (category == ListingCategory.ALL) {
-                ListingDiscoveryUiState(category = ListingCategory.ALL, priceSortDirection = null)
+                current.copy(category = ListingCategory.ALL, priceSortDirection = null)
             } else {
                 current.copy(category = category)
             }
@@ -128,6 +129,12 @@ class ListingViewModel(
             } else {
                 current.copy(priceSortDirection = direction)
             }
+        }
+    }
+
+    fun toggleFavoritesOnly(favoritesOnly: Boolean = !_discoveryState.value.favoritesOnly) {
+        _discoveryState.update { current ->
+            current.copy(favoritesOnly = favoritesOnly)
         }
     }
 
@@ -178,7 +185,7 @@ class ListingViewModel(
         rows: List<ListingRowUiModel>,
         discovery: ListingDiscoveryUiState,
     ): List<ListingRowUiModel> {
-        val filtered = when (discovery.category) {
+        val categoryFiltered = when (discovery.category) {
             ListingCategory.ALL -> rows
             ListingCategory.SALE -> rows.filter {
                 it.ad.operation?.trim()?.equals("sale", ignoreCase = true) == true
@@ -188,11 +195,17 @@ class ListingViewModel(
             }
         }
 
+        val favoritesFiltered = if (discovery.favoritesOnly) {
+            categoryFiltered.filter { it.favoritedAtEpochMillis != null }
+        } else {
+            categoryFiltered
+        }
+
         return when {
-            discovery.category == ListingCategory.ALL || discovery.priceSortDirection == null -> filtered
-            discovery.priceSortDirection == PriceSortDirection.ASCENDING -> filtered.sortedBy { it.ad.price }
-            discovery.priceSortDirection == PriceSortDirection.DESCENDING -> filtered.sortedByDescending { it.ad.price }
-            else -> filtered
+            discovery.category == ListingCategory.ALL || discovery.priceSortDirection == null -> favoritesFiltered
+            discovery.priceSortDirection == PriceSortDirection.ASCENDING -> favoritesFiltered.sortedBy { it.ad.price }
+            discovery.priceSortDirection == PriceSortDirection.DESCENDING -> favoritesFiltered.sortedByDescending { it.ad.price }
+            else -> favoritesFiltered
         }
     }
 }

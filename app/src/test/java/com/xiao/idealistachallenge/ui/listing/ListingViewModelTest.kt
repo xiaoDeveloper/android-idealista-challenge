@@ -553,6 +553,352 @@ class ListingViewModelTest {
         assertEquals(PriceSortDirection.ASCENDING, content.discovery.priceSortDirection)
     }
 
+    @Test
+    fun `Todos combined with favorites only shows all favorite listings in original source order`() = runBlocking {
+        val favoriteRepository = FavoriteRepository(InMemoryFavoriteDao())
+        val ad1 = propertyAd("ad-1", BigDecimal("200000"), "sale")
+        val ad2 = propertyAd("ad-2", BigDecimal("1500"), "rent")
+        val ad3 = propertyAd("ad-3", BigDecimal("300000"), "sale")
+        favoriteRepository.favorite("ad-1", 1000L)
+        favoriteRepository.favorite("ad-3", 2000L)
+        val viewModel = newViewModel(
+            FakeIdealistaApi(
+                responses = listOf(
+                    Result.success(
+                        listOf(
+                            adDto(ad1.propertyCode, ad1.price, ad1.operation),
+                            adDto(ad2.propertyCode, ad2.price, ad2.operation),
+                            adDto(ad3.propertyCode, ad3.price, ad3.operation),
+                        ),
+                    ),
+                ),
+            ),
+            favoriteRepository = favoriteRepository,
+        )
+
+        viewModel.load()
+        viewModel.awaitContent()
+
+        viewModel.toggleFavoritesOnly(true)
+        val content = viewModel.awaitContent { it.discovery.favoritesOnly }
+
+        assertEquals(ListingCategory.ALL, content.discovery.category)
+        assertTrue(content.discovery.favoritesOnly)
+        assertEquals(listOf("ad-1", "ad-3"), content.rows.map { it.ad.propertyCode })
+    }
+
+    @Test
+    fun `Venta combined with favorites only shows only favorite sale listings`() = runBlocking {
+        val favoriteRepository = FavoriteRepository(InMemoryFavoriteDao())
+        val sale1 = propertyAd("sale-1", BigDecimal("200000"), "sale")
+        val rent1 = propertyAd("rent-1", BigDecimal("1500"), "rent")
+        val sale2 = propertyAd("sale-2", BigDecimal("300000"), "sale")
+        favoriteRepository.favorite("sale-1", 1000L)
+        favoriteRepository.favorite("rent-1", 2000L)
+        val viewModel = newViewModel(
+            FakeIdealistaApi(
+                responses = listOf(
+                    Result.success(
+                        listOf(
+                            adDto(sale1.propertyCode, sale1.price, sale1.operation),
+                            adDto(rent1.propertyCode, rent1.price, rent1.operation),
+                            adDto(sale2.propertyCode, sale2.price, sale2.operation),
+                        ),
+                    ),
+                ),
+            ),
+            favoriteRepository = favoriteRepository,
+        )
+
+        viewModel.load()
+        viewModel.selectCategory(ListingCategory.SALE)
+        viewModel.toggleFavoritesOnly(true)
+        val content = viewModel.awaitContent { it.discovery.category == ListingCategory.SALE && it.discovery.favoritesOnly }
+
+        assertEquals(listOf("sale-1"), content.rows.map { it.ad.propertyCode })
+    }
+
+    @Test
+    fun `Alquiler combined with favorites only shows only favorite rental listings`() = runBlocking {
+        val favoriteRepository = FavoriteRepository(InMemoryFavoriteDao())
+        val sale1 = propertyAd("sale-1", BigDecimal("200000"), "sale")
+        val rent1 = propertyAd("rent-1", BigDecimal("1500"), "rent")
+        val rent2 = propertyAd("rent-2", BigDecimal("2500"), "rent")
+        favoriteRepository.favorite("sale-1", 1000L)
+        favoriteRepository.favorite("rent-2", 2000L)
+        val viewModel = newViewModel(
+            FakeIdealistaApi(
+                responses = listOf(
+                    Result.success(
+                        listOf(
+                            adDto(sale1.propertyCode, sale1.price, sale1.operation),
+                            adDto(rent1.propertyCode, rent1.price, rent1.operation),
+                            adDto(rent2.propertyCode, rent2.price, rent2.operation),
+                        ),
+                    ),
+                ),
+            ),
+            favoriteRepository = favoriteRepository,
+        )
+
+        viewModel.load()
+        viewModel.selectCategory(ListingCategory.RENT)
+        viewModel.toggleFavoritesOnly(true)
+        val content = viewModel.awaitContent { it.discovery.category == ListingCategory.RENT && it.discovery.favoritesOnly }
+
+        assertEquals(listOf("rent-2"), content.rows.map { it.ad.propertyCode })
+    }
+
+    @Test
+    fun `favorites only combined with ascending price sorting filters then stably orders prices`() = runBlocking {
+        val favoriteRepository = FavoriteRepository(InMemoryFavoriteDao())
+        val sale1 = propertyAd("sale-expensive", BigDecimal("500000"), "sale")
+        val sale2 = propertyAd("sale-cheap", BigDecimal("200000"), "sale")
+        val sale3 = propertyAd("sale-unfavorited", BigDecimal("100000"), "sale")
+        favoriteRepository.favorite("sale-expensive", 1000L)
+        favoriteRepository.favorite("sale-cheap", 2000L)
+        val viewModel = newViewModel(
+            FakeIdealistaApi(
+                responses = listOf(
+                    Result.success(
+                        listOf(
+                            adDto(sale1.propertyCode, sale1.price, sale1.operation),
+                            adDto(sale2.propertyCode, sale2.price, sale2.operation),
+                            adDto(sale3.propertyCode, sale3.price, sale3.operation),
+                        ),
+                    ),
+                ),
+            ),
+            favoriteRepository = favoriteRepository,
+        )
+
+        viewModel.load()
+        viewModel.selectCategory(ListingCategory.SALE)
+        viewModel.toggleFavoritesOnly(true)
+        viewModel.selectPriceSortDirection(PriceSortDirection.ASCENDING)
+        val content = viewModel.awaitContent { it.discovery.priceSortDirection == PriceSortDirection.ASCENDING }
+
+        assertEquals(listOf("sale-cheap", "sale-expensive"), content.rows.map { it.ad.propertyCode })
+    }
+
+    @Test
+    fun `favorites only combined with descending price sorting filters then stably orders prices`() = runBlocking {
+        val favoriteRepository = FavoriteRepository(InMemoryFavoriteDao())
+        val rent1 = propertyAd("rent-cheap", BigDecimal("1000"), "rent")
+        val rent2 = propertyAd("rent-expensive", BigDecimal("3000"), "rent")
+        val rent3 = propertyAd("rent-mid-unfavorited", BigDecimal("2000"), "rent")
+        favoriteRepository.favorite("rent-cheap", 1000L)
+        favoriteRepository.favorite("rent-expensive", 2000L)
+        val viewModel = newViewModel(
+            FakeIdealistaApi(
+                responses = listOf(
+                    Result.success(
+                        listOf(
+                            adDto(rent1.propertyCode, rent1.price, rent1.operation),
+                            adDto(rent2.propertyCode, rent2.price, rent2.operation),
+                            adDto(rent3.propertyCode, rent3.price, rent3.operation),
+                        ),
+                    ),
+                ),
+            ),
+            favoriteRepository = favoriteRepository,
+        )
+
+        viewModel.load()
+        viewModel.selectCategory(ListingCategory.RENT)
+        viewModel.toggleFavoritesOnly(true)
+        viewModel.selectPriceSortDirection(PriceSortDirection.DESCENDING)
+        val content = viewModel.awaitContent { it.discovery.priceSortDirection == PriceSortDirection.DESCENDING }
+
+        assertEquals(listOf("rent-expensive", "rent-cheap"), content.rows.map { it.ad.propertyCode })
+    }
+
+    @Test
+    fun `unfavoriting a visible item while favorites only is enabled removes it reactively`() = runBlocking {
+        val favoriteRepository = FavoriteRepository(InMemoryFavoriteDao())
+        val sale1 = propertyAd("sale-1", BigDecimal("200000"), "sale")
+        val sale2 = propertyAd("sale-2", BigDecimal("300000"), "sale")
+        favoriteRepository.favorite("sale-1", 1000L)
+        favoriteRepository.favorite("sale-2", 2000L)
+        val viewModel = newViewModel(
+            FakeIdealistaApi(
+                responses = listOf(
+                    Result.success(
+                        listOf(
+                            adDto(sale1.propertyCode, sale1.price, sale1.operation),
+                            adDto(sale2.propertyCode, sale2.price, sale2.operation),
+                        ),
+                    ),
+                ),
+            ),
+            favoriteRepository = favoriteRepository,
+        )
+
+        viewModel.load()
+        viewModel.selectCategory(ListingCategory.SALE)
+        viewModel.toggleFavoritesOnly(true)
+        val initialContent = viewModel.awaitContent { it.rows.size == 2 }
+        assertEquals(listOf("sale-1", "sale-2"), initialContent.rows.map { it.ad.propertyCode })
+
+        viewModel.toggleFavorite(adId = "sale-1", favoritedAtEpochMillis = 1000L)
+        val updatedContent = viewModel.awaitContent { it.rows.size == 1 }
+        assertEquals(listOf("sale-2"), updatedContent.rows.map { it.ad.propertyCode })
+    }
+
+    @Test
+    fun `favoriting a matching item while favorites only is enabled adds it reactively`() = runBlocking {
+        val favoriteRepository = FavoriteRepository(InMemoryFavoriteDao())
+        val sale1 = propertyAd("sale-1", BigDecimal("200000"), "sale")
+        val sale2 = propertyAd("sale-2", BigDecimal("300000"), "sale")
+        favoriteRepository.favorite("sale-1", 1000L)
+        val viewModel = newViewModel(
+            FakeIdealistaApi(
+                responses = listOf(
+                    Result.success(
+                        listOf(
+                            adDto(sale1.propertyCode, sale1.price, sale1.operation),
+                            adDto(sale2.propertyCode, sale2.price, sale2.operation),
+                        ),
+                    ),
+                ),
+            ),
+            favoriteRepository = favoriteRepository,
+            nowEpochMillis = { 3000L },
+        )
+
+        viewModel.load()
+        viewModel.selectCategory(ListingCategory.SALE)
+        viewModel.toggleFavoritesOnly(true)
+        val initialContent = viewModel.awaitContent { it.rows.size == 1 }
+        assertEquals(listOf("sale-1"), initialContent.rows.map { it.ad.propertyCode })
+
+        viewModel.toggleFavorite(adId = "sale-2", favoritedAtEpochMillis = null)
+        val updatedContent = viewModel.awaitContent { it.rows.size == 2 }
+        assertEquals(listOf("sale-1", "sale-2"), updatedContent.rows.map { it.ad.propertyCode })
+    }
+
+    @Test
+    fun `switching between Venta and Alquiler preserves favorites only toggle`() = runBlocking {
+        val favoriteRepository = FavoriteRepository(InMemoryFavoriteDao())
+        val sale1 = propertyAd("sale-1", BigDecimal("200000"), "sale")
+        val rent1 = propertyAd("rent-1", BigDecimal("1500"), "rent")
+        favoriteRepository.favorite("sale-1", 1000L)
+        favoriteRepository.favorite("rent-1", 2000L)
+        val viewModel = newViewModel(
+            FakeIdealistaApi(
+                responses = listOf(
+                    Result.success(
+                        listOf(
+                            adDto(sale1.propertyCode, sale1.price, sale1.operation),
+                            adDto(rent1.propertyCode, rent1.price, rent1.operation),
+                        ),
+                    ),
+                ),
+            ),
+            favoriteRepository = favoriteRepository,
+        )
+
+        viewModel.load()
+        viewModel.selectCategory(ListingCategory.SALE)
+        viewModel.toggleFavoritesOnly(true)
+        val saleContent = viewModel.awaitContent { it.discovery.category == ListingCategory.SALE && it.discovery.favoritesOnly }
+        assertTrue(saleContent.discovery.favoritesOnly)
+
+        viewModel.selectCategory(ListingCategory.RENT)
+        val rentContent = viewModel.awaitContent { it.discovery.category == ListingCategory.RENT }
+        assertTrue(rentContent.discovery.favoritesOnly)
+        assertEquals(listOf("rent-1"), rentContent.rows.map { it.ad.propertyCode })
+    }
+
+    @Test
+    fun `selecting Todos clears price sort direction but preserves favorites only toggle`() = runBlocking {
+        val favoriteRepository = FavoriteRepository(InMemoryFavoriteDao())
+        val sale1 = propertyAd("sale-1", BigDecimal("200000"), "sale")
+        val sale2 = propertyAd("sale-2", BigDecimal("100000"), "sale")
+        favoriteRepository.favorite("sale-1", 1000L)
+        favoriteRepository.favorite("sale-2", 2000L)
+        val viewModel = newViewModel(
+            FakeIdealistaApi(
+                responses = listOf(
+                    Result.success(
+                        listOf(
+                            adDto(sale1.propertyCode, sale1.price, sale1.operation),
+                            adDto(sale2.propertyCode, sale2.price, sale2.operation),
+                        ),
+                    ),
+                ),
+            ),
+            favoriteRepository = favoriteRepository,
+        )
+
+        viewModel.load()
+        viewModel.selectCategory(ListingCategory.SALE)
+        viewModel.selectPriceSortDirection(PriceSortDirection.ASCENDING)
+        viewModel.toggleFavoritesOnly(true)
+        viewModel.awaitContent { it.discovery.priceSortDirection == PriceSortDirection.ASCENDING && it.discovery.favoritesOnly }
+
+        viewModel.selectCategory(ListingCategory.ALL)
+        val allContent = viewModel.awaitContent { it.discovery.category == ListingCategory.ALL }
+        assertEquals(null, allContent.discovery.priceSortDirection)
+        assertTrue(allContent.discovery.favoritesOnly)
+        assertEquals(listOf("sale-1", "sale-2"), allContent.rows.map { it.ad.propertyCode })
+    }
+
+    @Test
+    fun `zero favorite matches keeps ListingUiState Content with empty rows and discovery controls available`() = runBlocking {
+        val favoriteRepository = FavoriteRepository(InMemoryFavoriteDao())
+        val sale1 = propertyAd("sale-1", BigDecimal("200000"), "sale")
+        val viewModel = newViewModel(
+            FakeIdealistaApi(
+                responses = listOf(
+                    Result.success(listOf(adDto(sale1.propertyCode, sale1.price, sale1.operation))),
+                ),
+            ),
+            favoriteRepository = favoriteRepository,
+        )
+
+        viewModel.load()
+        viewModel.awaitContent()
+
+        viewModel.toggleFavoritesOnly(true)
+        val content = viewModel.awaitContent { it.discovery.favoritesOnly }
+
+        assertEquals(0, content.rows.size)
+        assertTrue(content.discovery.favoritesOnly)
+        assertFalse(viewModel.uiState.value is ListingUiState.Empty)
+    }
+
+    @Test
+    fun `toggling favorites only performs no additional listing API request`() = runBlocking {
+        var apiCalls = 0
+        val countingApi = object : IdealistaApi {
+            override suspend fun listAds(): List<PropertyAdDto> {
+                apiCalls++
+                return listOf(
+                    adDto("sale-1", BigDecimal("200000"), "sale"),
+                    adDto("rent-1", BigDecimal("1500"), "rent"),
+                )
+            }
+
+            override suspend fun getDetails(): PropertyDetailsDto {
+                throw UnsupportedOperationException()
+            }
+        }
+        val viewModel = newViewModel(countingApi)
+
+        viewModel.load()
+        viewModel.awaitContent()
+        assertEquals(1, apiCalls)
+
+        viewModel.toggleFavoritesOnly(true)
+        viewModel.awaitContent { it.discovery.favoritesOnly }
+        assertEquals(1, apiCalls)
+
+        viewModel.toggleFavoritesOnly(false)
+        viewModel.awaitContent { !it.discovery.favoritesOnly }
+        assertEquals(1, apiCalls)
+    }
+
     private fun newViewModel(
         api: IdealistaApi,
         favoriteRepository: FavoriteRepository = FavoriteRepository(InMemoryFavoriteDao()),

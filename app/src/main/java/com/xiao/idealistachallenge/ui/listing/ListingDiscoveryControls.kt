@@ -1,16 +1,22 @@
 package com.xiao.idealistachallenge.ui.listing
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
@@ -69,14 +75,18 @@ fun ListingDiscoveryControls(
     state: ListingDiscoveryUiState,
     onCategorySelected: (ListingCategory) -> Unit,
     onPriceSortDirectionSelected: (PriceSortDirection) -> Unit,
+    onFavoritesOnlyToggled: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        // Row 1: Primary Category Tabs (Mutually exclusive: Todos | Venta | Alquiler)
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             FilterChip(
@@ -96,20 +106,49 @@ fun ListingDiscoveryControls(
             )
         }
 
-        if (state.category != ListingCategory.ALL) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
+        // Row 2: Secondary Modifiers (Filter group + Sort group separated by VerticalDivider)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            // Filter Dimension: Binary toggle for saved favorites
+            FilterChip(
+                selected = state.favoritesOnly,
+                onClick = { onFavoritesOnlyToggled(!state.favoritesOnly) },
+                label = { Text(text = stringResource(R.string.listing_filter_favorites_only)) },
+                leadingIcon = {
+                    Text(text = if (state.favoritesOnly) "♥" else "♡")
+                },
+            )
+
+            if (state.category != ListingCategory.ALL) {
+                // Visual separation between independent Filter and mutually-exclusive Sort options
+                VerticalDivider(
+                    modifier = Modifier
+                        .height(24.dp)
+                        .padding(horizontal = 2.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                )
+
+                // Sort Dimension: Directional price ordering
                 FilterChip(
                     selected = state.priceSortDirection == PriceSortDirection.ASCENDING,
                     onClick = { onPriceSortDirectionSelected(PriceSortDirection.ASCENDING) },
                     label = { Text(text = stringResource(R.string.listing_sort_price_ascending)) },
+                    leadingIcon = {
+                        Text(text = "↑")
+                    },
                 )
                 FilterChip(
                     selected = state.priceSortDirection == PriceSortDirection.DESCENDING,
                     onClick = { onPriceSortDirectionSelected(PriceSortDirection.DESCENDING) },
                     label = { Text(text = stringResource(R.string.listing_sort_price_descending)) },
+                    leadingIcon = {
+                        Text(text = "↓")
+                    },
                 )
             }
         }

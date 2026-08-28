@@ -52,6 +52,7 @@ class ListingFragment : Fragment(R.layout.fragment_listing) {
                         state = discovery,
                         onCategorySelected = viewModel::selectCategory,
                         onPriceSortDirectionSelected = viewModel::selectPriceSortDirection,
+                        onFavoritesOnlyToggled = viewModel::toggleFavoritesOnly,
                     )
                 }
             }
