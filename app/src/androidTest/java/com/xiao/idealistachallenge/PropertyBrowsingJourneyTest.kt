@@ -73,6 +73,30 @@ class PropertyBrowsingJourneyTest {
     }
 
     @Test
+    fun listingHighlightsRenderInDeterministicSpanishOrderAndEmptyHighlightsAreHidden() {
+        awaitListingRows(5)
+        awaitListingRow(0)
+
+        onView(withId(R.id.listingRecyclerView)).perform(
+            assertChildTextAtPosition(
+                position = 0,
+                childViewId = R.id.listingHighlights,
+                expected = "Exterior · A/C · Trastero · Garaje incluido",
+            ),
+        )
+
+        onView(withId(R.id.listingRecyclerView)).perform(scrollToListingPosition(1))
+        awaitListingRow(1)
+        onView(withId(R.id.listingRecyclerView)).perform(
+            assertChildVisibilityAtPosition(
+                position = 1,
+                childViewId = R.id.listingHighlights,
+                expectedVisible = false,
+            ),
+        )
+    }
+
+    @Test
     fun listingPagerSwipeKeepsNavigationAndFavoriteIndependentThenMediaTapOpensDetail() {
         awaitListingRows(5)
         awaitListingRow(0)

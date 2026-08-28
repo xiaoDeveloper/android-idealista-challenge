@@ -5,6 +5,7 @@ import com.xiao.idealistachallenge.data.remote.PropertyAdDto
 import com.xiao.idealistachallenge.data.remote.PropertyDetailsDto
 import com.xiao.idealistachallenge.model.PropertyAd
 import com.xiao.idealistachallenge.model.PropertyDetails
+import com.xiao.idealistachallenge.model.PropertyHighlight
 import com.xiao.idealistachallenge.model.PropertyImage
 import com.xiao.idealistachallenge.model.PropertyImageTag
 import com.xiao.idealistachallenge.model.EnergyRating
@@ -73,8 +74,18 @@ private fun PropertyAdDto.toModel(): PropertyAd {
         rooms = rooms,
         bathrooms = bathrooms,
         description = description,
+        highlights = toHighlights(),
         images = multimedia?.images.toPropertyImages(),
     )
+}
+
+private fun PropertyAdDto.toHighlights(): List<PropertyHighlight> = buildList {
+    if (exterior == true) add(PropertyHighlight.EXTERIOR)
+    if (features?.hasAirConditioning == true) add(PropertyHighlight.AIR_CONDITIONING)
+    if (features?.hasBoxRoom == true) add(PropertyHighlight.STORAGE_ROOM)
+    if (parkingSpace?.hasParkingSpace == true && parkingSpace?.isParkingSpaceIncludedInPrice == true) {
+        add(PropertyHighlight.INCLUDED_PARKING)
+    }
 }
 
 private fun BigDecimal?.toOptionalInt(): Int? {

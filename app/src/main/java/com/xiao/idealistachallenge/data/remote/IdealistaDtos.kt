@@ -28,10 +28,25 @@ data class PropertyAdDto(
     val district: String? = null,
     @Serializable(with = JsonDecimalSerializer::class)
     val size: BigDecimal? = null,
+    val exterior: Boolean? = null,
     val rooms: Int? = null,
     val bathrooms: Int? = null,
     val description: String? = null,
     val multimedia: MultimediaDto? = null,
+    val features: FeaturesDto? = null,
+    val parkingSpace: ParkingSpaceDto? = null,
+)
+
+@Serializable
+data class FeaturesDto(
+    val hasAirConditioning: Boolean? = null,
+    val hasBoxRoom: Boolean? = null,
+)
+
+@Serializable
+data class ParkingSpaceDto(
+    val hasParkingSpace: Boolean? = null,
+    val isParkingSpaceIncludedInPrice: Boolean? = null,
 )
 
 @Serializable

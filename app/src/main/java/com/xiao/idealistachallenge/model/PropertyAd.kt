@@ -2,6 +2,13 @@ package com.xiao.idealistachallenge.model
 
 import java.math.BigDecimal
 
+enum class PropertyHighlight {
+    EXTERIOR,
+    AIR_CONDITIONING,
+    STORAGE_ROOM,
+    INCLUDED_PARKING,
+}
+
 data class PropertyAd(
     val propertyCode: String,
     val thumbnailUrl: String? = null,
@@ -16,6 +23,7 @@ data class PropertyAd(
     val rooms: Int? = null,
     val bathrooms: Int? = null,
     val description: String? = null,
+    val highlights: List<PropertyHighlight> = emptyList(),
     val images: List<PropertyImage> = emptyList(),
     /** Temporary compatibility projection for the inherited single-image listing UI. */
     @Deprecated("Use images")

@@ -1,0 +1,9 @@
+# Tasks: Listing Property Highlights
+
+- [X] T001 [P] [US1] Add failing DTO serialization and official fixture tests in `app/src/test/java/com/xiao/idealistachallenge/data/remote/RemoteJsonSerializationTest.kt` and `app/src/test/java/com/xiao/idealistachallenge/data/remote/IdealistaApiMappingTest.kt`.
+- [X] T002 [US1] Implement nested DTOs (`FeaturesDto`, `ParkingSpaceDto`) and optional highlight properties on `PropertyAdDto` in `app/src/main/java/com/xiao/idealistachallenge/data/remote/IdealistaDtos.kt`.
+- [X] T003 [P] [US1] Add failing repository unit tests for highlight extraction, deterministic ordering, and parking truth table in `app/src/test/java/com/xiao/idealistachallenge/data/repository/AdRepositoryTest.kt`.
+- [X] T004 [US1] Add `PropertyHighlight` enum and `highlights` list to `PropertyAd` in `app/src/main/java/com/xiao/idealistachallenge/model/PropertyAd.kt`, and map them in `app/src/main/java/com/xiao/idealistachallenge/data/repository/AdRepository.kt`.
+- [X] T005 [P] [US1] Add failing layout contract and instrumented highlight rendering tests in `app/src/test/java/com/xiao/idealistachallenge/ui/listing/ListingLayoutContractTest.kt`, `app/src/androidTest/java/com/xiao/idealistachallenge/TestApp.kt`, and `app/src/androidTest/java/com/xiao/idealistachallenge/PropertyBrowsingJourneyTest.kt`.
+- [X] T006 [US1] Add Spanish string resources in `app/src/main/res/values/strings.xml`, update card hierarchy in `app/src/main/res/layout/item_listing.xml`, and bind highlights in `app/src/main/java/com/xiao/idealistachallenge/ui/listing/ListingAdapter.kt`.
+- [ ] T007 Run focused unit tests, instrumented tests, `./gradlew.bat testDebugUnitTest`, `./gradlew.bat assembleDebug`, `./gradlew.bat lintDebug`, `./gradlew.bat connectedDebugAndroidTest`, and `git diff --check`; reconcile task completion state from fresh evidence.

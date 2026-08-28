@@ -82,6 +82,26 @@ class ListingLayoutContractTest {
         assertTrue(favorite.parentNode.parentNode !== pager.parentNode)
     }
 
+    @Test
+    fun `listing card places highlights between facts and summary and hides them by default`() {
+        val document = listingItemDocument()
+        val facts = elementById(document, "listingFacts")
+        val highlights = elementById(document, "listingHighlights")
+        val summary = elementById(document, "listingSummary")
+
+        assertEquals(
+            "gone",
+            highlights.attributes.getNamedItemNS(ANDROID_NAMESPACE, "visibility")?.nodeValue,
+        )
+        assertTrue(facts.parentNode === highlights.parentNode)
+        assertTrue(highlights.parentNode === summary.parentNode)
+        val siblings = (0 until highlights.parentNode.childNodes.length)
+            .map(highlights.parentNode.childNodes::item)
+            .filter { it.nodeType == org.w3c.dom.Node.ELEMENT_NODE }
+        assertTrue(siblings.indexOf(facts) < siblings.indexOf(highlights))
+        assertTrue(siblings.indexOf(highlights) < siblings.indexOf(summary))
+    }
+
     private fun listingItemDocument() = documentFor("item_listing.xml")
 
     private fun documentFor(fileName: String) = DocumentBuilderFactory.newInstance().apply {

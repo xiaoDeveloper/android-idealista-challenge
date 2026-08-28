@@ -17,6 +17,8 @@ import com.xiao.idealistachallenge.data.remote.PropertyDetailsDto
 import com.xiao.idealistachallenge.data.remote.DetailPriceInfoDto
 import com.xiao.idealistachallenge.data.remote.EnergyCertificationDto
 import com.xiao.idealistachallenge.data.remote.EnergyGradeDto
+import com.xiao.idealistachallenge.data.remote.FeaturesDto
+import com.xiao.idealistachallenge.data.remote.ParkingSpaceDto
 import java.math.BigDecimal
 import kotlinx.serialization.json.JsonPrimitive
 
@@ -61,6 +63,12 @@ private object FixtureIdealistaApi : IdealistaApi {
             size = null,
             rooms = null,
             bathrooms = null,
+            exterior = true,
+            features = FeaturesDto(hasAirConditioning = true, hasBoxRoom = true),
+            parkingSpace = ParkingSpaceDto(
+                hasParkingSpace = true,
+                isParkingSpaceIncludedInPrice = true,
+            ),
             description = "Fixture listing",
             multimedia = MultimediaDto(
                 listOf(

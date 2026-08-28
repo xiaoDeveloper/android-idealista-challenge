@@ -10,6 +10,7 @@ import com.xiao.idealistachallenge.R
 import com.xiao.idealistachallenge.core.FavoriteDateFormatter
 import com.xiao.idealistachallenge.databinding.ItemListingBinding
 import com.xiao.idealistachallenge.model.PropertyAd
+import com.xiao.idealistachallenge.model.PropertyHighlight
 import com.xiao.idealistachallenge.ui.media.PropertyImagePagerAdapter
 import com.xiao.idealistachallenge.ui.media.configurePropertyImagePager
 import java.text.NumberFormat
@@ -74,9 +75,10 @@ class ListingAdapter(
             binding.root.setOnClickListener { onItemClick(ad.propertyCode) }
             binding.favoriteButton.setOnClickListener { onFavoriteClick(row) }
 
-            binding.listingSummary.text = ad.summary(binding.root.resources)
             binding.listingPrice.text = ad.priceText()
             bindFacts(ad)
+            bindHighlights(ad)
+            binding.listingSummary.text = ad.summary(binding.root.resources)
             bindFavorite(row)
             bindMedia(ad, restoredPagePosition)
         }
@@ -93,6 +95,19 @@ class ListingAdapter(
             }
             binding.listingFacts.isVisible = facts.isNotEmpty()
             binding.listingFacts.text = facts.joinToString(" · ")
+        }
+
+        private fun bindHighlights(ad: PropertyAd) {
+            val highlightLabels = ad.highlights.mapNotNull { highlight ->
+                when (highlight) {
+                    PropertyHighlight.EXTERIOR -> binding.root.resources.getString(R.string.property_exterior)
+                    PropertyHighlight.AIR_CONDITIONING -> binding.root.resources.getString(R.string.property_air_conditioning)
+                    PropertyHighlight.STORAGE_ROOM -> binding.root.resources.getString(R.string.property_storage_room)
+                    PropertyHighlight.INCLUDED_PARKING -> binding.root.resources.getString(R.string.property_parking_included)
+                }
+            }
+            binding.listingHighlights.isVisible = highlightLabels.isNotEmpty()
+            binding.listingHighlights.text = highlightLabels.joinToString(" · ")
         }
 
         private fun bindFavorite(row: ListingRowUiModel) {

@@ -74,8 +74,10 @@
     <string name="property_floor">Planta %1$s</string>
     <string name="property_interior">Interior</string>
     <string name="property_exterior">Exterior</string>
+    <string name="property_air_conditioning">A/C</string>
     <string name="property_lift">Con ascensor</string>
     <string name="property_storage_room">Trastero</string>
+    <string name="property_parking_included">Garaje incluido</string>
     <string name="property_duplex">Dúplex</string>
     <string name="property_community_costs_label">Gastos de comunidad</string>
     <string name="description_expand">Ver más</string>

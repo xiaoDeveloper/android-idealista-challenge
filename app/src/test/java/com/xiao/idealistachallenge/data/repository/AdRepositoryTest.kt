@@ -3,9 +3,11 @@ package com.xiao.idealistachallenge.data.repository
 import com.xiao.idealistachallenge.data.remote.DetailPriceInfoDto
 import com.xiao.idealistachallenge.data.remote.EnergyCertificationDto
 import com.xiao.idealistachallenge.data.remote.EnergyGradeDto
+import com.xiao.idealistachallenge.data.remote.FeaturesDto
 import com.xiao.idealistachallenge.data.remote.ImageDto
 import com.xiao.idealistachallenge.data.remote.IdealistaApi
 import com.xiao.idealistachallenge.data.remote.MultimediaDto
+import com.xiao.idealistachallenge.data.remote.ParkingSpaceDto
 import com.xiao.idealistachallenge.data.remote.PriceInfoDto
 import com.xiao.idealistachallenge.data.remote.PriceValueDto
 import com.xiao.idealistachallenge.data.remote.PropertyAdDto
@@ -13,6 +15,7 @@ import com.xiao.idealistachallenge.data.remote.PropertyDetailsDto
 import com.xiao.idealistachallenge.model.EnergyRating
 import com.xiao.idealistachallenge.model.PropertyAd
 import com.xiao.idealistachallenge.model.PropertyDetails
+import com.xiao.idealistachallenge.model.PropertyHighlight
 import com.xiao.idealistachallenge.model.PropertyImage
 import com.xiao.idealistachallenge.model.PropertyImageTag
 import java.io.IOException
@@ -113,6 +116,117 @@ class AdRepositoryTest {
 
         assertEquals(BigDecimal("2750000.0"), result.getOrNull()?.single()?.price)
         assertEquals(null, result.getOrNull()?.single()?.currencySuffix)
+    }
+
+    @Test
+    fun `loadAds extracts all four highlights in deterministic order`() = runBlocking {
+        val result = AdRepository(
+            FakeIdealistaApi(
+                ads = listOf(
+                    PropertyAdDto(
+                        propertyCode = "ad-all-highlights",
+                        price = BigDecimal("350000.0"),
+                        exterior = true,
+                        features = FeaturesDto(
+                            hasAirConditioning = true,
+                            hasBoxRoom = true,
+                        ),
+                        parkingSpace = ParkingSpaceDto(
+                            hasParkingSpace = true,
+                            isParkingSpaceIncludedInPrice = true,
+                        ),
+                    ),
+                ),
+            ),
+        ).loadAds()
+
+        assertTrue(result.isSuccess)
+        assertEquals(
+            listOf(
+                PropertyHighlight.EXTERIOR,
+                PropertyHighlight.AIR_CONDITIONING,
+                PropertyHighlight.STORAGE_ROOM,
+                PropertyHighlight.INCLUDED_PARKING,
+            ),
+            result.getOrNull()?.single()?.highlights,
+        )
+    }
+
+    @Test
+    fun `loadAds omits highlights when flags are false or null`() = runBlocking {
+        val result = AdRepository(
+            FakeIdealistaApi(
+                ads = listOf(
+                    PropertyAdDto(
+                        propertyCode = "ad-false",
+                        price = BigDecimal("350000.0"),
+                        exterior = false,
+                        features = FeaturesDto(
+                            hasAirConditioning = false,
+                            hasBoxRoom = false,
+                        ),
+                        parkingSpace = ParkingSpaceDto(
+                            hasParkingSpace = false,
+                            isParkingSpaceIncludedInPrice = false,
+                        ),
+                    ),
+                    PropertyAdDto(
+                        propertyCode = "ad-null",
+                        price = BigDecimal("350000.0"),
+                        exterior = null,
+                        features = null,
+                        parkingSpace = null,
+                    ),
+                ),
+            ),
+        ).loadAds()
+
+        assertTrue(result.isSuccess)
+        assertEquals(emptyList<PropertyHighlight>(), result.getOrNull()?.first()?.highlights)
+        assertEquals(emptyList<PropertyHighlight>(), result.getOrNull()?.get(1)?.highlights)
+    }
+
+    @Test
+    fun `loadAds includes parking highlight only when both hasParkingSpace and isParkingSpaceIncludedInPrice are true`() = runBlocking {
+        val result = AdRepository(
+            FakeIdealistaApi(
+                ads = listOf(
+                    PropertyAdDto(
+                        propertyCode = "parking-both-true",
+                        price = BigDecimal("100"),
+                        parkingSpace = ParkingSpaceDto(hasParkingSpace = true, isParkingSpaceIncludedInPrice = true),
+                    ),
+                    PropertyAdDto(
+                        propertyCode = "parking-not-included",
+                        price = BigDecimal("100"),
+                        parkingSpace = ParkingSpaceDto(hasParkingSpace = true, isParkingSpaceIncludedInPrice = false),
+                    ),
+                    PropertyAdDto(
+                        propertyCode = "parking-no-space",
+                        price = BigDecimal("100"),
+                        parkingSpace = ParkingSpaceDto(hasParkingSpace = false, isParkingSpaceIncludedInPrice = true),
+                    ),
+                    PropertyAdDto(
+                        propertyCode = "parking-included-null",
+                        price = BigDecimal("100"),
+                        parkingSpace = ParkingSpaceDto(hasParkingSpace = true, isParkingSpaceIncludedInPrice = null),
+                    ),
+                    PropertyAdDto(
+                        propertyCode = "parking-space-null",
+                        price = BigDecimal("100"),
+                        parkingSpace = ParkingSpaceDto(hasParkingSpace = null, isParkingSpaceIncludedInPrice = true),
+                    ),
+                ),
+            ),
+        ).loadAds()
+
+        assertTrue(result.isSuccess)
+        val ads = result.getOrThrow()
+        assertEquals(listOf(PropertyHighlight.INCLUDED_PARKING), ads[0].highlights)
+        assertEquals(emptyList<PropertyHighlight>(), ads[1].highlights)
+        assertEquals(emptyList<PropertyHighlight>(), ads[2].highlights)
+        assertEquals(emptyList<PropertyHighlight>(), ads[3].highlights)
+        assertEquals(emptyList<PropertyHighlight>(), ads[4].highlights)
     }
 
     @Test
