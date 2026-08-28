@@ -1,17 +1,24 @@
 package com.xiao.idealistachallenge
 
 import android.view.View
+import android.view.ViewTreeObserver
 import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.IdlingPolicies
+import androidx.test.espresso.IdlingRegistry
+import androidx.test.espresso.IdlingResource
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.swipeLeft
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.isSelected
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matcher
 import org.junit.After
@@ -19,6 +26,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 class PropertyBrowsingJourneyTest {
@@ -28,6 +36,7 @@ class PropertyBrowsingJourneyTest {
 
     @Before
     fun clearFavorites() = runBlocking {
+        IdlingPolicies.setIdlingResourceTimeout(30, TimeUnit.SECONDS)
         app().container.favoriteDatabase.clearAllTables()
     }
 
@@ -37,8 +46,32 @@ class PropertyBrowsingJourneyTest {
     }
 
     @Test
+    fun deterministicListingFixturesRenderEachSupportedMediaShape() {
+        awaitListingRows(5)
+
+        listOf(
+            MediaShape(position = 0, pageCount = 3, showsPosition = true),
+            MediaShape(position = 1, pageCount = 1, showsPosition = false),
+            MediaShape(position = 2, pageCount = 1, showsPosition = false),
+            MediaShape(position = 3, pageCount = 1, showsPosition = false),
+            MediaShape(position = 4, pageCount = 3, showsPosition = true),
+        ).forEach { expected ->
+            onView(withId(R.id.listingRecyclerView)).perform(scrollToListingPosition(expected.position))
+            awaitListingRow(expected.position)
+            onView(withId(R.id.listingRecyclerView)).perform(
+                assertChildMediaShape(
+                    position = expected.position,
+                    expectedPageCount = expected.pageCount,
+                    expectedPositionVisible = expected.showsPosition,
+                ),
+            )
+        }
+    }
+
+    @Test
     fun listingPagerSwipeKeepsNavigationAndFavoriteIndependentThenMediaTapOpensDetail() {
-        onView(withId(R.id.listingRecyclerView)).check(matches(isDisplayed()))
+        awaitListingRows(5)
+        awaitListingRow(0)
 
         onView(withId(R.id.listingRecyclerView)).perform(
             performChildActionAtPosition(0, R.id.listingImagePager, swipeLeft()),
@@ -47,23 +80,61 @@ class PropertyBrowsingJourneyTest {
             assertChildTextAtPosition(0, R.id.listingImagePosition, "2 / 3"),
             assertChildVisibilityAtPosition(0, R.id.favoriteDate, false),
         )
+        onView(withId(R.id.detailScreen)).check(doesNotExist())
 
         onView(withId(R.id.listingRecyclerView)).perform(
             performChildActionAtPosition(0, R.id.favoriteButton, click()),
-            assertChildVisibilityAtPosition(0, R.id.favoriteDate, true),
         )
+        awaitListingFavoriteDate(0)
 
         onView(withId(R.id.listingRecyclerView)).perform(
             performChildActionAtPosition(0, R.id.listingImagePager, click()),
         )
+        awaitView(R.id.detailFavoriteDate) { it.isShown }
         onView(withId(R.id.detailFavoriteButton)).check(matches(isDisplayed()))
+        onView(withId(R.id.detailFavoriteButton)).check(matches(isSelected()))
+        onView(withId(R.id.detailPrice)).check(matches(isDisplayed()))
     }
 
-    private fun app(): App = activityRule.scenario.let {
-        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
-            .targetContext.applicationContext as App
+    private fun awaitListingRows(expectedCount: Int) = awaitView(R.id.listingRecyclerView) { view ->
+        view is RecyclerView && view.isShown && view.adapter?.itemCount == expectedCount
     }
+
+    private fun awaitListingRow(position: Int) = awaitView(R.id.listingRecyclerView) { view ->
+        (view as? RecyclerView)?.findViewHolderForAdapterPosition(position) != null
+    }
+
+    private fun awaitListingFavoriteDate(position: Int) = awaitView(R.id.listingRecyclerView) { view ->
+        val recyclerView = view as? RecyclerView ?: return@awaitView false
+        val holder = recyclerView.findViewHolderForAdapterPosition(position) ?: return@awaitView false
+        holder.itemView.findViewById<View>(R.id.favoriteDate)?.isShown == true
+    }
+
+    private fun awaitView(viewId: Int, predicate: (View) -> Boolean) {
+        lateinit var activity: MainActivity
+        activityRule.scenario.onActivity { activity = it }
+        val resource = PropertyBrowsingViewPredicateIdlingResource(activity, viewId, predicate)
+        IdlingRegistry.getInstance().register(resource)
+        try {
+            onView(withId(viewId)).check { view, noViewFoundException ->
+                checkNotNull(view) { noViewFoundException?.message ?: "Expected view was not found." }
+                check(predicate(view)) { "View $viewId did not reach its expected state." }
+            }
+        } finally {
+            IdlingRegistry.getInstance().unregister(resource)
+            resource.dispose()
+        }
+    }
+
+    private fun app(): App = InstrumentationRegistry.getInstrumentation()
+        .targetContext.applicationContext as App
 }
+
+private data class MediaShape(
+    val position: Int,
+    val pageCount: Int,
+    val showsPosition: Boolean,
+)
 
 private fun performChildActionAtPosition(
     position: Int,
@@ -79,6 +150,41 @@ private fun performChildActionAtPosition(
             "No ViewHolder for adapter position $position"
         }
         action.perform(uiController, checkNotNull(holder.itemView.findViewById(childViewId)))
+    }
+}
+
+private fun scrollToListingPosition(position: Int): androidx.test.espresso.ViewAction =
+    object : androidx.test.espresso.ViewAction {
+        override fun getConstraints(): Matcher<View> = org.hamcrest.Matchers.instanceOf(RecyclerView::class.java)
+
+        override fun getDescription(): String = "scroll listing to adapter position $position"
+
+        override fun perform(uiController: androidx.test.espresso.UiController, view: View) {
+            (view as RecyclerView).scrollToPosition(position)
+            uiController.loopMainThreadUntilIdle()
+        }
+    }
+
+private fun assertChildMediaShape(
+    position: Int,
+    expectedPageCount: Int,
+    expectedPositionVisible: Boolean,
+): androidx.test.espresso.ViewAction = object : androidx.test.espresso.ViewAction {
+    override fun getConstraints(): Matcher<View> = org.hamcrest.Matchers.instanceOf(RecyclerView::class.java)
+
+    override fun getDescription(): String =
+        "assert listing $position has $expectedPageCount media pages and position visibility $expectedPositionVisible"
+
+    override fun perform(uiController: androidx.test.espresso.UiController, view: View) {
+        val itemView = childAtPosition(view as RecyclerView, position, R.id.listingCard)
+        val pager = itemView.findViewById<RecyclerView>(R.id.listingImagePager)
+        check(pager.adapter?.itemCount == expectedPageCount) {
+            "Expected $expectedPageCount media pages at $position but found ${pager.adapter?.itemCount}."
+        }
+        val positionView = itemView.findViewById<View>(R.id.listingImagePosition)
+        check(positionView.visibility == if (expectedPositionVisible) View.VISIBLE else View.GONE) {
+            "Unexpected position indicator visibility at listing $position."
+        }
     }
 }
 
@@ -119,4 +225,43 @@ private fun childAtPosition(recyclerView: RecyclerView, position: Int, @IdRes ch
     return checkNotNull(holder.itemView.findViewById(childViewId)) {
         "No child $childViewId at $position"
     }
+}
+
+private class PropertyBrowsingViewPredicateIdlingResource(
+    private val activity: MainActivity,
+    @param:IdRes private val viewId: Int,
+    private val predicate: (View) -> Boolean,
+) : IdlingResource {
+
+    @Volatile
+    private var callback: IdlingResource.ResourceCallback? = null
+
+    private val preDrawListener = ViewTreeObserver.OnPreDrawListener {
+        notifyIfIdle()
+        true
+    }
+
+    override fun getName(): String = "ViewPredicateIdlingResource($viewId)"
+
+    override fun isIdleNow(): Boolean = isIdle()
+
+    override fun registerIdleTransitionCallback(callback: IdlingResource.ResourceCallback) {
+        this.callback = callback
+        activity.runOnUiThread {
+            activity.window.decorView.viewTreeObserver.addOnPreDrawListener(preDrawListener)
+            notifyIfIdle()
+        }
+    }
+
+    fun dispose() {
+        activity.runOnUiThread {
+            activity.window.decorView.viewTreeObserver.removeOnPreDrawListener(preDrawListener)
+        }
+    }
+
+    private fun notifyIfIdle() {
+        if (isIdle()) callback?.onTransitionToIdle()
+    }
+
+    private fun isIdle(): Boolean = activity.findViewById<View>(viewId)?.let(predicate) == true
 }

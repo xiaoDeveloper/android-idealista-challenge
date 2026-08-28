@@ -115,7 +115,13 @@ private object FixtureIdealistaApi : IdealistaApi {
             rooms = null,
             bathrooms = null,
             description = "Broken image fixture",
-            multimedia = MultimediaDto(listOf(ImageDto("not-a-valid-url"))),
+            multimedia = MultimediaDto(
+                listOf(
+                    ImageDto("https://example.invalid/listing-broken-image-first.jpg"),
+                    ImageDto("not-a-valid-url"),
+                    ImageDto("https://example.invalid/listing-broken-image-third.jpg"),
+                ),
+            ),
         ),
     )
 
