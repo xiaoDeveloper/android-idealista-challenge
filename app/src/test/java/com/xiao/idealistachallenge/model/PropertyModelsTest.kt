@@ -22,13 +22,26 @@ class PropertyModelsTest {
             rooms = 3,
             bathrooms = 2,
             description = "Sunny home",
-            imageUrls = listOf("https://images.example.test/one.jpg"),
+            images = listOf(
+                PropertyImage(
+                    url = "https://images.example.test/one.jpg",
+                    semanticTag = PropertyImageTag.LIVING_ROOM,
+                ),
+            ),
         )
 
         assertEquals("P-42", ad.propertyCode)
         assertEquals(BigDecimal("123456.78"), ad.price)
         assertEquals(80, ad.sizeSquareMeters)
-        assertEquals(listOf("https://images.example.test/one.jpg"), ad.imageUrls)
+        assertEquals(
+            listOf(
+                PropertyImage(
+                    url = "https://images.example.test/one.jpg",
+                    semanticTag = PropertyImageTag.LIVING_ROOM,
+                ),
+            ),
+            ad.images,
+        )
     }
 
     @Test
@@ -57,21 +70,44 @@ class PropertyModelsTest {
     }
 
     @Test
-    fun `details retain the selected listing identity separate from remote metadata`() {
+    fun `details retain selected identity and only typed supported facts`() {
         val details = PropertyDetails(
             selectedAdId = "P-42",
             remoteAdId = 1,
             price = BigDecimal("123456.78"),
             description = "Fixed endpoint content",
-            imageUrls = listOf("https://images.example.test/one.jpg"),
-            latitude = BigDecimal("40.4168"),
-            longitude = BigDecimal("-3.7038"),
-            characteristics = mapOf("rooms" to "3"),
+            images = listOf(PropertyImage("https://images.example.test/one.jpg")),
+            currencySuffix = "€",
+            propertyType = "flat",
+            operation = "sale",
+            constructedAreaSquareMeters = 133,
+            rooms = 3,
+            bathrooms = 2,
+            floor = "2",
+            isExterior = false,
+            hasLift = true,
+            hasStorageRoom = false,
+            isDuplex = false,
+            communityCosts = BigDecimal("330"),
+            energyConsumptionRating = EnergyRating.E,
+            energyEmissionsRating = EnergyRating.E,
         )
 
         assertEquals("P-42", details.selectedAdId)
         assertEquals(1, details.remoteAdId)
-        assertEquals("3", details.characteristics.getValue("rooms"))
+        assertEquals("€", details.currencySuffix)
+        assertEquals("flat", details.propertyType)
+        assertEquals(133, details.constructedAreaSquareMeters)
+        assertEquals(false, details.isExterior)
+        assertEquals(EnergyRating.E, details.energyConsumptionRating)
+    }
+
+    @Test
+    fun `image tags and energy ratings remain closed to supported values`() {
+        assertEquals(PropertyImageTag.BEDROOM, PropertyImageTag.fromRemote("bedroom"))
+        assertEquals(null, PropertyImageTag.fromRemote("communalareas"))
+        assertEquals(EnergyRating.G, EnergyRating.fromRemote("g"))
+        assertEquals(null, EnergyRating.fromRemote("not-rated"))
     }
 
     @Test

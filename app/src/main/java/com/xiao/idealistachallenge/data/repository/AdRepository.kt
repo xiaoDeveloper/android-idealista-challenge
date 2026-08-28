@@ -5,6 +5,9 @@ import com.xiao.idealistachallenge.data.remote.PropertyAdDto
 import com.xiao.idealistachallenge.data.remote.PropertyDetailsDto
 import com.xiao.idealistachallenge.model.PropertyAd
 import com.xiao.idealistachallenge.model.PropertyDetails
+import com.xiao.idealistachallenge.model.PropertyImage
+import com.xiao.idealistachallenge.model.PropertyImageTag
+import com.xiao.idealistachallenge.model.EnergyRating
 import java.math.BigDecimal
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.JsonPrimitive
@@ -48,9 +51,7 @@ private fun PropertyAdDto.toModel(): PropertyAd {
         rooms = rooms,
         bathrooms = bathrooms,
         description = description,
-        imageUrls = multimedia?.images.orEmpty().mapNotNull { image ->
-            image.url?.takeIf { it.isNotBlank() }
-        },
+        images = multimedia?.images.toPropertyImages(),
     )
 }
 
@@ -63,35 +64,63 @@ private fun BigDecimal?.toOptionalInt(): Int? {
     }
 }
 
-private fun PropertyDetailsDto.toModel(selectedAdId: String): PropertyDetails = PropertyDetails(
-    selectedAdId = selectedAdId.requireValue("selectedAdId"),
-    remoteAdId = adid ?: error("Missing required adid"),
-    price = price ?: priceInfo?.amount ?: error("Missing required price"),
-    description = propertyComment ?: description,
-    imageUrls = multimedia?.images.orEmpty().mapNotNull { it.url?.takeIf(String::isNotBlank) },
-    latitude = ubication?.latitude ?: latitude,
-    longitude = ubication?.longitude ?: longitude,
-    characteristics = moreCharacteristics.entries.associate { (key, value) ->
-        key.toSpanishCharacteristicLabel() to value.displayValue()
-    },
-)
-
-private fun String.toSpanishCharacteristicLabel(): String = when (this) {
-    "communityCosts" -> "Gastos de comunidad"
-    "roomNumber" -> "Habitaciones"
-    "bathNumber" -> "Baños"
-    "exterior" -> "Exterior"
-    "constructedArea" -> "Superficie construida"
-    "lift" -> "Ascensor"
-    "boxroom" -> "Trastero"
-    "isDuplex" -> "Dúplex"
-    "floor" -> "Planta"
-    "energyCertificationType" -> "Certificación energética"
-    else -> replaceFirstChar { character -> character.uppercase() }
+private fun PropertyDetailsDto.toModel(selectedAdId: String): PropertyDetails {
+    val characteristics = moreCharacteristics
+    return PropertyDetails(
+        selectedAdId = selectedAdId.requireValue("selectedAdId"),
+        remoteAdId = adid ?: error("Missing required adid"),
+        price = price ?: priceInfo?.amount ?: error("Missing required price"),
+        description = propertyComment ?: description,
+        images = multimedia?.images.toPropertyImages(),
+        currencySuffix = priceInfo?.currencySuffix?.takeIf(String::isNotBlank),
+        propertyType = homeType.firstNonBlank(extendedPropertyType, propertyType),
+        operation = operation?.takeIf(String::isNotBlank),
+        constructedAreaSquareMeters = characteristics["constructedArea"].toNonNegativeInt(),
+        rooms = characteristics["roomNumber"].toNonNegativeInt(),
+        bathrooms = characteristics["bathNumber"].toNonNegativeInt(),
+        floor = characteristics["floor"].toNonBlankString(),
+        isExterior = characteristics["exterior"].toBooleanOrNull(),
+        hasLift = characteristics["lift"].toBooleanOrNull(),
+        hasStorageRoom = characteristics["boxroom"].toBooleanOrNull(),
+        isDuplex = characteristics["isDuplex"].toBooleanOrNull(),
+        communityCosts = characteristics["communityCosts"].toNonNegativeDecimal(),
+        energyConsumptionRating = EnergyRating.fromRemote(energyCertification?.energyConsumption?.type),
+        energyEmissionsRating = EnergyRating.fromRemote(energyCertification?.emissions?.type),
+        latitude = ubication?.latitude ?: latitude,
+        longitude = ubication?.longitude ?: longitude,
+    )
 }
 
-private fun kotlinx.serialization.json.JsonElement.displayValue(): String =
-    (this as? JsonPrimitive)?.content ?: toString()
+private fun List<com.xiao.idealistachallenge.data.remote.ImageDto>?.toPropertyImages(): List<PropertyImage> =
+    orEmpty().mapNotNull { image ->
+        image.url?.takeIf(String::isNotBlank)?.let { url ->
+            PropertyImage(url = url, semanticTag = PropertyImageTag.fromRemote(image.tag))
+        }
+    }
+
+private fun String?.firstNonBlank(vararg fallbacks: String?): String? =
+    sequenceOf(this, *fallbacks).firstOrNull { !it.isNullOrBlank() }
+
+private fun kotlinx.serialization.json.JsonElement?.toNonNegativeInt(): Int? =
+    (this as? JsonPrimitive)?.content?.toBigDecimalOrNull()?.let { value ->
+        value.takeIf { it.signum() >= 0 && it.stripTrailingZeros().scale() <= 0 }
+            ?.let { runCatching { it.intValueExact() }.getOrNull() }
+    }
+
+private fun kotlinx.serialization.json.JsonElement?.toNonNegativeDecimal(): BigDecimal? =
+    (this as? JsonPrimitive)?.content?.toBigDecimalOrNull()?.takeIf { it.signum() >= 0 }
+
+private fun kotlinx.serialization.json.JsonElement?.toNonBlankString(): String? =
+    (this as? JsonPrimitive)?.content?.takeIf(String::isNotBlank)
+
+private fun kotlinx.serialization.json.JsonElement?.toBooleanOrNull(): Boolean? =
+    (this as? JsonPrimitive)?.content?.let { value ->
+        when (value.lowercase()) {
+            "true" -> true
+            "false" -> false
+            else -> null
+        }
+    }
 
 private fun String?.requireValue(fieldName: String): String =
     this?.takeIf { it.isNotBlank() } ?: error("Missing required $fieldName")

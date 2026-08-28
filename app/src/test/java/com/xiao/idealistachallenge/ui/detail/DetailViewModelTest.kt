@@ -13,6 +13,7 @@ import com.xiao.idealistachallenge.data.remote.PropertyDetailsDto
 import com.xiao.idealistachallenge.data.repository.AdRepository
 import com.xiao.idealistachallenge.data.repository.FavoriteRepository
 import com.xiao.idealistachallenge.model.PropertyDetails
+import com.xiao.idealistachallenge.model.PropertyImage
 import java.io.IOException
 import java.math.BigDecimal
 import kotlinx.coroutines.Dispatchers
@@ -46,9 +47,10 @@ class DetailViewModelTest {
 
         assertEquals(PropertyDetails(
             selectedAdId = "listing-99", remoteAdId = 1, price = BigDecimal("1195000.0"),
-            description = "Detailed description", imageUrls = listOf("https://images.example/detail.jpg"),
+            description = "Detailed description",
+            images = listOf(PropertyImage("https://images.example/detail.jpg")),
             latitude = BigDecimal("40.4"), longitude = BigDecimal("-3.6"),
-            characteristics = mapOf("Habitaciones" to "3"),
+            rooms = 3,
         ), content.details)
         assertEquals(null, content.favoritedAtEpochMillis)
     }

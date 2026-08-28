@@ -14,6 +14,7 @@ import com.xiao.idealistachallenge.data.remote.PropertyDetailsDto
 import com.xiao.idealistachallenge.data.repository.AdRepository
 import com.xiao.idealistachallenge.data.repository.FavoriteRepository
 import com.xiao.idealistachallenge.model.PropertyAd
+import com.xiao.idealistachallenge.model.PropertyImage
 import java.io.IOException
 import java.math.BigDecimal
 import kotlinx.coroutines.CompletableDeferred
@@ -282,7 +283,7 @@ private fun propertyAd(propertyCode: String, price: BigDecimal): PropertyAd = Pr
     rooms = 3,
     bathrooms = 2,
     description = "A bright home",
-    imageUrls = listOf("https://images.example/$propertyCode.jpg"),
+    images = listOf(PropertyImage("https://images.example/$propertyCode.jpg")),
 )
 
 private fun adDto(propertyCode: String, price: BigDecimal): PropertyAdDto = PropertyAdDto(

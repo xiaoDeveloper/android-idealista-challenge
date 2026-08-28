@@ -39,6 +39,10 @@ data class PropertyDetailsDto(
     @Serializable(with = JsonDecimalSerializer::class)
     val price: BigDecimal? = null,
     val priceInfo: DetailPriceInfoDto? = null,
+    val propertyType: String? = null,
+    val extendedPropertyType: String? = null,
+    val homeType: String? = null,
+    val operation: String? = null,
     val propertyComment: String? = null,
     val description: String? = null,
     val multimedia: MultimediaDto? = null,
@@ -48,6 +52,7 @@ data class PropertyDetailsDto(
     val longitude: BigDecimal? = null,
     val ubication: LocationDto? = null,
     val moreCharacteristics: Map<String, JsonElement> = emptyMap(),
+    val energyCertification: EnergyCertificationDto? = null,
 )
 
 @Serializable
@@ -77,6 +82,18 @@ data class MultimediaDto(
 @Serializable
 data class ImageDto(
     val url: String? = null,
+    val tag: String? = null,
+)
+
+@Serializable
+data class EnergyCertificationDto(
+    val energyConsumption: EnergyGradeDto? = null,
+    val emissions: EnergyGradeDto? = null,
+)
+
+@Serializable
+data class EnergyGradeDto(
+    val type: String? = null,
 )
 
 @Serializable

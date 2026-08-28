@@ -15,7 +15,10 @@ data class PropertyAd(
     val rooms: Int? = null,
     val bathrooms: Int? = null,
     val description: String? = null,
-    val imageUrls: List<String> = emptyList(),
+    val images: List<PropertyImage> = emptyList(),
+    /** Temporary compatibility projection for the inherited single-image listing UI. */
+    @Deprecated("Use images")
+    val imageUrls: List<String> = images.map(PropertyImage::url),
 ) {
     init {
         require(propertyCode.isNotBlank()) { "propertyCode must not be blank" }

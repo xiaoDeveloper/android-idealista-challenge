@@ -17,6 +17,10 @@
     <dimen name="icon_size">24dp</dimen>
     <dimen name="min_interactive_target">48dp</dimen>
     <dimen name="button_height">48dp</dimen>
+    <dimen name="media_indicator_margin">12dp</dimen>
+    <dimen name="media_indicator_horizontal_padding">8dp</dimen>
+    <dimen name="media_indicator_vertical_padding">4dp</dimen>
+    <dimen name="media_indicator_corner_radius">12dp</dimen>
 
     <dimen name="detail_price_text_size">32sp</dimen>
     <dimen name="listing_price_text_size">24sp</dimen>

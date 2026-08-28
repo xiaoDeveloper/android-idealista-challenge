@@ -1,17 +1,25 @@
 package com.xiao.idealistachallenge.data.repository
 
-import com.xiao.idealistachallenge.data.remote.IdealistaApi
+import com.xiao.idealistachallenge.data.remote.DetailPriceInfoDto
+import com.xiao.idealistachallenge.data.remote.EnergyCertificationDto
+import com.xiao.idealistachallenge.data.remote.EnergyGradeDto
 import com.xiao.idealistachallenge.data.remote.ImageDto
+import com.xiao.idealistachallenge.data.remote.IdealistaApi
 import com.xiao.idealistachallenge.data.remote.MultimediaDto
 import com.xiao.idealistachallenge.data.remote.PriceInfoDto
 import com.xiao.idealistachallenge.data.remote.PriceValueDto
 import com.xiao.idealistachallenge.data.remote.PropertyAdDto
 import com.xiao.idealistachallenge.data.remote.PropertyDetailsDto
+import com.xiao.idealistachallenge.model.EnergyRating
 import com.xiao.idealistachallenge.model.PropertyAd
+import com.xiao.idealistachallenge.model.PropertyDetails
+import com.xiao.idealistachallenge.model.PropertyImage
+import com.xiao.idealistachallenge.model.PropertyImageTag
 import java.io.IOException
 import java.math.BigDecimal
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.JsonPrimitive
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -43,8 +51,9 @@ class AdRepositoryTest {
                         description = "A bright apartment near the city centre.",
                         multimedia = MultimediaDto(
                             images = listOf(
-                                ImageDto(url = "https://images.example/ad-42-1.jpg"),
-                                ImageDto(url = "https://images.example/ad-42-2.jpg"),
+                                ImageDto(url = "https://images.example/ad-42-1.jpg", tag = "livingRoom"),
+                                ImageDto(url = " ", tag = "bedroom"),
+                                ImageDto(url = "https://images.example/ad-42-2.jpg", tag = "unrecognized"),
                             ),
                         ),
                     ),
@@ -70,9 +79,15 @@ class AdRepositoryTest {
                     rooms = 3,
                     bathrooms = 2,
                     description = "A bright apartment near the city centre.",
-                    imageUrls = listOf(
-                        "https://images.example/ad-42-1.jpg",
-                        "https://images.example/ad-42-2.jpg",
+                    images = listOf(
+                        PropertyImage(
+                            url = "https://images.example/ad-42-1.jpg",
+                            semanticTag = PropertyImageTag.LIVING_ROOM,
+                        ),
+                        PropertyImage(
+                            url = "https://images.example/ad-42-2.jpg",
+                            semanticTag = null,
+                        ),
                     ),
                 ),
             ),
@@ -173,10 +188,81 @@ class AdRepositoryTest {
 
         assertTrue(result.isFailure)
     }
+
+    @Test
+    fun `loadDetails maps currency suffix type precedence typed facts and dedicated valid energy ratings`() = runBlocking {
+        val result = AdRepository(
+            FakeIdealistaApi(
+                details = PropertyDetailsDto(
+                    adid = 1,
+                    price = BigDecimal("1200"),
+                    priceInfo = DetailPriceInfoDto(
+                        amount = BigDecimal("1200"),
+                        currencySuffix = "€",
+                    ),
+                    propertyType = "homes",
+                    extendedPropertyType = "flat",
+                    homeType = "penthouse",
+                    operation = "sale",
+                    multimedia = MultimediaDto(
+                        images = listOf(
+                            ImageDto("https://images.example/detail-1.jpg", "kitchen"),
+                            ImageDto(" ", "bedroom"),
+                            ImageDto("https://images.example/detail-2.jpg", "communalareas"),
+                        ),
+                    ),
+                    moreCharacteristics = mapOf(
+                        "constructedArea" to JsonPrimitive(133),
+                        "roomNumber" to JsonPrimitive(3),
+                        "bathNumber" to JsonPrimitive(2),
+                        "floor" to JsonPrimitive("2"),
+                        "exterior" to JsonPrimitive(false),
+                        "lift" to JsonPrimitive(true),
+                        "boxroom" to JsonPrimitive(false),
+                        "isDuplex" to JsonPrimitive(true),
+                        "communityCosts" to JsonPrimitive(330),
+                        "energyCertificationType" to JsonPrimitive("g"),
+                    ),
+                    energyCertification = EnergyCertificationDto(
+                        energyConsumption = EnergyGradeDto(type = "a"),
+                        emissions = EnergyGradeDto(type = "invalid"),
+                    ),
+                ),
+            ),
+        ).loadDetails("selected-listing-42")
+
+        assertEquals(
+            PropertyDetails(
+                selectedAdId = "selected-listing-42",
+                remoteAdId = 1,
+                price = BigDecimal("1200"),
+                currencySuffix = "€",
+                propertyType = "penthouse",
+                operation = "sale",
+                images = listOf(
+                    PropertyImage("https://images.example/detail-1.jpg", PropertyImageTag.KITCHEN),
+                    PropertyImage("https://images.example/detail-2.jpg"),
+                ),
+                constructedAreaSquareMeters = 133,
+                rooms = 3,
+                bathrooms = 2,
+                floor = "2",
+                isExterior = false,
+                hasLift = true,
+                hasStorageRoom = false,
+                isDuplex = true,
+                communityCosts = BigDecimal("330"),
+                energyConsumptionRating = EnergyRating.A,
+                energyEmissionsRating = null,
+            ),
+            result.getOrNull(),
+        )
+    }
 }
 
 private class FakeIdealistaApi(
     private val ads: List<PropertyAdDto> = emptyList(),
+    private val details: PropertyDetailsDto? = null,
     private val failure: Throwable? = null,
 ) : IdealistaApi {
 
@@ -186,6 +272,6 @@ private class FakeIdealistaApi(
     }
 
     override suspend fun getDetails(): PropertyDetailsDto {
-        throw UnsupportedOperationException("Detail endpoint is not used by listing tests")
+        return checkNotNull(details) { "Detail endpoint was not configured for this test" }
     }
 }
