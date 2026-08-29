@@ -89,10 +89,10 @@ behavior is present.
 **Purpose**: Verify the complete delta without unrelated refactoring or duplicated
 core documentation.
 
-- [ ] T019 [P] Extend `app/src/test/java/com/xiao/idealistachallenge/ui/PolishAccessibilityContractTest.kt` for non-empty page/placeholder/indicator/favorite/expansion labels, decorative indicator focus exclusion, 48 dp controls, scalable text containers, and omission of raw image tags and coordinates.
-- [ ] T020 Run the focused new unit tests, then `.\gradlew.bat testDebugUnitTest`, `.\gradlew.bat assembleDebug`, and `.\gradlew.bat lintDebug`; record each exact outcome and fix feature regressions only.
-- [ ] T021 Run `.\gradlew.bat connectedDebugAndroidTest` on a compatible device or emulator, then manually verify TalkBack page announcements and scroll actions, keyboard/switch access, 200% font scale, middle-image failure isolation, swipe-versus-tap behavior, and favorite/date preservation; leave this task open with the exact blocker if device validation cannot run.
-- [ ] T022 Review only the feature diff, confirm `plan.md`, `research.md`, and `data-model.md` still describe only this feature's delta and that no `contracts/` or `quickstart.md` was introduced, run `git diff --check`, and reconcile `specs/002-property-browsing-experience/tasks.md` completion marks only from fresh evidence.
+- [X] T019 [P] Extend `app/src/test/java/com/xiao/idealistachallenge/ui/PolishAccessibilityContractTest.kt` for non-empty page/placeholder/indicator/favorite/expansion labels, decorative indicator focus exclusion, 48 dp controls, scalable text containers, and omission of raw image tags and coordinates.
+- [X] T020 Run the focused new unit tests, then `.\gradlew.bat testDebugUnitTest`, `.\gradlew.bat assembleDebug`, and `.\gradlew.bat lintDebug`; record each exact outcome and fix feature regressions only.
+- [X] T021 Run `.\gradlew.bat connectedDebugAndroidTest` on a compatible device or emulator, then manually verify TalkBack page announcements and scroll actions, keyboard/switch access, 200% font scale, middle-image failure isolation, swipe-versus-tap behavior, and favorite/date preservation; leave this task open with the exact blocker if device validation cannot run.
+- [X] T022 Review only the feature diff, confirm `plan.md`, `research.md`, and `data-model.md` still describe only this feature's delta and that no `contracts/` or `quickstart.md` was introduced, run `git diff --check`, and reconcile `specs/002-property-browsing-experience/tasks.md` completion marks only from fresh evidence.
 
 ---
 

@@ -51,11 +51,17 @@ separate detail screen, and return to the list with normal back navigation.
    screen opens and the selected listing ID is retained as local context.
 2. **Given** the detail request is in progress, **When** the detail screen is shown,
    **Then** a loading state is visible.
-3. **Given** the detail request succeeds, **When** the response is displayed, **Then**
-   useful price, property, image, location, description, and characteristic information
-   is readable.
-4. **Given** the detail request fails, **When** the failure is shown, **Then** the user
-   sees a friendly error with a retry action and can return to the list.
+3. **Given** the selected listing can be resolved, **When** its detail screen is
+   displayed, **Then** that listing remains the source of truth for price, property,
+   image, location, description, and basic characteristics.
+4. **Given** the fixed detail response identifies the selected listing, **When** its
+   supported additional information is available, **Then** that information may enrich
+   the selected listing without replacing its local identity.
+5. **Given** the fixed detail response identifies another listing or cannot be loaded,
+   **When** the selected listing is displayed, **Then** its core content remains
+   available without unrelated fixed-detail enrichment.
+6. **Given** the selected listing cannot be resolved, **When** the failure is shown,
+   **Then** the user sees a friendly error with a retry action and can return to the list.
 
 ### User Story 3 - Manage persistent favorites (Priority: P1)
 
@@ -88,11 +94,15 @@ observe its date, unfavorite it, and relaunch the app to confirm the saved state
 - Missing optional image or characteristic fields use a meaningful placeholder or are
   omitted without crashing.
 - The detail endpoint always returns the same response, currently identified by
-  `adid=1`. The selected listing's `propertyCode` remains the local favorite identity;
-  the app must disclose this limitation in reviewer documentation rather than invent a
-  detail URL parameter or silently change the response.
-- A malformed response, timeout, offline device, or server error shows a recoverable
-  error state and never exposes a raw exception as user-facing copy.
+  `adid=1`. The selected listing remains the source of truth for its core detail and
+  local favorite identity. The fixed response contributes only when its `adid` matches
+  that listing's `propertyCode`; otherwise it is ignored rather than mixed with another
+  property. The app must disclose this limitation instead of inventing a detail URL
+  parameter or silently changing the response.
+- A malformed listing response, timeout, offline device, or server error that prevents
+  resolving the selected listing shows a recoverable error state and never exposes a
+  raw exception as user-facing copy. Failure of optional fixed-detail enrichment follows
+  the identity-safe fallback above instead of hiding valid selected-listing content.
 - A favorite timestamp is stored as an instant and formatted as a date using the
   device time zone and active locale. Formatting must not replace the stored value.
 
@@ -106,8 +116,11 @@ observe its date, unfavorite it, and relaunch the app to confirm the saved state
   price, property type, location, and basic characteristics without overcrowding.
 - **FR-003**: The product MUST provide a separate detail journey reachable from any
   listing and support normal back navigation.
-- **FR-004**: The detail journey MUST request and display the official detail response;
-  it MUST not manufacture a dynamic endpoint parameter that the challenge does not provide.
+- **FR-004**: The detail journey MUST request the official fixed detail response without
+  manufacturing a dynamic endpoint parameter. It MUST apply that response only when its
+  `adid` matches the selected listing's `propertyCode`; a mismatch or unavailable fixed
+  response MUST leave the selected listing's truthful core detail visible without
+  unrelated enrichment.
 - **FR-005**: The product MUST let a user favorite and unfavorite an ad from the list
   and detail journeys.
 - **FR-006**: A favorited ad MUST display the date on which the current favorite was

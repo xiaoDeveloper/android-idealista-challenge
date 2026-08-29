@@ -89,6 +89,10 @@ tests and production code do not refresh it.
 ## Known limitations
 
 The challenge backend does not expose a per-property detail route. The app therefore
-displays the fixed detail response after every selection while keeping favorite identity
-local to the selected list item. This is documented behavior, not an inferred backend
-capability.
+resolves the selected property from the official listing response and treats that
+listing as the source of truth for core Detail content and favorite identity. It still
+requests the parameterless fixed detail response, but applies supported enrichment only
+when the returned `adid` matches the selected listing's `propertyCode`. A mismatch,
+request failure, or unusable optional enrichment leaves the selected-listing content
+visible; the app never invents a dynamic backend capability or mixes different property
+identities.

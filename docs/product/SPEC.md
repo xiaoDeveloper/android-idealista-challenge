@@ -8,9 +8,10 @@ criteria live in [specs/001-idealista-core/spec.md](../../specs/001-idealista-co
 
 Build a small Spanish-language Android experience for browsing Idealista property ads,
 viewing a detail screen, and managing persistent favorites with a visible favorite
-date. The official detail endpoint is static, so the selected `propertyCode` remains
-the local identity for favorite state while the returned detail payload is displayed
-as provided.
+date. The official detail endpoint is static, so the selected listing remains the
+source of truth for core Detail content and its `propertyCode` remains the local
+favorite identity. The fixed payload contributes supported enrichment only when its
+`adid` matches that selected identity.
 
 ## Requirement boundary
 

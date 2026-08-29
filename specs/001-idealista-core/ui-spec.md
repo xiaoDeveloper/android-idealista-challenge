@@ -228,9 +228,9 @@ saved date make the state understandable without color or icon alone.
 | State | Listing behavior | Detail behavior |
 |---|---|---|
 | Loading | Show an indeterminate indicator and concise Spanish status text below the app bar. | Show the same treatment while retaining the back app-bar action. |
-| Content | Render every returned ad as a card and its current favorite projection. | Render the fixed detail response with the route's selected local favorite state. |
-| Empty | Show a calm, centered panel explaining that no viviendas are available; no result count is shown. | Not a normal detail state; malformed or unavailable detail content becomes Error. |
-| Error | Show a friendly Spanish explanation, never raw exception text, plus a 48 dp retry action. | Show the same recovery treatment while retaining back navigation and retry. |
+| Content | Render every returned ad as a card and its current favorite projection. | Render the selected listing's truthful core detail and local favorite state; include fixed-detail enrichment only when the identities match. |
+| Empty | Show a calm, centered panel explaining that no viviendas are available; no result count is shown. | Not a normal detail state; inability to resolve the selected listing becomes Error. |
+| Error | Show a friendly Spanish explanation, never raw exception text, plus a 48 dp retry action. | Show the same recovery treatment when selected-listing content cannot be resolved; optional fixed-detail failure leaves valid content visible. |
 | Image unavailable | Keep all text content visible and replace only the media area with a labelled neutral placeholder. | Keep all detail text visible and replace only the hero media area. |
 
 State labels must be concise and action-oriented, for example: `Cargando viviendas`,

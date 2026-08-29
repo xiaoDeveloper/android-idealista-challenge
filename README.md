@@ -29,9 +29,11 @@ The official challenge supplies a listing response and a fixed detail response:
 - <https://idealista.github.io/android-challenge/list.json>
 - <https://idealista.github.io/android-challenge/detail.json>
 
-The detail endpoint always returns the same object. The selected listing's
-`propertyCode` is therefore retained as local navigation context for favorite state;
-the limitation and its user-visible consequences are documented in the feature spec.
+The detail endpoint always returns the same object. The selected listing therefore
+remains the source of truth for core Detail content, and its `propertyCode` is retained
+as local navigation and favorite identity. The fixed response is used only as
+identity-matched enrichment; the limitation and its user-visible consequences are
+documented in the feature spec.
 
 ## Implementation
 

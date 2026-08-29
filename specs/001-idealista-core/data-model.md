@@ -24,19 +24,21 @@ Unknown optional source fields are ignored rather than copied into UI contracts.
 
 ## PropertyDetails
 
-Represents the fixed detail response plus the selected local context.
+Represents the selected listing's core detail plus optional enrichment from the fixed
+detail response when both identities match.
 
 | Field | Type | Rule |
 |---|---|---|
-| `selectedAdId` | String | Comes from the list route's `propertyCode` |
-| `remoteAdId` | Int | Current response value, observed as `1` |
-| `price` | Decimal | From detail response |
-| `description` | String? | From detail response |
-| `imageUrls` | List<String> | May be empty |
-| `latitude` / `longitude` | Decimal? | Optional coordinates |
-| `characteristics` | Map<String, String> | Optional displayable attributes |
+| `selectedAdId` | String | Required selected-listing identity from the route's `propertyCode` |
+| `remoteAdId` | Int? | Present only for applied matching fixed-detail enrichment; currently observed as `1` |
+| `price` | Decimal | From the selected listing |
+| `description` | String? | From the selected listing |
+| `imageUrls` | List<String> | Selected-listing media, optionally replaced by valid matching detail media; may be empty |
+| `latitude` / `longitude` | Decimal? | Optional matching-detail coordinates; not presented as a fabricated address |
+| `characteristics` | Map<String, String> | Optional supported attributes from matching enrichment only |
 
-`selectedAdId` is never replaced with `remoteAdId`; the latter is response metadata.
+`selectedAdId` is never replaced with `remoteAdId`. A non-matching `remoteAdId` does not
+contribute content to the model.
 
 ## Favorite
 

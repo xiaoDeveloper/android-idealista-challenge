@@ -40,7 +40,8 @@ without the detail screen.
 ## Phase 4: User Story 2 - Open property detail (P1)
 
 **Independent test**: A selected `propertyCode` reaches a separate detail destination,
-the fixed detail response is rendered, and back navigation returns to the list.
+its listing content remains the source of truth, matching fixed-detail enrichment is
+applied without mixing identities, and back navigation returns to the list.
 
 - [X] T017 [P] [US2] Write detail mapping and fixed-response tests in `app/src/test/java/com/xiao/idealistachallenge/data/remote/DetailMappingTest.kt`, using the same observed-fixture provenance approach when the detail wire contract is verified.
 - [X] T018 [P] [US2] Write `DetailViewModel` loading, success, error, retry, and selected-ID context tests in `app/src/test/java/com/xiao/idealistachallenge/ui/detail/DetailViewModelTest.kt`.

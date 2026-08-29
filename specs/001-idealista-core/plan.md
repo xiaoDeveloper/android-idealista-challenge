@@ -106,12 +106,17 @@ navigation; screen-specific ViewModels and adapters remain with their feature pa
   suffix together, falls back to top-level `price` without that suffix, and converts a
   non-negative exact integral size in `Int` range to `sizeSquareMeters`; other optional
   size values become absent.
-- `IdealistaApi.getDetails()` requests the fixed detail JSON and maps its fields to a
-  detail model. `DetailViewModel` retains the route's `propertyCode` separately.
+- `AdRepository` retains the last successful listing snapshot and resolves the selected
+  route `propertyCode` from that snapshot, reloading the official list when necessary.
+  Those selected-listing fields form the truthful core detail model.
+- `IdealistaApi.getDetails()` requests the parameterless fixed detail JSON as optional
+  enrichment. Its supported content is applied only when the returned `adid` matches
+  the selected listing's `propertyCode`; a mismatch or fixed-detail failure leaves the
+  selected-listing model unchanged.
 - `FavoriteRepository.observeFavorite(adId)` returns the current `Favorite?` as Flow;
   `favorite(adId, nowEpochMillis)` inserts/replaces and `unfavorite(adId)` deletes.
 - `ListingViewModel` combines ads with favorite records into immutable row UI models.
-  `DetailViewModel` combines the loaded detail response with the selected local ID's
+  `DetailViewModel` combines the identity-safe detail model with the selected local ID's
   favorite state.
 - The Application container constructs Retrofit, Room, repositories, and ViewModel
   factories once; no service locator is exposed to UI classes.

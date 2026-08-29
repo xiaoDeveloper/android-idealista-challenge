@@ -12,11 +12,13 @@ XML Fragment -> ViewModel -> Repository -> Retrofit/OkHttp or Room
                        \-> immutable UI state
 ```
 
-`AdRepository` maps the listing and fixed-detail DTOs into immutable app models. The
-detail route carries the selected listing `propertyCode` as `selectedAdId`; the fixed
-response's `adid` is not used as favorite identity. Room stores one favorite record per
-selected ID, and repository `Flow` observations drive synchronized favorite state in
-listing and detail screens.
+`AdRepository` maps listing DTOs into immutable app models and retains the selected
+listing as the source of truth for core Detail content. The detail route carries its
+`propertyCode` as `selectedAdId`; the parameterless fixed response contributes only
+supported enrichment whose `adid` matches that identity. A mismatch or fixed-detail
+failure leaves the selected-listing content unchanged. Room stores one favorite record
+per selected ID, and repository `Flow` observations drive synchronized favorite state
+in listing and detail screens.
 
 `AppContainer` creates Retrofit, Room, repositories, and ViewModel factories using
 manual constructor injection. The implementation has no Hilt graph, domain/use-case
