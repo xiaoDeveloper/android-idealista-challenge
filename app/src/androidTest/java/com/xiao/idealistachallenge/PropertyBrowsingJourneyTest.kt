@@ -168,6 +168,34 @@ class PropertyBrowsingJourneyTest {
     }
 
     @Test
+    fun detailMediaTapOpensGalleryAtTappedPositionAndReturnsWithoutMovingDetailPager() {
+        awaitListingRows(5)
+        onView(withId(R.id.listingRecyclerView)).perform(
+            performChildActionAtPosition(0, R.id.listingCard, click()),
+        )
+        awaitView(R.id.detailImagePager) { view ->
+            view is RecyclerView && view.isShown && view.adapter?.itemCount == 10
+        }
+
+        repeat(2) { onView(withId(R.id.detailImagePager)).perform(swipeLeft()) }
+        awaitMediaAnnouncement("Terraza, foto 3 de 10")
+        onView(withId(R.id.detailImagePager)).perform(click())
+
+        onView(withContentDescription("Cerrar galería")).check(matches(isDisplayed()))
+        onView(withText("Terraza · 3 / 10")).check(matches(isDisplayed()))
+        onView(
+            org.hamcrest.Matchers.allOf(
+                isDisplayed(),
+                org.hamcrest.Matchers.instanceOf(RecyclerView::class.java),
+            ),
+        ).perform(swipeLeft())
+        onView(withText("Baño · 4 / 10")).check(matches(isDisplayed()))
+        onView(withContentDescription("Cerrar galería")).perform(pressBack())
+
+        onView(withId(R.id.detailImagePosition)).check(matches(withText("Terraza · 3 / 10")))
+    }
+
+    @Test
     fun fixedDetailExpandsAndCollapsesTheCompleteMultiParagraphDescription() {
         awaitListingRows(5)
         onView(withId(R.id.listingRecyclerView)).perform(

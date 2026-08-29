@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/fullscreenGalleryPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:overScrollMode="never" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/galleryClose"
+        style="?attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/min_interactive_target"
+        android:layout_gravity="top|start"
+        android:layout_margin="@dimen/space_8"
+        android:contentDescription="@string/gallery_close_content_description"
+        android:text="@string/gallery_close"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:id="@+id/galleryImagePosition"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/media_indicator_margin"
+        android:background="@drawable/bg_detail_media_indicator"
+        android:importantForAccessibility="no"
+        android:paddingHorizontal="@dimen/media_indicator_horizontal_padding"
+        android:paddingVertical="@dimen/media_indicator_vertical_padding"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/supporting_text_size" />
+</FrameLayout>

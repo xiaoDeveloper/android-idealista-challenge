@@ -18,6 +18,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.xiao.idealistachallenge.App
@@ -25,6 +28,7 @@ import com.xiao.idealistachallenge.R
 import com.xiao.idealistachallenge.core.FavoriteDateFormatter
 import com.xiao.idealistachallenge.databinding.FragmentDetailBinding
 import com.xiao.idealistachallenge.model.PropertyImage
+import com.xiao.idealistachallenge.ui.media.FullscreenGalleryFragment
 import com.xiao.idealistachallenge.ui.media.PropertyImagePagerAdapter
 import com.xiao.idealistachallenge.ui.media.configurePropertyImagePager
 import com.xiao.idealistachallenge.ui.media.displayLabel
@@ -34,7 +38,7 @@ import kotlinx.coroutines.launch
 class DetailFragment : Fragment(R.layout.fragment_detail), MenuProvider {
     private var _binding: FragmentDetailBinding? = null
     private val binding get() = checkNotNull(_binding)
-    private val imagePagerAdapter = PropertyImagePagerAdapter()
+    private val imagePagerAdapter = PropertyImagePagerAdapter(::openFullscreenGallery)
     private var displayedImages: List<PropertyImage>? = null
     private var favoriteAtEpochMillis: Long? = null
     private var hasContent = false
@@ -262,6 +266,20 @@ class DetailFragment : Fragment(R.layout.fragment_detail), MenuProvider {
         }
     }
 
+    private fun openFullscreenGallery(image: PropertyImage) {
+        val images = displayedImages ?: return
+        val position = images.indexOf(image)
+        if (position == -1) return
+
+        ViewModelProvider(
+            findNavController().getBackStackEntry(R.id.detailFragment),
+        )[DetailMediaGalleryState::class.java].setImages(images)
+        findNavController().navigate(
+            R.id.action_detailFragment_to_fullscreenGalleryFragment,
+            androidx.core.os.bundleOf(FullscreenGalleryFragment.ARG_INITIAL_POSITION to position),
+        )
+    }
+
     private fun themeColor(@AttrRes attribute: Int): Int {
         val value = TypedValue()
         requireContext().theme.resolveAttribute(attribute, value, true)
@@ -271,5 +289,17 @@ class DetailFragment : Fragment(R.layout.fragment_detail), MenuProvider {
     private companion object {
         const val ARG_SELECTED_AD_ID = "selectedAdId"
         const val DESCRIPTION_PREVIEW_MAX_LINES = 6
+    }
+}
+
+class DetailMediaGalleryState : ViewModel() {
+    private var images: List<PropertyImage>? = null
+
+    fun setImages(images: List<PropertyImage>) {
+        this.images = images
+    }
+
+    fun requireImages(): List<PropertyImage> = checkNotNull(images) {
+        "Full-screen gallery requires Detail's displayed image collection"
     }
 }

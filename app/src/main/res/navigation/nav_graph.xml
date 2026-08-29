@@ -21,5 +21,17 @@
         <argument
             android:name="selectedAdId"
             app:argType="string" />
+        <action
+            android:id="@+id/action_detailFragment_to_fullscreenGalleryFragment"
+            app:destination="@id/fullscreenGalleryFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fullscreenGalleryFragment"
+        android:name="com.xiao.idealistachallenge.ui.media.FullscreenGalleryFragment"
+        android:label="@string/gallery_title">
+        <argument
+            android:name="initialPosition"
+            app:argType="integer" />
     </fragment>
 </navigation>

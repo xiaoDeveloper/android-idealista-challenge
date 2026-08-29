@@ -28,6 +28,10 @@ can assess that property with richer media without seeing another property's pho
    image; when neither is usable, Detail shows only the existing position. Single-image
    indicator behavior, placeholders, image paging, favorites, and loading/error states
    remain unchanged.
+7. Given a person taps any rendered image in the Detail pager, a full-screen gallery
+   opens on that exact image, pages through the same enriched image collection in source
+   order, and identifies the current image with its existing display label (including the
+   `localizedName` fallback) and `current / total` counter.
 
 ## Requirements
 
@@ -46,10 +50,19 @@ can assess that property with richer media without seeing another property's pho
   or unusable metadata MUST not prevent image rendering or position presentation.
 - **FR-008**: Multi-image Detail indicators MUST present an available category/name with
   the current position; unlabeled images retain the existing position-only format.
+- **FR-009**: Tapping a rendered Detail pager image MUST open a full-screen gallery using
+  the currently displayed enriched `PropertyImage` collection, without fetching,
+  filtering, reordering, or duplicating that collection again.
+- **FR-010**: The full-screen gallery MUST start at the zero-based source position of the
+  image that was tapped and allow horizontal paging across every image in that collection.
+- **FR-011**: The full-screen gallery MUST show the current image's existing resolved
+  label (semantic category when supported, otherwise non-blank `localizedName`) together
+  with its one-based `current / total` counter; an unlabeled image still shows the
+  counter.
 
 ## Scope
 
 This delta enriches only Detail media through the existing DTO, `PropertyImage`,
-repository enrichment, shared pager, Detail UI, and Spanish resources. It does not add
-endpoints, navigation, persistence, dependencies, a new gallery, or changes to listing
-cards, favorites, or unrelated Detail content.
+repository enrichment, shared pager, Detail UI, a full-screen gallery destination, and
+Spanish resources. It does not add endpoints, persistence, dependencies, changes to
+listing cards, favorites, or unrelated Detail content.
