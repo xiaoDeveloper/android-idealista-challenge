@@ -47,6 +47,7 @@ sealed interface ListingUiState {
     data class Content(
         val rows: List<ListingRowUiModel>,
         val discovery: ListingDiscoveryUiState = ListingDiscoveryUiState(),
+        val isFilteredEmpty: Boolean = false,
     ) : ListingUiState
 
     data object Empty : ListingUiState
@@ -138,6 +139,10 @@ class ListingViewModel(
         }
     }
 
+    fun resetDiscovery() {
+        _discoveryState.value = ListingDiscoveryUiState()
+    }
+
     fun toggleFavorite(adId: String, favoritedAtEpochMillis: Long?) {
         if (favoriteActionJobs[adId]?.isActive == true) return
 
@@ -174,6 +179,7 @@ class ListingViewModel(
                 ListingUiState.Content(
                     rows = filteredAndSortedRows,
                     discovery = discovery,
+                    isFilteredEmpty = allRows.isNotEmpty() && filteredAndSortedRows.isEmpty(),
                 )
             }.collect { contentState ->
                 _uiState.value = contentState

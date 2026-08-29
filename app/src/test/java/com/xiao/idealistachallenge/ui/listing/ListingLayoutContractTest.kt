@@ -53,6 +53,19 @@ class ListingLayoutContractTest {
     }
 
     @Test
+    fun `listing screen provides a filtered empty state with a reset action inside content`() {
+        val document = documentFor("fragment_listing.xml")
+        val content = elementById(document, "listingContent")
+        val filteredEmptyState = elementById(document, "filteredEmptyState")
+        val resetButton = elementById(document, "clearFiltersButton")
+
+        assertTrue(filteredEmptyState.parentNode === content)
+        assertTrue(resetButton.parentNode === filteredEmptyState)
+        assertEquals("gone", filteredEmptyState.attributes
+            .getNamedItemNS(ANDROID_NAMESPACE, "visibility")?.nodeValue)
+    }
+
+    @Test
     fun `listing card uses a 16 by 9 pager viewport with a conditional position indicator`() {
         val document = listingItemDocument()
         val viewport = elementById(document, "listingMediaViewport")

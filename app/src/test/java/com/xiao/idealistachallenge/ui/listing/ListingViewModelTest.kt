@@ -102,6 +102,7 @@ class ListingViewModelTest {
         viewModel.load()
 
         assertEquals(ListingUiState.Empty, viewModel.awaitState { it is ListingUiState.Empty })
+        assertFalse(viewModel.uiState.value is ListingUiState.Content)
     }
 
     @Test
@@ -865,7 +866,66 @@ class ListingViewModelTest {
 
         assertEquals(0, content.rows.size)
         assertTrue(content.discovery.favoritesOnly)
+        assertTrue(content.isFilteredEmpty)
         assertFalse(viewModel.uiState.value is ListingUiState.Empty)
+    }
+
+    @Test
+    fun `filtered zero rows are explicitly distinct from an API empty response`() = runBlocking {
+        val viewModel = newViewModel(
+            FakeIdealistaApi(
+                responses = listOf(
+                    Result.success(listOf(adDto("sale-1", BigDecimal("200000"), "sale"))),
+                ),
+            ),
+        )
+
+        viewModel.load()
+        viewModel.awaitContent()
+
+        viewModel.selectCategory(ListingCategory.RENT)
+        val content = viewModel.awaitContent { it.discovery.category == ListingCategory.RENT }
+
+        assertTrue(content.rows.isEmpty())
+        assertTrue(content.isFilteredEmpty)
+        assertFalse(viewModel.uiState.value is ListingUiState.Empty)
+    }
+
+    @Test
+    fun `reset discovery clears every filter and restores source rows`() = runBlocking {
+        val favoriteRepository = FavoriteRepository(InMemoryFavoriteDao())
+        val sale = propertyAd("sale-1", BigDecimal("200000"), "sale")
+        val rent = propertyAd("rent-1", BigDecimal("1500"), "rent")
+        val viewModel = newViewModel(
+            FakeIdealistaApi(
+                responses = listOf(
+                    Result.success(
+                        listOf(
+                            adDto(sale.propertyCode, sale.price, sale.operation),
+                            adDto(rent.propertyCode, rent.price, rent.operation),
+                        ),
+                    ),
+                ),
+            ),
+            favoriteRepository = favoriteRepository,
+        )
+
+        viewModel.load()
+        viewModel.awaitContent()
+        viewModel.selectCategory(ListingCategory.SALE)
+        viewModel.selectPriceSortDirection(PriceSortDirection.ASCENDING)
+        viewModel.toggleFavoritesOnly(true)
+        val filteredEmpty = viewModel.awaitContent { it.isFilteredEmpty }
+        assertTrue(filteredEmpty.isFilteredEmpty)
+
+        viewModel.resetDiscovery()
+        val resetContent = viewModel.awaitContent { it.discovery == ListingDiscoveryUiState() }
+
+        assertEquals(ListingCategory.ALL, resetContent.discovery.category)
+        assertEquals(null, resetContent.discovery.priceSortDirection)
+        assertFalse(resetContent.discovery.favoritesOnly)
+        assertFalse(resetContent.isFilteredEmpty)
+        assertEquals(listOf("sale-1", "rent-1"), resetContent.rows.map { it.ad.propertyCode })
     }
 
     @Test

@@ -34,6 +34,46 @@
             android:textSize="@dimen/supporting_text_size"
             tools:text="4 viviendas" />
 
+        <LinearLayout
+            android:id="@+id/filteredEmptyState"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/space_32"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/filteredEmptyTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/filtered_empty_list_title"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="@dimen/screen_title_text_size"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/filteredEmptyMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_8"
+                android:gravity="center"
+                android:text="@string/filtered_empty_list_message"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="@dimen/body_text_size" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/clearFiltersButton"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginTop="@dimen/space_24"
+                android:contentDescription="@string/clear_listing_filters"
+                android:minHeight="@dimen/min_interactive_target"
+                android:text="@string/clear_listing_filters" />
+        </LinearLayout>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/listingRecyclerView"
             android:layout_width="match_parent"

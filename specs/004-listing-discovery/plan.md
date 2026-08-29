@@ -19,7 +19,9 @@ is active are ignored. Switching between `SALE` and `RENT` retains both selected
 and `favoritesOnly`. Toggling `favoritesOnly` updates local derived rows without new API requests.
 Favorite changes emitted by Room's Flow trigger reactive re-evaluation of derived rows
 automatically. A filtered zero-result view remains content with a zero count so controls
-stay usable; only a genuinely empty API response uses the empty state. `operation` already maps
+stay usable. `ListingUiState.Content.isFilteredEmpty` distinguishes that case from the
+normal API-empty state; the XML content area shows a reset action which restores the
+default discovery state. Only a genuinely empty API response uses the empty state. `operation` already maps
 from `list.json` into `PropertyAd`, and favorites are tracked in Room, so no DTO or repository
 change is planned.
 

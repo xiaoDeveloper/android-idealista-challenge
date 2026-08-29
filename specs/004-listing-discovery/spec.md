@@ -49,6 +49,10 @@ compare saved homes.
    the price sort direction while preserving `Solo favoritos`.
 7. Given `Solo favoritos` results in zero matches, the screen remains in `Content` state
    with zero rows so discovery controls remain interactive; no network request is made.
+8. Given a non-empty API listing is reduced to zero rows by discovery controls, the screen
+   shows a filtered-empty message and `Limpiar filtros`; the action restores `Todos`, no
+   price order, and `Solo favoritos` disabled. A genuinely empty API response continues to
+   use the normal empty state.
 
 ## Requirements
 
@@ -69,6 +73,8 @@ compare saved homes.
   performing new network requests.
 - **FR-010**: Switching between `Venta` and `Alquiler` preserves both `Solo favoritos`
   and any selected price sort direction.
+- **FR-011**: A filtered-empty result is represented separately from an API-empty result
+  while retaining `Content` so the discovery controls stay available.
 
 ## Scope
 

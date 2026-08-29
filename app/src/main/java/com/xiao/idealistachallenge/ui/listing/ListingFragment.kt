@@ -66,6 +66,7 @@ class ListingFragment : Fragment(R.layout.fragment_listing) {
         )
         binding.listingRecyclerView.adapter = listingAdapter
         binding.retryButton.setOnClickListener { viewModel.retry() }
+        binding.clearFiltersButton.setOnClickListener { viewModel.resetDiscovery() }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -95,6 +96,9 @@ class ListingFragment : Fragment(R.layout.fragment_listing) {
             -> Unit
 
             is ListingUiState.Content -> {
+                currentBinding.resultsCount.isVisible = !state.isFilteredEmpty
+                currentBinding.listingRecyclerView.isVisible = !state.isFilteredEmpty
+                currentBinding.filteredEmptyState.isVisible = state.isFilteredEmpty
                 currentBinding.resultsCount.text = resources.getQuantityString(
                     R.plurals.results_count,
                     state.rows.size,

@@ -8,6 +8,9 @@
     <string name="loading_detail">Cargando detalle de la vivienda</string>
     <string name="empty_list_title">No hay viviendas disponibles</string>
     <string name="empty_list_message">No hemos encontrado viviendas para mostrar.</string>
+    <string name="filtered_empty_list_title">No hay viviendas con estos filtros</string>
+    <string name="filtered_empty_list_message">Prueba a cambiar o limpiar los filtros.</string>
+    <string name="clear_listing_filters">Limpiar filtros</string>
     <string name="error_list_title">No se han podido cargar las viviendas</string>
     <string name="error_list_message">Comprueba tu conexión e inténtalo de nuevo.</string>
     <string name="error_detail_title">No se ha podido cargar el detalle</string>
